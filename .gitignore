@@ -18,32 +18,17 @@ dist/
 *.sqlite3-wal
 *.db
 
-# Temporary and local artifacts
+# Temporary, output, documentation, and test folders
 tmp/
 scratch/
-output/models/
-docs/screenshots/
+output/
+docs/
+tests/
+frontend/src/test/
 *.png
 test-results/
 test-reports/
 playwright-report/
-
-# Stage, phase, and task verification tests
-tests/test_stage*
-tests/test_phase11*
-tests/test_crop_agent_reliability.py
-frontend/src/test/stage*
-frontend/src/test/workspace_shell.test.jsx
-
-# Phase, stage, and task completion reports
-docs/STAGE_*
-docs/PHASE_*
-docs/TASK_*
-docs/CROP_AGENT_*
-docs/AGROSAGE_NAMING_*
-docs/FRONTEND_REBUILD_*
-output/*.md
-output/*.pdf
 
 # Environment and secrets
 .env
