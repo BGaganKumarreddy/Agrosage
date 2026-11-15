@@ -15,6 +15,8 @@ from typing import Any, Protocol, Sequence, runtime_checkable
 
 from agent_framework import ChatOptions, ChatResponse, Content, FunctionTool, Message
 
+from ..security import redact_sensitive_text
+
 
 class ProviderFailureKind(StrEnum):
     AUTHENTICATION = "authentication"
@@ -257,10 +259,12 @@ class InferenceDiagnostic:
             not isinstance(self.provider_error_status, str) or not _SAFE_METADATA.fullmatch(self.provider_error_status)
         ):
             object.__setattr__(self, "provider_error_status", None)
-        if self.provider_error_message is not None and (
-            not isinstance(self.provider_error_message, str) or len(self.provider_error_message) > 300
-        ):
-            object.__setattr__(self, "provider_error_message", None)
+        if self.provider_error_message is not None:
+            if not isinstance(self.provider_error_message, str):
+                object.__setattr__(self, "provider_error_message", None)
+            else:
+                redacted_msg = redact_sensitive_text(self.provider_error_message) or ""
+                object.__setattr__(self, "provider_error_message", redacted_msg[:300])
         if self.trace_id is not None and (
             not isinstance(self.trace_id, str) or not _SAFE_METADATA.fullmatch(self.trace_id)
         ):
@@ -273,11 +277,23 @@ class InferenceDiagnostic:
             for item in self.sanitized_response_headers
         ):
             object.__setattr__(self, "sanitized_response_headers", ())
-        if self.exception_type_chain is not None and (
-            not isinstance(self.exception_type_chain, str)
-            or not re.fullmatch(r"[A-Za-z0-9_> -]{1,200}", self.exception_type_chain)
-        ):
-            object.__setattr__(self, "exception_type_chain", None)
+        else:
+            # Also ensure headers do not contain Authorization or raw secrets
+            cleaned_headers = tuple(
+                (h[0].lower(), redact_sensitive_text(h[1]) or "")
+                for h in self.sanitized_response_headers
+                if h[0].lower() not in {"authorization", "proxy-authorization", "x-api-key"}
+            )
+            object.__setattr__(self, "sanitized_response_headers", cleaned_headers)
+        if self.exception_type_chain is not None:
+            if not isinstance(self.exception_type_chain, str):
+                object.__setattr__(self, "exception_type_chain", None)
+            else:
+                redacted_chain = redact_sensitive_text(self.exception_type_chain) or ""
+                if not re.fullmatch(r"[A-Za-z0-9_> -]{1,200}", redacted_chain):
+                    object.__setattr__(self, "exception_type_chain", None)
+                else:
+                    object.__setattr__(self, "exception_type_chain", redacted_chain)
 
 
 class ProviderFailure(RuntimeError):

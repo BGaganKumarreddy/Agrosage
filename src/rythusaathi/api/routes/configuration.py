@@ -2,18 +2,39 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+import math
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, status
 
 from ...domain.seed import CROP_REGISTRY, LOCATION_REGISTRY
+from ...security import VerifiedIdentity
+from ..dependencies import get_current_identity
+from ..exceptions import APIError
 from ..schemas.configuration import (
     CropSchema,
     GrowthStageItem,
     LocationSchema,
     ProviderSchema,
+    ResolveLocationRequest,
+    ResolvedLocationResponse,
+    SupportedDistrictCandidate,
     VarietyItem,
 )
 
 router = APIRouter(prefix="/configuration", tags=["Configuration"])
+
+
+def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate great-circle distance between two geographic coordinates in kilometers."""
+    r = 6371.0
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    d_phi = math.radians(lat2 - lat1)
+    d_lambda = math.radians(lon2 - lon1)
+    a = math.sin(d_phi / 2.0) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(d_lambda / 2.0) ** 2
+    c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
+    return r * c
+
 
 
 @router.get(
@@ -126,3 +147,64 @@ async def list_providers() -> list[ProviderSchema]:
             description="Official Ministry of Agriculture daily APMC mandi market commodity prices.",
         ),
     ]
+
+
+@router.post(
+    "/resolve-location",
+    response_model=ResolvedLocationResponse,
+    summary="Resolve browser coordinates to a catalog-validated agricultural location",
+)
+async def resolve_location(
+    req: ResolveLocationRequest,
+    identity: Annotated[VerifiedIdentity, Depends(get_current_identity)],
+) -> ResolvedLocationResponse:
+    """Resolve browser geolocation coordinates to the nearest validated agricultural district."""
+    candidates: list[SupportedDistrictCandidate] = []
+    for loc in LOCATION_REGISTRY.records:
+        level_str = loc.level.value if hasattr(loc.level, "value") else str(loc.level)
+        if level_str == "district" and loc.latitude is not None and loc.longitude is not None:
+            dist = _haversine_km(req.latitude, req.longitude, loc.latitude, loc.longitude)
+            parent_rec = LOCATION_REGISTRY.get(loc.parent_id) if loc.parent_id else None
+            state_name = parent_rec.name if parent_rec else "India"
+            candidates.append(
+                SupportedDistrictCandidate(
+                    location_id=loc.location_id,
+                    display_name=loc.name,
+                    district=loc.name,
+                    state=state_name,
+                    distance_km=round(dist, 1),
+                )
+            )
+
+    candidates.sort(key=lambda c: c.distance_km)
+    if not candidates:
+        raise APIError(
+            status_code=status.HTTP_404_NOT_FOUND,
+            code="no_registered_locations",
+            message="No catalog locations registered in the agricultural system.",
+        )
+
+    closest = candidates[0]
+    closest_rec = LOCATION_REGISTRY.get(closest.location_id)
+    state_id = closest_rec.parent_id if closest_rec else None
+    parent_state = LOCATION_REGISTRY.get(state_id) if state_id else None
+    state_name = parent_state.name if parent_state else closest.state
+    within_threshold = closest.distance_km <= 250.0
+
+    summary = (
+        f"{closest.district}, {state_name} ({closest.distance_km:.1f} km from detected coordinates)"
+        if within_threshold
+        else f"Nearest supported center is {closest.district}, {state_name} ({closest.distance_km:.1f} km away; please confirm or manually select your district)"
+    )
+
+    return ResolvedLocationResponse(
+        location_id=closest.location_id,
+        display_name=closest.district,
+        district=closest.district,
+        state=state_name,
+        state_id=state_id,
+        distance_km=closest.distance_km,
+        is_within_threshold=within_threshold,
+        candidate_summary=summary,
+        supported_districts=candidates,
+    )

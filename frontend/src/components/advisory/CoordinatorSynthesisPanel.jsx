@@ -39,23 +39,23 @@ export const CoordinatorSynthesisPanel = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E6EAE4] p-6 shadow-xs space-y-6">
+    <div className="bg-[#262626] rounded-2xl border border-[#414141] p-6 text-[#ECECEC] shadow-sm space-y-6">
       {/* Header bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E6EAE4] gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#414141]/60 gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#183D2B] text-white flex items-center justify-center shadow-xs">
-            <Sparkles className="w-5 h-5 text-[#DCE9DC]" />
+          <div className="w-10 h-10 rounded-xl bg-[#263e2d] text-[#8DBB91] border border-[#3d6545] flex items-center justify-center shadow-xs">
+            <Sparkles className="w-5 h-5 text-[#8DBB91]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-lg text-[#202B24]">
+              <h3 className="font-bold text-lg text-[#ECECEC]">
                 Coordinator Synthesis & Advisory
               </h3>
               <Badge variant={status.toLowerCase()} size="sm">
                 {status}
               </Badge>
             </div>
-            <p className="text-xs text-[#78837B] mt-0.5">
+            <p className="text-xs text-[#A3A3A3] mt-0.5">
               Consolidated intelligence cross-examined by the 7-agent agricultural board
             </p>
           </div>
@@ -74,7 +74,7 @@ export const CoordinatorSynthesisPanel = ({
       </div>
 
       {/* Main synthesis text */}
-      <div className="prose prose-slate max-w-none text-sm text-[#202B24] leading-relaxed whitespace-pre-line bg-[#F7F8F4] p-5 rounded-xl border border-[#E6EAE4]">
+      <div className="prose prose-invert max-w-none text-sm text-[#ECECEC] leading-relaxed whitespace-pre-line bg-[#1f1f1f] p-5 rounded-xl border border-[#414141]">
         {synthesis || 'No synthesis text generated.'}
       </div>
 
@@ -82,8 +82,8 @@ export const CoordinatorSynthesisPanel = ({
       {suggestedNextSteps && suggestedNextSteps.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <CheckSquare className="w-4 h-4 text-[#347A50]" />
-            <h4 className="text-sm font-semibold text-[#202B24]">
+            <CheckSquare className="w-4 h-4 text-[#8DBB91]" />
+            <h4 className="text-sm font-semibold text-[#ECECEC]">
               Suggested Next Steps for the Farmer
             </h4>
           </div>
@@ -97,18 +97,18 @@ export const CoordinatorSynthesisPanel = ({
                   onClick={() => toggleStep(idx)}
                   className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
                     isDone
-                      ? 'bg-emerald-50/60 border-emerald-200 text-[#78837B]'
-                      : 'bg-white border-[#E6EAE4] hover:border-[#347A50]/50 text-[#202B24]'
+                      ? 'bg-emerald-950/40 border-emerald-800/60 text-[#737373]'
+                      : 'bg-[#1f1f1f] border-[#414141] hover:border-[#8DBB91]/50 text-[#ECECEC]'
                   }`}
                 >
-                  <div className="mt-0.5 shrink-0 text-[#347A50]">
+                  <div className="mt-0.5 shrink-0 text-[#8DBB91]">
                     {isDone ? (
-                      <CheckSquare className="w-4 h-4 text-emerald-600" />
+                      <CheckSquare className="w-4 h-4 text-[#8DBB91]" />
                     ) : (
-                      <Square className="w-4 h-4 text-[#78837B]" />
+                      <Square className="w-4 h-4 text-[#737373]" />
                     )}
                   </div>
-                  <span className={`text-xs leading-relaxed ${isDone ? 'line-through text-[#78837B]' : ''}`}>
+                  <span className={`text-xs leading-relaxed ${isDone ? 'line-through text-[#737373]' : ''}`}>
                     {step}
                   </span>
                 </div>
@@ -120,12 +120,12 @@ export const CoordinatorSynthesisPanel = ({
 
       {/* Uncertainty and Limitations */}
       {uncertaintyAndLimitations && uncertaintyAndLimitations.length > 0 && (
-        <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/40 space-y-2">
-          <div className="flex items-center gap-2 text-amber-900 font-semibold text-xs">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+        <div className="p-4 rounded-xl border border-amber-800/60 bg-[#2a241b] space-y-2">
+          <div className="flex items-center gap-2 text-amber-400 font-semibold text-xs">
+            <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
             <span>Uncertainty, Data Gaps & Advisory Limitations</span>
           </div>
-          <ul className="list-disc list-inside space-y-1 text-xs text-amber-800 leading-relaxed pl-1">
+          <ul className="list-disc list-inside space-y-1 text-xs text-amber-200 leading-relaxed pl-1">
             {uncertaintyAndLimitations.map((lim, idx) => (
               <li key={idx}>{lim}</li>
             ))}
@@ -134,10 +134,10 @@ export const CoordinatorSynthesisPanel = ({
       )}
 
       {/* Metadata footer */}
-      <div className="pt-2 flex flex-wrap items-center justify-between text-[11px] text-[#78837B] border-t border-[#E6EAE4]">
+      <div className="pt-2 flex flex-wrap items-center justify-between text-[11px] text-[#A3A3A3] border-t border-[#414141]/60">
         <span>
           Inference Engine:{' '}
-          <strong className="text-[#202B24]">{providerId || 'Deterministic Baseline'}</strong>
+          <strong className="text-[#ECECEC]">{providerId || 'Deterministic Baseline'}</strong>
           {modelId ? ` (${modelId})` : ''}
         </span>
         {createdAt && (

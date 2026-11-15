@@ -218,3 +218,117 @@ class CredentialAuditEvent:
             "outcome": self.outcome.value,
             "occurred_at": self.occurred_at.isoformat(),
         }
+
+
+# =============================================================================
+# Stage 5 — Diagnostic Redaction & Credential Safety Utility
+# =============================================================================
+
+import logging
+import re
+from typing import Any, Sequence
+
+SYNTHETIC_TEST_SECRETS: tuple[str, ...] = (
+    "TEST_CEREBRAS_SECRET_123",
+    "TEST_GROQ_SECRET_456",
+    "TEST_GEMINI_SECRET_789",
+    "TEST_BEARER_TOKEN_ABC",
+    "TEST_PASSWORD_XYZ",
+)
+
+_REDACTION_RULES: list[tuple[re.Pattern, str]] = [
+    # Authorization header Bearer tokens
+    (re.compile(r"(?i)\bBearer\s+[A-Za-z0-9_\-\.]{6,}\b"), "Bearer [REDACTED]"),
+    # Standard JSON Web Tokens (header.payload.signature starting with eyJ)
+    (re.compile(r"\beyJ[A-Za-z0-9_\-]{8,}\.[A-Za-z0-9_\-]{8,}\.[A-Za-z0-9_\-]{8,}\b"), "[REDACTED_JWT]"),
+    # Cerebras API keys (csk-...)
+    (re.compile(r"\bcsk-[A-Za-z0-9]{16,}\b"), "[REDACTED_CEREBRAS_KEY]"),
+    # Groq API keys (gsk_...)
+    (re.compile(r"\bgsk_[A-Za-z0-9]{16,}\b"), "[REDACTED_GROQ_KEY]"),
+    # Google Gemini API keys (AIza...)
+    (re.compile(r"\bAIza[0-9A-Za-z-_]{35}\b"), "[REDACTED_GEMINI_KEY]"),
+    # Explicit secret assignments (password=..., pwd: ..., api_key=...)
+    (
+        re.compile(r"(?i)\b(password|passwd|pwd|secret|api_key|token)\s*([:=])\s*['\"]?([^'\"\s,;]+)['\"]?"),
+        r"\1\2[REDACTED]",
+    ),
+]
+
+
+def redact_sensitive_text(text: str | None, custom_secrets: Sequence[str] = ()) -> str | None:
+    """Scrub sensitive credentials, API keys, tokens, and synthetic test secrets from strings.
+
+    Ensures API keys, bearer tokens, passwords, and decrypted BYOK secrets never appear
+    in plaintext in error logs, exception messages, tracebacks, or diagnostic reports.
+    """
+    if text is None:
+        return None
+    if not isinstance(text, str):
+        text = str(text)
+
+    # 1. Redact known synthetic test secrets first
+    for secret in SYNTHETIC_TEST_SECRETS:
+        if secret in text:
+            text = text.replace(secret, "[REDACTED]")
+
+    # 2. Redact caller-specified custom secrets (e.g. active decrypted BYOK key)
+    for secret in custom_secrets:
+        if secret and secret in text:
+            text = text.replace(secret, "[REDACTED]")
+
+    # 3. Apply compiled regex pattern rules
+    for pattern, replacement in _REDACTION_RULES:
+        text = pattern.sub(replacement, text)
+
+    return text
+
+
+def sanitize_data_structure(data: Any, custom_secrets: Sequence[str] = ()) -> Any:
+    """Recursively redact sensitive text within nested dicts, lists, and tuples."""
+    if isinstance(data, str):
+        return redact_sensitive_text(data, custom_secrets)
+    if isinstance(data, dict):
+        return {
+            (redact_sensitive_text(k, custom_secrets) if isinstance(k, str) else k): sanitize_data_structure(v, custom_secrets)
+            for k, v in data.items()
+        }
+    if isinstance(data, list):
+        return [sanitize_data_structure(item, custom_secrets) for item in data]
+    if isinstance(data, tuple):
+        return tuple(sanitize_data_structure(item, custom_secrets) for item in data)
+    return data
+
+
+class RedactingLoggingFilter(logging.Filter):
+    """Logging filter that redacts secrets from record messages, args, and exc_text."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if isinstance(record.msg, str):
+            record.msg = redact_sensitive_text(record.msg)
+        if record.args:
+            if isinstance(record.args, dict):
+                record.args = sanitize_data_structure(record.args)
+            elif isinstance(record.args, (list, tuple)):
+                record.args = sanitize_data_structure(record.args)
+        if record.exc_text:
+            record.exc_text = redact_sensitive_text(record.exc_text)
+        return True
+
+
+class RedactingFormatter(logging.Formatter):
+    """Logging formatter that passes the fully formatted record through redaction."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        formatted = super().format(record)
+        return redact_sensitive_text(formatted) or formatted
+
+
+def install_redacting_logger(target_logger: logging.Logger | None = None) -> None:
+    """Attach the redaction filter to root or designated application logger."""
+    log = target_logger or logging.getLogger()
+    redaction_filter = RedactingLoggingFilter()
+    if not any(isinstance(f, RedactingLoggingFilter) for f in log.filters):
+        log.addFilter(redaction_filter)
+    for handler in log.handlers:
+        if not any(isinstance(f, RedactingLoggingFilter) for f in handler.filters):
+            handler.addFilter(redaction_filter)

@@ -14,6 +14,27 @@ from .advisory import (
 )
 
 
+class ClarificationQuestionSchema(BaseModel):
+    """Structured, farmer-friendly question for gathering missing agricultural context."""
+
+    field: str
+    text: str
+    options: list[str] = Field(default_factory=list)
+    allow_free_text: bool = True
+    allow_skip: bool = True
+
+
+class IntakeDecisionSchema(BaseModel):
+    """Typed Intake decision distinguishing whether context is sufficient for specialist execution."""
+
+    decision: str
+    understood_intent: str
+    known_context: dict[str, str | None]
+    missing_required_fields: list[str] = Field(default_factory=list)
+    helpful_fields: list[str] = Field(default_factory=list)
+    next_question: ClarificationQuestionSchema | None = None
+
+
 class ContextStateSchema(BaseModel):
     """Accumulated agricultural context preserved across conversational turns."""
 
@@ -27,6 +48,7 @@ class ContextStateSchema(BaseModel):
     observations: list[str] = Field(default_factory=list)
     farming_problem: str | None = None
     confirmed_fields: list[str] = Field(default_factory=list)
+    skipped_fields: list[str] = Field(default_factory=list)
 
 
 class ConversationMessageSchema(BaseModel):
@@ -45,6 +67,7 @@ class ConversationMessageSchema(BaseModel):
     active_risk_alerts: list[RiskAlertSchema] | None = None
     uncertainty_and_limitations: list[str] | None = None
     suggested_next_steps: list[str] | None = None
+    clarification: ClarificationQuestionSchema | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -71,6 +94,17 @@ class SendMessageRequest(BaseModel):
     mode: WorkflowMode = WorkflowMode.DETERMINISTIC
 
 
+class UpdateConversationRequest(BaseModel):
+    """Request payload to update conversation title or field context."""
+
+    title: str | None = Field(default=None, max_length=200)
+    crop: str | None = None
+    location: str | None = None
+    growth_stage: str | None = None
+    variety: str | None = None
+
+
+
 class ConversationSummarySchema(BaseModel):
     """Overview metadata for listing historical farmer conversations."""
 
@@ -93,6 +127,7 @@ class ConversationDetailSchema(BaseModel):
     status: str
     context: ContextStateSchema
     messages: list[ConversationMessageSchema] = Field(default_factory=list)
+    pending_clarification: ClarificationQuestionSchema | None = None
     created_at: datetime
     updated_at: datetime
 

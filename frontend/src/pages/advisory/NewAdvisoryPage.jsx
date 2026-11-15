@@ -162,20 +162,20 @@ export const NewAdvisoryPage = () => {
       <div>
         <div className="flex items-center gap-2 mb-1">
           <Badge variant="active" size="sm">Farmer Consultation</Badge>
-          <span className="text-xs text-[#78837B]">• Natural-Language Advisory</span>
+          <span className="text-xs text-[#A3A3A3]">• Natural-Language Advisory</span>
         </div>
-        <h1 className="text-2xl font-extrabold text-[#202B24] tracking-tight">
+        <h1 className="text-2xl font-extrabold text-[#ECECEC] tracking-tight">
           Ask Your Farming Question
         </h1>
-        <p className="text-sm text-[#78837B] mt-1">
+        <p className="text-sm text-[#A3A3A3] mt-1">
           Describe what you see in your field, ask about crop symptoms, weather, mandi prices, or government schemes in ordinary language.
         </p>
       </div>
 
       {/* Quick Example Chips */}
       <div>
-        <p className="text-xs font-bold text-[#78837B] uppercase tracking-wider mb-2 flex items-center gap-1.5">
-          <FileQuestion className="w-3.5 h-3.5 text-[#347A50]" />
+        <p className="text-xs font-bold text-[#A3A3A3] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <FileQuestion className="w-3.5 h-3.5 text-[#8DBB91]" />
           <span>Common Example Questions (Click to Fill)</span>
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -184,17 +184,17 @@ export const NewAdvisoryPage = () => {
               key={idx}
               type="button"
               onClick={() => handleApplySample(p)}
-              className="text-left p-3 rounded-xl bg-white border border-[#E6EAE4] hover:border-[#347A50] hover:bg-[#F7F8F4] transition-all group"
+              className="text-left p-3 rounded-xl bg-[#262626] border border-[#414141] hover:border-[#8DBB91]/50 hover:bg-[#303030] transition-all group"
             >
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-xs text-[#202B24] group-hover:text-[#183D2B]">
+                <span className="font-semibold text-xs text-[#ECECEC] group-hover:text-white">
                   {p.label}
                 </span>
-                <span className="text-[10px] text-[#347A50] font-bold group-hover:translate-x-0.5 transition-transform">
+                <span className="text-[10px] text-[#8DBB91] font-bold group-hover:translate-x-0.5 transition-transform">
                   Use &rarr;
                 </span>
               </div>
-              <p className="text-xs text-[#78837B] line-clamp-1 mt-1">{p.query}</p>
+              <p className="text-xs text-[#A3A3A3] line-clamp-1 mt-1">{p.query}</p>
             </button>
           ))}
         </div>
@@ -220,32 +220,32 @@ export const NewAdvisoryPage = () => {
         </Card>
 
         {/* Collapsible Optional Field Details Accordion */}
-        <div className="rounded-2xl border border-[#E6EAE4] bg-white overflow-hidden shadow-xs">
+        <div className="rounded-2xl border border-[#414141] bg-[#262626] overflow-hidden shadow-xs">
           <button
             type="button"
             onClick={() => setShowOptionalDetails((prev) => !prev)}
-            className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-[#F7F8F4] transition-colors"
+            className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-[#303030] transition-colors"
           >
             <div className="flex items-center gap-2.5">
-              <Compass className="w-4 h-4 text-[#347A50]" />
+              <Compass className="w-4 h-4 text-[#8DBB91]" />
               <div>
-                <span className="text-sm font-bold text-[#202B24]">
+                <span className="text-sm font-bold text-[#ECECEC]">
                   Specify or Correct Field Details
                 </span>
-                <span className="text-xs text-[#78837B] ml-2 font-normal">
+                <span className="text-xs text-[#A3A3A3] ml-2 font-normal">
                   (Optional — Leave blank to let the system extract from your question)
                 </span>
               </div>
             </div>
             {showOptionalDetails ? (
-              <ChevronUp className="w-4 h-4 text-[#78837B]" />
+              <ChevronUp className="w-4 h-4 text-[#A3A3A3]" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-[#78837B]" />
+              <ChevronDown className="w-4 h-4 text-[#A3A3A3]" />
             )}
           </button>
 
           {showOptionalDetails && (
-            <div className="px-5 pb-6 pt-2 border-t border-[#E6EAE4] space-y-5 bg-[#FDFEFC]">
+            <div className="px-5 pb-6 pt-2 border-t border-[#414141]/60 space-y-5 bg-[#1f1f1f]">
               {/* Crop & Custom Crop */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -310,7 +310,7 @@ export const NewAdvisoryPage = () => {
               </div>
 
               {/* Hierarchical Location: State -> District */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-[#E6EAE4]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-[#414141]/60">
                 <div>
                   <Select
                     label="State (Optional)"
@@ -372,7 +372,7 @@ export const NewAdvisoryPage = () => {
               )}
 
               {/* Crop Variety */}
-              <div className="pt-2 border-t border-[#E6EAE4]">
+              <div className="pt-2 border-t border-[#414141]/60">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Select
@@ -390,7 +390,7 @@ export const NewAdvisoryPage = () => {
                         { value: '__other__', label: '+ Other / Custom Variety' },
                       ]}
                     />
-                    <p className="mt-1 text-[11px] text-[#78837B]">
+                    <p className="mt-1 text-[11px] text-[#A3A3A3]">
                       Showing registered ICAR starter varieties. You can also specify a custom variety.
                     </p>
                   </div>
@@ -415,8 +415,8 @@ export const NewAdvisoryPage = () => {
         {/* Submit Action Card */}
         <Card>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-xs text-[#78837B] leading-relaxed">
-              <span className="font-semibold text-[#202B24]">Privacy & Evidence Grounding:</span>{' '}
+            <div className="text-xs text-[#A3A3A3] leading-relaxed">
+              <span className="font-semibold text-[#ECECEC]">Privacy & Evidence Grounding:</span>{' '}
               All recommendations are grounded against official ICAR advisories, Open-Meteo observations, and Agmarknet mandi records.
             </div>
 
@@ -435,16 +435,16 @@ export const NewAdvisoryPage = () => {
 
       {/* Seven-Agent Execution Overlay */}
       {isSubmitting && (
-        <div className="fixed inset-0 z-50 bg-[#183D2B]/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-[#E6EAE4] space-y-6 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#262626] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-[#414141] space-y-6 animate-in zoom-in-95 duration-200">
             <div className="text-center space-y-2">
-              <div className="w-14 h-14 rounded-2xl bg-[#DCE9DC] text-[#183D2B] mx-auto flex items-center justify-center">
-                <Sprout className="w-8 h-8 animate-pulse text-[#347A50]" />
+              <div className="w-14 h-14 rounded-2xl bg-[#263e2d] text-[#8DBB91] mx-auto flex items-center justify-center">
+                <Sprout className="w-8 h-8 animate-pulse text-[#8DBB91]" />
               </div>
-              <h3 className="text-lg font-bold text-[#202B24]">
+              <h3 className="text-lg font-bold text-[#ECECEC]">
                 Orchestrating 7 Agricultural Agents
               </h3>
-              <p className="text-xs text-[#78837B]">
+              <p className="text-xs text-[#A3A3A3]">
                 Synthesizing weather forecasts, agronomy advisories, and mandi prices...
               </p>
             </div>
@@ -466,10 +466,10 @@ export const NewAdvisoryPage = () => {
                     <div
                       className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 transition-colors ${
                         isDone
-                          ? 'bg-[#347A50] text-white'
+                          ? 'bg-[#8DBB91] text-[#171717]'
                           : isCurrent
-                          ? 'bg-amber-100 text-amber-800 border-2 border-amber-500 animate-spin'
-                          : 'bg-[#F7F8F4] text-[#78837B] border border-[#E6EAE4]'
+                          ? 'bg-amber-950/60 text-amber-300 border-2 border-amber-500 animate-spin'
+                          : 'bg-[#171717] text-[#737373] border border-[#414141]'
                       }`}
                     >
                       {isDone ? <CheckCircle2 className="w-3.5 h-3.5" /> : idx + 1}
@@ -477,12 +477,12 @@ export const NewAdvisoryPage = () => {
                     <div className="min-w-0 flex-1">
                       <p
                         className={`font-semibold ${
-                          isDone || isCurrent ? 'text-[#202B24]' : 'text-[#78837B]'
+                          isDone || isCurrent ? 'text-[#ECECEC]' : 'text-[#737373]'
                         }`}
                       >
                         {step.name}
                       </p>
-                      <p className="text-[11px] text-[#78837B] truncate">{step.label}</p>
+                      <p className="text-[11px] text-[#A3A3A3] truncate">{step.label}</p>
                     </div>
                   </div>
                 );

@@ -23,6 +23,9 @@ import { RiskAlertsViewPage } from './pages/advisory/RiskAlertsViewPage';
 import { CredentialsPage } from './pages/credentials/CredentialsPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
 
+// Stage 1 Workspace Rebuild Preview
+import { WorkspaceShell } from './features/workspace';
+
 // Admin Pages
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
@@ -36,10 +39,10 @@ const ProtectedRoute = ({ children }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F7F8F4] flex items-center justify-center">
+      <div className="min-h-screen bg-[#212121] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-3 border-[#DCE9DC] border-t-[#183D2B] rounded-full animate-spin" />
-          <p className="text-xs font-semibold text-[#183D2B]">Initializing RythuSaathi...</p>
+          <div className="w-10 h-10 border-3 border-[#303030] border-t-[#8DBB91] rounded-full animate-spin" />
+          <p className="text-xs font-semibold text-[#8DBB91]">Initializing AgroSage...</p>
         </div>
       </div>
     );
@@ -59,10 +62,10 @@ const AdminRoute = ({ children }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F7F8F4] flex items-center justify-center">
+      <div className="min-h-screen bg-[#212121] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-3 border-[#DCE9DC] border-t-[#183D2B] rounded-full animate-spin" />
-          <p className="text-xs font-semibold text-[#183D2B]">Verifying admin privileges...</p>
+          <div className="w-10 h-10 border-3 border-[#303030] border-t-[#8DBB91] rounded-full animate-spin" />
+          <p className="text-xs font-semibold text-[#8DBB91]">Verifying admin privileges...</p>
         </div>
       </div>
     );
@@ -74,21 +77,21 @@ const AdminRoute = ({ children }) => {
 
   if (!isAdmin) {
     return (
-      <div className="max-w-xl mx-auto my-12 p-6 bg-white rounded-2xl border border-red-200 shadow-sm space-y-4">
-        <div className="flex items-center gap-3 text-red-700">
+      <div className="max-w-xl mx-auto my-12 p-6 bg-[#262626] rounded-2xl border border-red-800/60 shadow-xl space-y-4">
+        <div className="flex items-center gap-3 text-red-400">
           <ShieldAlert className="w-8 h-8 shrink-0" />
           <div>
-            <h2 className="text-lg font-bold">Access Denied: Administrative Privilege Required</h2>
-            <p className="text-xs text-red-600">Your account does not possess the tenant_admin role required for this section.</p>
+            <h2 className="text-lg font-bold text-[#ECECEC]">Access Denied: Administrative Privilege Required</h2>
+            <p className="text-xs text-red-300">Your account does not possess the tenant_admin role required for this section.</p>
           </div>
         </div>
-        <p className="text-xs text-[#78837B]">
+        <p className="text-xs text-[#A3A3A3]">
           This route is restricted to authorized tenant administrators. Farmer members can access consultations, weather telemetry, and farm profile.
         </p>
         <div className="pt-2">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#347A50] text-white rounded-xl text-xs font-bold hover:bg-[#183D2B] transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#8DBB91] text-[#171717] rounded-xl text-xs font-bold hover:bg-[#7ba87f] transition-colors"
           >
             <span>Return to Farmer Dashboard</span>
           </Link>
@@ -105,7 +108,7 @@ const PublicRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) return null;
-  if (isAuthenticated) return <Navigate to="/" replace />;
+  if (isAuthenticated) return <Navigate to="/workspace" replace />;
 
   return children;
 };
@@ -132,6 +135,24 @@ export const App = () => {
                   <PublicRoute>
                     <RegisterPage />
                   </PublicRoute>
+                }
+              />
+
+              {/* AgroSage Production Workspace Routes */}
+              <Route
+                path="/workspace"
+                element={
+                  <ProtectedRoute>
+                    <WorkspaceShell />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/workspace/:conversationId"
+                element={
+                  <ProtectedRoute>
+                    <WorkspaceShell />
+                  </ProtectedRoute>
                 }
               />
 
@@ -194,6 +215,18 @@ export const App = () => {
                   }
                 />
               </Route>
+
+              {/* Development-Only Stage 1 Rebuild Preview Route */}
+              {import.meta.env.DEV && (
+                <Route
+                  path="/__rebuild-preview"
+                  element={
+                    <ProtectedRoute>
+                      <WorkspaceShell previewMode={true} />
+                    </ProtectedRoute>
+                  }
+                />
+              )}
 
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />

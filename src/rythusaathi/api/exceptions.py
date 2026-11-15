@@ -14,7 +14,12 @@ from ..credentials import (
     CredentialValidationFailed,
     OsCredentialStoreUnavailable,
 )
-from ..security import AuthorizationDenied
+from ..security import (
+    AuthorizationDenied,
+    install_redacting_logger,
+    redact_sensitive_text,
+    sanitize_data_structure,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -29,14 +34,17 @@ class APIError(HTTPException):
         message: str,
         details: dict[str, Any] | None = None,
     ) -> None:
+        safe_message = redact_sensitive_text(message) or message
+        safe_details = sanitize_data_structure(details or {})
         super().__init__(
             status_code=status_code,
-            detail={"code": code, "message": message, "details": details or {}},
+            detail={"code": code, "message": safe_message, "details": safe_details},
         )
 
 
 def register_exception_handlers(app: FastAPI) -> None:
     """Register uniform, safe exception handlers that prevent diagnostic leaks."""
+    install_redacting_logger()
 
     @app.exception_handler(APIError)
     async def api_error_handler(_request: Request, exc: APIError) -> JSONResponse:
@@ -100,7 +108,11 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(RequestValidationError)
     async def validation_error_handler(_request: Request, exc: RequestValidationError) -> JSONResponse:
         errors = [
-            {"loc": " -> ".join(str(loc) for loc in err["loc"]), "msg": err["msg"], "type": err["type"]}
+            {
+                "loc": " -> ".join(str(loc) for loc in err["loc"]),
+                "msg": redact_sensitive_text(err["msg"]) or err["msg"],
+                "type": err["type"],
+            }
             for err in exc.errors()
         ]
         return JSONResponse(
@@ -114,7 +126,8 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(_request: Request, exc: Exception) -> JSONResponse:
-        logger.exception("Unhandled server exception: %s", type(exc).__name__)
+        safe_msg = redact_sensitive_text(str(exc))
+        logger.exception("Unhandled server exception: %s (%s)", type(exc).__name__, safe_msg)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={

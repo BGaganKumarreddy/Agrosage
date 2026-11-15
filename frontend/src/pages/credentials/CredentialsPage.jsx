@@ -138,16 +138,16 @@ export const CredentialsPage = () => {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E6EAE4]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#414141]/60">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="active" size="sm">Zero-Knowledge Vault</Badge>
-            <span className="text-xs text-[#78837B]">• AES-256-GCM Envelope Encryption</span>
+            <span className="text-xs text-[#A3A3A3]">• AES-256-GCM Envelope Encryption</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-[#202B24] tracking-tight">
+          <h1 className="text-2xl font-extrabold text-[#ECECEC] tracking-tight">
             BYOK Provider Credential Management
           </h1>
-          <p className="text-sm text-[#78837B] mt-0.5">
+          <p className="text-sm text-[#A3A3A3] mt-0.5">
             Store your Cerebras, Gemini, Groq, and data.gov.in API keys securely. Secrets are never stored in plaintext and never logged.
           </p>
         </div>
@@ -167,10 +167,10 @@ export const CredentialsPage = () => {
       </div>
 
       {/* Security Architecture Callout */}
-      <div className="p-5 rounded-2xl bg-[#DCE9DC]/40 border border-[#c2e4cf] flex items-start gap-3.5">
-        <ShieldCheck className="w-5 h-5 text-[#183D2B] shrink-0 mt-0.5" />
-        <div className="text-xs text-[#183D2B] leading-relaxed">
-          <span className="font-bold">Hardware-Backed Security Guarantee: </span>
+      <div className="p-5 rounded-2xl bg-[#1e2a21] border border-[#8DBB91]/50 flex items-start gap-3.5">
+        <ShieldCheck className="w-5 h-5 text-[#8DBB91] shrink-0 mt-0.5" />
+        <div className="text-xs text-[#A3A3A3] leading-relaxed">
+          <span className="font-bold text-[#ECECEC]">Hardware-Backed Security Guarantee: </span>
           Each API key is encrypted with a unique Data Encryption Key (DEK) and wrapped with an OS-level Key Encryption Key (KEK) via Windows Credential Manager. Plaintext keys are never returned across the network and never exposed to other tenant users.
         </div>
       </div>
@@ -212,33 +212,33 @@ export const CredentialsPage = () => {
               return (
                 <div
                   key={cred.credential_id}
-                  className="p-4 rounded-xl border border-[#E6EAE4] bg-[#F7F8F4] flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:border-[#347A50]/40"
+                  className="p-4 rounded-xl border border-[#414141] bg-[#1f1f1f] flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:border-[#8DBB91]/50"
                 >
                   <div className="min-w-0 space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-[#202B24]">
+                      <span className="font-bold text-sm text-[#ECECEC]">
                         {meta.name}
                       </span>
                       <Badge variant="completed" size="sm">
                         {cred.state}
                       </Badge>
                       {meta.badge && (
-                        <span className="text-[10px] bg-white border border-[#E6EAE4] text-[#183D2B] font-semibold px-2 py-0.5 rounded-md">
+                        <span className="text-[10px] bg-[#2a2a2a] border border-[#414141] text-[#8DBB91] font-semibold px-2 py-0.5 rounded-md">
                           {meta.badge}
                         </span>
                       )}
                     </div>
 
-                    <p className="text-xs text-[#78837B] truncate">
-                      Credential ID: <code className="bg-white px-1.5 py-0.5 rounded border border-[#E6EAE4] font-mono text-[#202B24]">{cred.credential_id}</code>
+                    <p className="text-xs text-[#A3A3A3] truncate">
+                      Credential ID: <code className="bg-[#171717] px-1.5 py-0.5 rounded border border-[#414141] font-mono text-[#ECECEC]">{cred.credential_id}</code>
                     </p>
 
-                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-[#78837B]">
-                      <span>Gen: <strong>{cred.generation}</strong></span>
+                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-[#737373]">
+                      <span>Gen: <strong className="text-[#A3A3A3]">{cred.generation}</strong></span>
                       <span>•</span>
-                      <span>Updated: <strong>{new Date(cred.updated_at).toLocaleDateString()}</strong></span>
+                      <span>Updated: <strong className="text-[#A3A3A3]">{new Date(cred.updated_at).toLocaleDateString()}</strong></span>
                       <span>•</span>
-                      <span className="text-emerald-700 font-medium flex items-center gap-1">
+                      <span className="text-[#8DBB91] font-medium flex items-center gap-1">
                         <CheckCircle2 className="w-3 h-3" /> Encrypted at rest
                       </span>
                     </div>
@@ -248,7 +248,7 @@ export const CredentialsPage = () => {
                     variant="outline"
                     size="sm"
                     icon={Trash2}
-                    className="text-red-700 hover:bg-red-50 hover:border-red-300 self-end sm:self-center"
+                    className="text-red-400 hover:bg-red-950/40 hover:border-red-800/60 self-end sm:self-center"
                     onClick={() => setDeleteTarget(cred)}
                   >
                     Delete Key
@@ -262,7 +262,7 @@ export const CredentialsPage = () => {
 
       {/* Supported Providers Catalog */}
       <div>
-        <h3 className="text-sm font-bold text-[#202B24] mb-3">Supported BYOK Ecosystem</h3>
+        <h3 className="text-sm font-bold text-[#ECECEC] mb-3">Supported BYOK Ecosystem</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {Object.entries(PROVIDER_METADATA).map(([key, p]) => (
             <Card key={key} padding="p-4" className="flex flex-col justify-between">
@@ -273,16 +273,16 @@ export const CredentialsPage = () => {
                     href={p.docs}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#78837B] hover:text-[#183D2B]"
+                    className="text-[#A3A3A3] hover:text-[#8DBB91]"
                     title="API Documentation"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
-                <h4 className="font-semibold text-xs text-[#202B24] mb-1">{p.name}</h4>
-                <p className="text-[11px] text-[#78837B] leading-relaxed mb-2">{p.desc}</p>
+                <h4 className="font-semibold text-xs text-[#ECECEC] mb-1">{p.name}</h4>
+                <p className="text-[11px] text-[#A3A3A3] leading-relaxed mb-2">{p.desc}</p>
               </div>
-              <div className="pt-2 border-t border-[#E6EAE4] text-[10px] text-[#347A50] font-medium">
+              <div className="pt-2 border-t border-[#414141]/60 text-[10px] text-[#8DBB91] font-medium">
                 {p.model}
               </div>
             </Card>
@@ -378,8 +378,8 @@ export const CredentialsPage = () => {
           </>
         }
       >
-        <p className="text-xs text-[#78837B] leading-relaxed">
-          Deleting credential <strong className="text-[#202B24]">{deleteTarget?.credential_id}</strong> for <strong className="text-[#202B24]">{deleteTarget?.provider_id}</strong> will immediately erase the ciphertext from SQLite. Consultations in deterministic mode will continue functioning normally.
+        <p className="text-xs text-[#A3A3A3] leading-relaxed">
+          Deleting credential <strong className="text-[#ECECEC]">{deleteTarget?.credential_id}</strong> for <strong className="text-[#ECECEC]">{deleteTarget?.provider_id}</strong> will immediately erase the ciphertext from SQLite. Consultations in deterministic mode will continue functioning normally.
         </p>
       </Modal>
     </div>

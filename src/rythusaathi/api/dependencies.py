@@ -34,6 +34,7 @@ from ..security import IdentityRole, VerifiedIdentity
 from .exceptions import APIError
 from .history import AdvisoryHistoryStore
 from .conversations import ConversationStore
+from .profile import FarmProfileStore
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -60,6 +61,7 @@ _AUTH_SERVICE: LocalAuthentication | None = None
 _CREDENTIAL_SERVICE: CredentialService | None = None
 _HISTORY_STORE: AdvisoryHistoryStore | None = None
 _CONVERSATION_STORE: ConversationStore | None = None
+_FARM_PROFILE_STORE: FarmProfileStore | None = None
 _KNOWLEDGE_BASE: LocalKnowledgeBase | None = None
 _KEY_STORE: KeyEncryptionInterface | None = None
 
@@ -161,6 +163,19 @@ def get_conversation_store() -> ConversationStore:
 def set_conversation_store(store: ConversationStore | None) -> None:
     global _CONVERSATION_STORE
     _CONVERSATION_STORE = store
+
+
+def get_farm_profile_store() -> FarmProfileStore:
+    global _FARM_PROFILE_STORE
+    if _FARM_PROFILE_STORE is None:
+        db_path = get_history_db_path()
+        _FARM_PROFILE_STORE = FarmProfileStore(db_path)
+    return _FARM_PROFILE_STORE
+
+
+def set_farm_profile_store(store: FarmProfileStore | None) -> None:
+    global _FARM_PROFILE_STORE
+    _FARM_PROFILE_STORE = store
 
 
 def get_knowledge_base() -> LocalKnowledgeBase:

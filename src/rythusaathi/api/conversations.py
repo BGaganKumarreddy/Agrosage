@@ -22,12 +22,14 @@ from ..domain import (
 from ..domain.seed import CROP_REGISTRY, LOCATION_REGISTRY
 from ..security import VerifiedIdentity
 from .history import _history_db
+from ..agents.intake_intelligence import map_clarification_answer
 from .schemas.advisory import (
     AgentResultSchema,
     EvidenceItemSchema,
     RiskAlertSchema,
 )
 from .schemas.conversations import (
+    ClarificationQuestionSchema,
     ContextStateSchema,
     ConversationDetailSchema,
     ConversationListResponse,
@@ -35,6 +37,7 @@ from .schemas.conversations import (
     ConversationSummarySchema,
     CreateConversationRequest,
     SendMessageRequest,
+    UpdateConversationRequest,
 )
 
 logger = logging.getLogger(__name__)
@@ -58,10 +61,10 @@ _RESET_PATTERNS = [
 ]
 
 _FOLLOWUP_OBSERVATION_PATTERNS = [
-    re.compile(r"\b(?:spreading|spreading fast|increasing|getting worse|more spots|turning brown|drying up|curling|wilting)\b", re.I),
-    re.compile(r"\b(?:yellowing|yellow leaves|chlorosis)\b", re.I),
-    re.compile(r"\b(?:brown leaf spots|brown spots|leaf spots|blast lesions)\b", re.I),
-    re.compile(r"\b(?:pest|insects|caterpillar|borer|holes)\b", re.I),
+    re.compile(r"\b(?:spreading|spreading fast|increasing|getting worse|more spots|drying up|curling|wilting)\b", re.I),
+    re.compile(r"\b(?:turning yellow|yellow leaves|yellowing|chlorosis|yellow spots?|yellow)\b", re.I),
+    re.compile(r"\b(?:brown leaf spots?|brown spots?|leaf spots?|blast lesions?|spindle[- ]shaped lesions?)\b", re.I),
+    re.compile(r"\b(?:pests?|insects?|caterpillars?|borers?|holes?|whitefly|bollworms?)\b", re.I),
 ]
 
 
@@ -86,6 +89,8 @@ def initialize_conversation_schema(path: str | Path) -> None:
             observations_json TEXT NOT NULL DEFAULT '[]',
             farming_problem TEXT,
             confirmed_fields_json TEXT NOT NULL DEFAULT '[]',
+            skipped_fields_json TEXT NOT NULL DEFAULT '[]',
+            pending_clarification_json TEXT,
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL
         );
@@ -108,12 +113,26 @@ def initialize_conversation_schema(path: str | Path) -> None:
             active_risk_alerts_json TEXT,
             uncertainty_and_limitations_json TEXT,
             suggested_next_steps_json TEXT,
+            clarification_json TEXT,
             created_at TEXT NOT NULL,
             FOREIGN KEY (conversation_id) REFERENCES conversations(conversation_id) ON DELETE CASCADE
         );
         CREATE INDEX IF NOT EXISTS ix_conversation_messages_thread
             ON conversation_messages(conversation_id, created_at ASC);
         """)
+
+        # Backward-compatible migrations for existing SQLite stores
+        cursor = db.execute("PRAGMA table_info(conversation_messages)")
+        msg_columns = {row[1] for row in cursor.fetchall()}
+        if "clarification_json" not in msg_columns:
+            db.execute("ALTER TABLE conversation_messages ADD COLUMN clarification_json TEXT")
+
+        cursor = db.execute("PRAGMA table_info(conversations)")
+        conv_columns = {row[1] for row in cursor.fetchall()}
+        if "pending_clarification_json" not in conv_columns:
+            db.execute("ALTER TABLE conversations ADD COLUMN pending_clarification_json TEXT")
+        if "skipped_fields_json" not in conv_columns:
+            db.execute("ALTER TABLE conversations ADD COLUMN skipped_fields_json TEXT NOT NULL DEFAULT '[]'")
 
 
 class ConversationStore:
@@ -129,6 +148,7 @@ class ConversationStore:
         identity: VerifiedIdentity,
         title: str | None = None,
         context: ContextStateSchema | None = None,
+        pending_clarification: ClarificationQuestionSchema | None = None,
     ) -> ConversationDetailSchema:
         """Create a new conversational consultation scoped to the authenticated farmer."""
         conv_id = f"conv:{uuid.uuid4().hex}"
@@ -143,8 +163,9 @@ class ConversationStore:
                     conversation_id, user_id, tenant_id, title, status,
                     crop, crop_id, location, location_id, growth_stage,
                     variety, soil_info, observations_json, farming_problem,
-                    confirmed_fields_json, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    confirmed_fields_json, skipped_fields_json,
+                    pending_clarification_json, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     conv_id,
@@ -161,6 +182,8 @@ class ConversationStore:
                     json.dumps(ctx.observations),
                     ctx.farming_problem,
                     json.dumps(ctx.confirmed_fields),
+                    json.dumps(ctx.skipped_fields),
+                    json.dumps(pending_clarification.model_dump()) if pending_clarification else None,
                     now.isoformat(),
                     now.isoformat(),
                 ),
@@ -172,6 +195,7 @@ class ConversationStore:
             status="ACTIVE",
             context=ctx,
             messages=[],
+            pending_clarification=pending_clarification,
             created_at=now,
             updated_at=now,
         )
@@ -204,6 +228,15 @@ class ConversationStore:
             ).fetchall()
 
             messages = [self._row_to_message(m) for m in msg_rows]
+
+            skipped_fields = []
+            if "skipped_fields_json" in row.keys() and row["skipped_fields_json"]:
+                skipped_fields = json.loads(row["skipped_fields_json"])
+
+            pending_clarification = None
+            if "pending_clarification_json" in row.keys() and row["pending_clarification_json"]:
+                pending_clarification = ClarificationQuestionSchema(**json.loads(row["pending_clarification_json"]))
+
             context = ContextStateSchema(
                 crop=row["crop"],
                 crop_id=row["crop_id"],
@@ -215,6 +248,7 @@ class ConversationStore:
                 observations=json.loads(row["observations_json"]) if row["observations_json"] else [],
                 farming_problem=row["farming_problem"],
                 confirmed_fields=json.loads(row["confirmed_fields_json"]) if row["confirmed_fields_json"] else [],
+                skipped_fields=skipped_fields,
             )
 
             return ConversationDetailSchema(
@@ -223,6 +257,7 @@ class ConversationStore:
                 status=row["status"],
                 context=context,
                 messages=messages,
+                pending_clarification=pending_clarification,
                 created_at=datetime.fromisoformat(row["created_at"]),
                 updated_at=datetime.fromisoformat(row["updated_at"]),
             )
@@ -292,6 +327,7 @@ class ConversationStore:
         active_risk_alerts: list[RiskAlertSchema] | None = None,
         uncertainty_and_limitations: list[str] | None = None,
         suggested_next_steps: list[str] | None = None,
+        clarification: ClarificationQuestionSchema | None = None,
     ) -> ConversationMessageSchema:
         """Append a message to an owned conversation and update timestamps."""
         msg_id = f"msg:{uuid.uuid4().hex}"
@@ -306,8 +342,8 @@ class ConversationStore:
                     agent_telemetry_json, weather_evidence_json,
                     market_evidence_json, scheme_evidence_json,
                     active_risk_alerts_json, uncertainty_and_limitations_json,
-                    suggested_next_steps_json, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    suggested_next_steps_json, clarification_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     msg_id,
@@ -325,6 +361,7 @@ class ConversationStore:
                     json.dumps([a.model_dump(mode="json") for a in active_risk_alerts]) if active_risk_alerts else None,
                     json.dumps(uncertainty_and_limitations) if uncertainty_and_limitations else None,
                     json.dumps(suggested_next_steps) if suggested_next_steps else None,
+                    json.dumps(clarification.model_dump()) if clarification else None,
                     now.isoformat(),
                 ),
             )
@@ -348,6 +385,7 @@ class ConversationStore:
             active_risk_alerts=active_risk_alerts,
             uncertainty_and_limitations=uncertainty_and_limitations,
             suggested_next_steps=suggested_next_steps,
+            clarification=clarification,
             created_at=now,
         )
 
@@ -357,10 +395,24 @@ class ConversationStore:
         identity: VerifiedIdentity,
         context: ContextStateSchema,
         title: str | None = None,
+        pending_clarification: ClarificationQuestionSchema | None = None,
+        clear_pending_clarification: bool = False,
     ) -> None:
         """Update the accumulated agricultural context for an owned conversation."""
         now = datetime.now(timezone.utc)
         with _history_db(self.path) as db:
+            pending_json = None
+            if not clear_pending_clarification:
+                if pending_clarification is not None:
+                    pending_json = json.dumps(pending_clarification.model_dump())
+                else:
+                    existing = db.execute(
+                        "SELECT pending_clarification_json FROM conversations WHERE conversation_id = ? AND tenant_id = ? AND user_id = ?",
+                        (conversation_id, identity.tenant_id, identity.subject),
+                    ).fetchone()
+                    if existing and "pending_clarification_json" in existing.keys():
+                        pending_json = existing["pending_clarification_json"]
+
             if title:
                 db.execute(
                     """
@@ -376,6 +428,8 @@ class ConversationStore:
                         observations_json = ?,
                         farming_problem = ?,
                         confirmed_fields_json = ?,
+                        skipped_fields_json = ?,
+                        pending_clarification_json = ?,
                         updated_at = ?
                     WHERE conversation_id = ? AND tenant_id = ? AND user_id = ?
                     """,
@@ -391,6 +445,8 @@ class ConversationStore:
                         json.dumps(context.observations),
                         context.farming_problem,
                         json.dumps(context.confirmed_fields),
+                        json.dumps(context.skipped_fields),
+                        pending_json,
                         now.isoformat(),
                         conversation_id,
                         identity.tenant_id,
@@ -411,6 +467,8 @@ class ConversationStore:
                         observations_json = ?,
                         farming_problem = ?,
                         confirmed_fields_json = ?,
+                        skipped_fields_json = ?,
+                        pending_clarification_json = ?,
                         updated_at = ?
                     WHERE conversation_id = ? AND tenant_id = ? AND user_id = ?
                     """,
@@ -425,6 +483,8 @@ class ConversationStore:
                         json.dumps(context.observations),
                         context.farming_problem,
                         json.dumps(context.confirmed_fields),
+                        json.dumps(context.skipped_fields),
+                        pending_json,
                         now.isoformat(),
                         conversation_id,
                         identity.tenant_id,
@@ -450,6 +510,9 @@ class ConversationStore:
         active_risks = [RiskAlertSchema(**a) for a in json.loads(row["active_risk_alerts_json"])] if row["active_risk_alerts_json"] else None
         limitations = json.loads(row["uncertainty_and_limitations_json"]) if row["uncertainty_and_limitations_json"] else None
         next_steps = json.loads(row["suggested_next_steps_json"]) if row["suggested_next_steps_json"] else None
+        clarification = None
+        if "clarification_json" in row.keys() and row["clarification_json"]:
+            clarification = ClarificationQuestionSchema(**json.loads(row["clarification_json"]))
 
         return ConversationMessageSchema(
             message_id=row["message_id"],
@@ -465,6 +528,7 @@ class ConversationStore:
             active_risk_alerts=active_risks,
             uncertainty_and_limitations=limitations,
             suggested_next_steps=next_steps,
+            clarification=clarification,
             created_at=datetime.fromisoformat(row["created_at"]),
         )
 
@@ -473,6 +537,7 @@ def resolve_followup_context(
     existing: ContextStateSchema,
     message: str,
     explicit_overrides: dict[str, str | None] | None = None,
+    pending_question: ClarificationQuestionSchema | None = None,
 ) -> tuple[ContextStateSchema, str]:
     """Apply follow-up intelligence and explicit precedence rules.
 
@@ -485,6 +550,31 @@ def resolve_followup_context(
     overrides = explicit_overrides or {}
     new_ctx = existing.model_copy(deep=True)
     confirmed_set = set(new_ctx.confirmed_fields)
+    skipped_set = set(new_ctx.skipped_fields or [])
+
+    # If answering a pending clarification question
+    if pending_question and pending_question.field:
+        canon_val, canon_id, is_unknown_or_skipped = map_clarification_answer(
+            pending_question.field,
+            message,
+            crop=new_ctx.crop,
+        )
+        if is_unknown_or_skipped:
+            skipped_set.add(pending_question.field)
+            if pending_question.field == "growth_stage":
+                new_ctx.growth_stage = "unknown"
+        elif canon_val:
+            if pending_question.field == "growth_stage":
+                new_ctx.growth_stage = canon_val
+                confirmed_set.add("growth_stage")
+            elif pending_question.field == "location":
+                new_ctx.location = canon_val
+                new_ctx.location_id = canon_id
+                confirmed_set.add("location")
+            elif pending_question.field == "crop":
+                new_ctx.crop = canon_val
+                new_ctx.crop_id = canon_id
+                confirmed_set.add("crop")
 
     # 1. Detect Intent
     intent = "follow_up"
@@ -513,7 +603,7 @@ def resolve_followup_context(
         loc_res = LOCATION_REGISTRY.resolve(overrides["location"])
         if loc_res.canonical_id:
             loc_rec = LOCATION_REGISTRY.get(loc_res.canonical_id)
-            new_ctx.location = loc_rec.display_name if loc_rec else overrides["location"]
+            new_ctx.location = loc_rec.name if loc_rec else overrides["location"]
             new_ctx.location_id = loc_res.canonical_id
             confirmed_set.add("location")
         else:
@@ -612,4 +702,5 @@ def resolve_followup_context(
                 new_ctx.observations.append(symptom)
 
     new_ctx.confirmed_fields = sorted(list(confirmed_set))
+    new_ctx.skipped_fields = sorted(list(skipped_set))
     return new_ctx, intent

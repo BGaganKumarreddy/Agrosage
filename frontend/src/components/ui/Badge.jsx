@@ -8,37 +8,37 @@ export const Badge = ({
   className = '',
 }) => {
   const variants = {
-    completed: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-    partial: 'bg-amber-50 text-amber-800 border-amber-200',
-    unavailable: 'bg-slate-100 text-slate-700 border-slate-200',
-    failed: 'bg-red-50 text-red-800 border-red-200',
-    active: 'bg-[#DCE9DC] text-[#183D2B] border-[#c2e4cf]',
-    forest: 'bg-[#183D2B] text-white border-transparent',
-    neutral: 'bg-slate-50 text-slate-700 border-slate-200',
-    critical: 'bg-red-100 text-red-800 border-red-300 font-semibold',
-    high: 'bg-amber-100 text-amber-800 border-amber-300 font-semibold',
-    medium: 'bg-yellow-50 text-yellow-800 border-yellow-200 font-medium',
-    low: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    completed: 'bg-emerald-950/60 text-emerald-300 border-emerald-800/80',
+    partial: 'bg-amber-950/60 text-amber-300 border-amber-800/80',
+    unavailable: 'bg-zinc-800/80 text-zinc-400 border-zinc-700',
+    failed: 'bg-red-950/60 text-red-300 border-red-800/80',
+    active: 'bg-[#1e2a21] text-[#8DBB91] border-[#8DBB91]/50',
+    forest: 'bg-[#263e2d] text-[#8DBB91] border-[#3d6545]',
+    neutral: 'bg-[#2a2a2a] text-[#A3A3A3] border-[#414141]',
+    critical: 'bg-red-950 text-red-300 border-red-700 font-semibold',
+    high: 'bg-amber-950 text-amber-300 border-amber-700 font-semibold',
+    medium: 'bg-yellow-950 text-yellow-300 border-yellow-700 font-medium',
+    low: 'bg-emerald-950 text-emerald-300 border-emerald-700',
   };
 
   const dots = {
-    completed: 'bg-emerald-500',
-    partial: 'bg-amber-500',
-    unavailable: 'bg-slate-400',
-    failed: 'bg-red-500',
-    active: 'bg-[#347A50]',
-    forest: 'bg-white',
-    neutral: 'bg-slate-400',
-    critical: 'bg-red-600',
-    high: 'bg-amber-600',
-    medium: 'bg-yellow-600',
-    low: 'bg-emerald-500',
+    completed: 'bg-emerald-400',
+    partial: 'bg-amber-400',
+    unavailable: 'bg-zinc-400',
+    failed: 'bg-red-400',
+    active: 'bg-[#8DBB91]',
+    forest: 'bg-[#8DBB91]',
+    neutral: 'bg-zinc-400',
+    critical: 'bg-red-500',
+    high: 'bg-amber-500',
+    medium: 'bg-yellow-500',
+    low: 'bg-emerald-400',
   };
 
   const sizes = {
-    sm: 'text-[11px] px-2 py-0.5 rounded-md gap-1',
-    md: 'text-xs px-2.5 py-1 rounded-lg gap-1.5',
-    lg: 'text-sm px-3 py-1.5 rounded-xl gap-2',
+    sm: 'text-[10px] px-1.5 py-0.5 rounded-md gap-1',
+    md: 'text-[11px] px-2 py-0.5 rounded-md gap-1.5',
+    lg: 'text-xs px-2.5 py-1 rounded-lg gap-2',
   };
 
   const vKey = variant.toLowerCase();
@@ -54,4 +54,3 @@ export const Badge = ({
     </span>
   );
 };
-

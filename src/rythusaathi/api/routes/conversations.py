@@ -16,8 +16,10 @@ from ...agents import (
     RythuSaathiWorkflow,
     default_coverage_resolver,
 )
-from ...agents.contracts import WorkflowMode
+from ...agents.contracts import IntakeDecisionType, WorkflowMode
+from ...agents.intake_intelligence import evaluate_intake_decision
 from ...domain import AgentId
+from ...domain.seed import CROP_REGISTRY, LOCATION_REGISTRY
 from ...credentials import CredentialService
 from ...knowledge import LocalKnowledgeBase
 from ...local_auth import LocalAuthentication
@@ -29,11 +31,13 @@ from ..dependencies import (
     get_conversation_store,
     get_credential_service,
     get_current_identity,
+    get_farm_profile_store,
     get_history_store,
     get_knowledge_base,
 )
 from ..exceptions import APIError
 from ..history import AdvisoryHistoryStore
+from ..profile import FarmProfileStore
 from ..schemas.advisory import (
     AdvisoryResponseSchema,
     AgentResultSchema,
@@ -42,6 +46,7 @@ from ..schemas.advisory import (
 )
 from ..schemas.common import SuccessResponse
 from ..schemas.conversations import (
+    ClarificationQuestionSchema,
     ContextStateSchema,
     ConversationDetailSchema,
     ConversationListResponse,
@@ -49,6 +54,7 @@ from ..schemas.conversations import (
     ConversationSummarySchema,
     CreateConversationRequest,
     SendMessageRequest,
+    UpdateConversationRequest,
 )
 
 logger = logging.getLogger(__name__)
@@ -311,8 +317,20 @@ async def create_conversation(
     credential_service: Annotated[CredentialService, Depends(get_credential_service)],
     knowledge: Annotated[LocalKnowledgeBase, Depends(get_knowledge_base)],
     history_store: Annotated[AdvisoryHistoryStore, Depends(get_history_store)],
+    farm_profile_store: Annotated[FarmProfileStore, Depends(get_farm_profile_store)],
     token: Annotated[str, Depends(extract_bearer_token)],
 ) -> ConversationDetailSchema:
+    if req.mode in {WorkflowMode.CEREBRAS, WorkflowMode.GEMINI, WorkflowMode.GROQ}:
+        prov_key = req.mode.value
+        statuses = credential_service.list_status(identity, provider_id=prov_key)
+        active_creds = [s for s in statuses if s.state.value == "active"]
+        if not active_creds:
+            raise APIError(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                code="missing_provider_credential",
+                message=f"No active BYOK credential found for provider '{prov_key}'. Please enroll your API key via BYOK Vault (/credentials).",
+            )
+
     initial_ctx = ContextStateSchema()
     if req.crop:
         initial_ctx.crop = req.crop
@@ -338,7 +356,8 @@ async def create_conversation(
     )
 
     if req.initial_message:
-        # Resolve follow-up context and run workflow
+        farm_profile = farm_profile_store.get_profile(identity)
+        # Resolve follow-up context and check intake sufficiency
         updated_ctx, intent = resolve_followup_context(
             conv.context,
             req.initial_message,
@@ -349,7 +368,26 @@ async def create_conversation(
                 "variety": req.variety,
             },
         )
-        conv_store.update_context(conv.conversation_id, identity, updated_ctx)
+        if not updated_ctx.farming_problem:
+            updated_ctx.farming_problem = req.initial_message
+
+        decision = evaluate_intake_decision(
+            query=req.initial_message,
+            context=updated_ctx,
+            farm_profile=farm_profile,
+            mode=req.mode,
+        )
+
+        # Inherit known context from intake evaluation (e.g. farm profile defaults)
+        if decision.known_context:
+            if not updated_ctx.crop and decision.known_context.get("crop"):
+                updated_ctx.crop = decision.known_context["crop"]
+            if not updated_ctx.location and decision.known_context.get("location"):
+                updated_ctx.location = decision.known_context["location"]
+            if not updated_ctx.growth_stage and decision.known_context.get("growth_stage"):
+                updated_ctx.growth_stage = decision.known_context["growth_stage"]
+            if not updated_ctx.variety and decision.known_context.get("variety"):
+                updated_ctx.variety = decision.known_context["variety"]
 
         # Add user message
         user_msg = conv_store.add_message(
@@ -360,35 +398,72 @@ async def create_conversation(
             intent=intent,
         )
 
-        # Run 7-agent advisory workflow
-        adv_schema, synthesis_text = await _execute_advisory_for_conversation(
-            user_query=req.initial_message,
-            context=updated_ctx,
-            mode=req.mode,
-            identity=identity,
-            auth_service=auth_service,
-            credential_service=credential_service,
-            knowledge=knowledge,
-            history_store=history_store,
-            token=token,
-        )
+        if decision.decision == IntakeDecisionType.NEEDS_CLARIFICATION and decision.next_question:
+            q_schema = ClarificationQuestionSchema(
+                field=decision.next_question.field,
+                text=decision.next_question.text,
+                options=list(decision.next_question.options),
+                allow_free_text=decision.next_question.allow_free_text,
+                allow_skip=decision.next_question.allow_skip,
+            )
+            intake_telemetry = AgentResultSchema(
+                agent_id="Intake",
+                status="completed",
+                duration_ms=25.0,
+                summary=f"Intake evaluated {decision.understood_intent}. Clarification requested for {decision.next_question.field}.",
+            )
+            conv_store.update_context(
+                conv.conversation_id,
+                identity,
+                updated_ctx,
+                pending_clarification=q_schema,
+            )
+            asst_msg = conv_store.add_message(
+                conversation_id=conv.conversation_id,
+                identity=identity,
+                role="assistant",
+                content=decision.next_question.text,
+                intent="clarification",
+                agent_telemetry=[intake_telemetry],
+                clarification=q_schema,
+                suggested_next_steps=list(decision.next_question.options),
+            )
+        else:
+            conv_store.update_context(
+                conv.conversation_id,
+                identity,
+                updated_ctx,
+                clear_pending_clarification=True,
+            )
+            # Run 7-agent advisory workflow
+            adv_schema, synthesis_text = await _execute_advisory_for_conversation(
+                user_query=req.initial_message,
+                context=updated_ctx,
+                mode=req.mode,
+                identity=identity,
+                auth_service=auth_service,
+                credential_service=credential_service,
+                knowledge=knowledge,
+                history_store=history_store,
+                token=token,
+            )
 
-        # Add assistant message
-        asst_msg = conv_store.add_message(
-            conversation_id=conv.conversation_id,
-            identity=identity,
-            role="assistant",
-            content=synthesis_text,
-            intent="advisory_synthesis",
-            advisory_id=adv_schema.advisory_id,
-            agent_telemetry=adv_schema.agent_results,
-            weather_evidence=adv_schema.weather_evidence,
-            market_evidence=adv_schema.market_evidence,
-            scheme_evidence=adv_schema.scheme_evidence,
-            active_risk_alerts=adv_schema.active_risk_alerts,
-            uncertainty_and_limitations=adv_schema.uncertainty_and_limitations,
-            suggested_next_steps=adv_schema.suggested_next_steps,
-        )
+            # Add assistant message
+            asst_msg = conv_store.add_message(
+                conversation_id=conv.conversation_id,
+                identity=identity,
+                role="assistant",
+                content=synthesis_text,
+                intent="advisory_synthesis",
+                advisory_id=adv_schema.advisory_id,
+                agent_telemetry=adv_schema.agent_results,
+                weather_evidence=adv_schema.weather_evidence,
+                market_evidence=adv_schema.market_evidence,
+                scheme_evidence=adv_schema.scheme_evidence,
+                active_risk_alerts=adv_schema.active_risk_alerts,
+                uncertainty_and_limitations=adv_schema.uncertainty_and_limitations,
+                suggested_next_steps=adv_schema.suggested_next_steps,
+            )
 
         conv = conv_store.get_conversation(conv.conversation_id, identity)
         if conv is None:
@@ -453,6 +528,7 @@ async def send_message(
     credential_service: Annotated[CredentialService, Depends(get_credential_service)],
     knowledge: Annotated[LocalKnowledgeBase, Depends(get_knowledge_base)],
     history_store: Annotated[AdvisoryHistoryStore, Depends(get_history_store)],
+    farm_profile_store: Annotated[FarmProfileStore, Depends(get_farm_profile_store)],
     token: Annotated[str, Depends(extract_bearer_token)],
 ) -> ConversationMessageSchema:
     conv = conv_store.get_conversation(conversation_id, identity)
@@ -462,6 +538,19 @@ async def send_message(
             code="conversation_not_found",
             message=f"Conversation {conversation_id} not found or unauthorized.",
         )
+
+    if req.mode in {WorkflowMode.CEREBRAS, WorkflowMode.GEMINI, WorkflowMode.GROQ}:
+        prov_key = req.mode.value
+        statuses = credential_service.list_status(identity, provider_id=prov_key)
+        active_creds = [s for s in statuses if s.state.value == "active"]
+        if not active_creds:
+            raise APIError(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                code="missing_provider_credential",
+                message=f"No active BYOK credential found for provider '{prov_key}'. Please enroll your API key via BYOK Vault (/credentials).",
+            )
+
+    farm_profile = farm_profile_store.get_profile(identity)
 
     # 1. Resolve follow-up context with explicit precedence rules
     updated_ctx, intent = resolve_followup_context(
@@ -473,10 +562,11 @@ async def send_message(
             "growth_stage": req.growth_stage,
             "variety": req.variety,
         },
+        pending_question=conv.pending_clarification,
     )
 
-    # Update conversation's persistent context
-    conv_store.update_context(conversation_id, identity, updated_ctx)
+    if not updated_ctx.farming_problem:
+        updated_ctx.farming_problem = req.content
 
     # 2. Append user follow-up message
     conv_store.add_message(
@@ -487,9 +577,72 @@ async def send_message(
         intent=intent,
     )
 
-    # 3. Execute seven-agent workflow with accumulated context
+    # 3. Evaluate intake decision for sufficiency
+    decision = evaluate_intake_decision(
+        query=req.content,
+        context=updated_ctx,
+        farm_profile=farm_profile,
+        mode=req.mode,
+    )
+
+    if decision.known_context:
+        if not updated_ctx.crop and decision.known_context.get("crop"):
+            updated_ctx.crop = decision.known_context["crop"]
+        if not updated_ctx.location and decision.known_context.get("location"):
+            updated_ctx.location = decision.known_context["location"]
+        if not updated_ctx.growth_stage and decision.known_context.get("growth_stage"):
+            updated_ctx.growth_stage = decision.known_context["growth_stage"]
+        if not updated_ctx.variety and decision.known_context.get("variety"):
+            updated_ctx.variety = decision.known_context["variety"]
+
+    if decision.decision == IntakeDecisionType.NEEDS_CLARIFICATION and decision.next_question:
+        q_schema = ClarificationQuestionSchema(
+            field=decision.next_question.field,
+            text=decision.next_question.text,
+            options=list(decision.next_question.options),
+            allow_free_text=decision.next_question.allow_free_text,
+            allow_skip=decision.next_question.allow_skip,
+        )
+        intake_telemetry = AgentResultSchema(
+            agent_id="Intake",
+            status="completed",
+            duration_ms=25.0,
+            summary=f"Intake evaluated {decision.understood_intent}. Clarification requested for {decision.next_question.field}.",
+        )
+        conv_store.update_context(
+            conversation_id,
+            identity,
+            updated_ctx,
+            pending_clarification=q_schema,
+        )
+        asst_msg = conv_store.add_message(
+            conversation_id=conversation_id,
+            identity=identity,
+            role="assistant",
+            content=decision.next_question.text,
+            intent="clarification",
+            agent_telemetry=[intake_telemetry],
+            clarification=q_schema,
+            suggested_next_steps=list(decision.next_question.options),
+        )
+        return asst_msg
+
+    # Ready for advisory or partial advisory: clear pending clarification
+    conv_store.update_context(
+        conversation_id,
+        identity,
+        updated_ctx,
+        clear_pending_clarification=True,
+    )
+
+    effective_query = req.content
+    if updated_ctx.farming_problem and req.content.strip().lower() not in updated_ctx.farming_problem.strip().lower():
+        if len(req.content.split()) <= 8 or any(word in req.content.lower() for word in ["ludhiana", "punjab", "tillering", "flowering", "sowing", "nursery"]):
+            effective_query = f"{updated_ctx.farming_problem} {req.content}"
+
+    # Execute seven-agent workflow with accumulated context
     adv_schema, synthesis_text = await _execute_advisory_for_conversation(
-        user_query=req.content,
+        user_query=effective_query,
         context=updated_ctx,
         mode=req.mode,
         identity=identity,
@@ -500,7 +653,7 @@ async def send_message(
         token=token,
     )
 
-    # 4. Append assistant response message with telemetry and evidence
+    # Append assistant response message with telemetry and evidence
     asst_msg = conv_store.add_message(
         conversation_id=conversation_id,
         identity=identity,
@@ -518,6 +671,94 @@ async def send_message(
     )
 
     return asst_msg
+
+
+@router.patch(
+    "/{conversation_id}",
+    response_model=ConversationDetailSchema,
+    summary="Update conversation title or field context",
+)
+async def update_conversation(
+    conversation_id: str,
+    req: UpdateConversationRequest,
+    identity: Annotated[VerifiedIdentity, Depends(get_current_identity)],
+    conv_store: Annotated[ConversationStore, Depends(get_conversation_store)],
+) -> ConversationDetailSchema:
+    conv = conv_store.get_conversation(conversation_id, identity)
+    if conv is None:
+        raise APIError(
+            status_code=status.HTTP_404_NOT_FOUND,
+            code="conversation_not_found",
+            message=f"Conversation {conversation_id} not found or unauthorized.",
+        )
+
+    updated_ctx = conv.context.model_copy()
+    confirmed = list(updated_ctx.confirmed_fields)
+
+    if req.crop is not None:
+        val = req.crop.strip()
+        if val:
+            crop_res = CROP_REGISTRY.resolve(val)
+            if crop_res.status.value in {"resolved", "matched"} and crop_res.canonical_id:
+                crop_rec = CROP_REGISTRY.get(crop_res.canonical_id)
+                updated_ctx.crop = (
+                    crop_rec.common_names[0].value.title()
+                    if (crop_rec and crop_rec.common_names)
+                    else val
+                )
+                updated_ctx.crop_id = crop_res.canonical_id
+            else:
+                updated_ctx.crop = val
+                updated_ctx.crop_id = None
+            if "crop" not in confirmed:
+                confirmed.append("crop")
+        else:
+            updated_ctx.crop = None
+            updated_ctx.crop_id = None
+            if "crop" in confirmed:
+                confirmed.remove("crop")
+
+    if req.location is not None:
+        loc_str = req.location.strip()
+        if loc_str:
+            res = LOCATION_REGISTRY.resolve(loc_str)
+            if res.status.value in {"resolved", "matched"} and res.canonical_id:
+                rec = LOCATION_REGISTRY.get(res.canonical_id)
+                updated_ctx.location = rec.name if rec else loc_str
+                updated_ctx.location_id = res.canonical_id
+            else:
+                updated_ctx.location = loc_str
+                updated_ctx.location_id = None
+            if "location" not in confirmed:
+                confirmed.append("location")
+        else:
+            updated_ctx.location = None
+            updated_ctx.location_id = None
+            if "location" in confirmed:
+                confirmed.remove("location")
+
+    if req.growth_stage is not None:
+        val = req.growth_stage.strip()
+        updated_ctx.growth_stage = val if val else None
+        if val and "growth_stage" not in confirmed:
+            confirmed.append("growth_stage")
+        elif not val and "growth_stage" in confirmed:
+            confirmed.remove("growth_stage")
+
+    if req.variety is not None:
+        val = req.variety.strip()
+        updated_ctx.variety = val if val else None
+        if val and "variety" not in confirmed:
+            confirmed.append("variety")
+        elif not val and "variety" in confirmed:
+            confirmed.remove("variety")
+
+    updated_ctx.confirmed_fields = confirmed
+    new_title = req.title.strip() if req.title is not None else None
+
+    conv_store.update_context(conversation_id, identity, updated_ctx, title=new_title)
+    updated_conv = conv_store.get_conversation(conversation_id, identity)
+    return updated_conv
 
 
 @router.delete(

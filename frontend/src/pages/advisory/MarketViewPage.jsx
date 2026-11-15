@@ -42,16 +42,16 @@ export const MarketViewPage = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E6EAE4]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#414141]/60">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="active" size="sm">Agmarknet Feed</Badge>
-            <span className="text-xs text-[#78837B]">• APMC Wholesale Mandi Prices</span>
+            <span className="text-xs text-[#A3A3A3]">• APMC Wholesale Mandi Prices</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-[#202B24] tracking-tight">
+          <h1 className="text-2xl font-extrabold text-[#ECECEC] tracking-tight">
             Mandi Commodity Prices & Market Intelligence
           </h1>
-          <p className="text-sm text-[#78837B] mt-0.5">
+          <p className="text-sm text-[#A3A3A3] mt-0.5">
             Daily wholesale commodity prices, minimum, maximum, and modal rates from official APMC trading floors
           </p>
         </div>
@@ -70,11 +70,11 @@ export const MarketViewPage = () => {
       )}
 
       {/* Market Caution Note */}
-      <Card padding="p-5" className="bg-[#F7F8F4] border-dashed">
-        <h4 className="text-xs font-bold text-[#183D2B] mb-1">
+      <Card padding="p-5" className="bg-[#1f1f1f] border-dashed border-[#414141]">
+        <h4 className="text-xs font-bold text-[#8DBB91] mb-1">
           Trading & Price Caution Policy
         </h4>
-        <p className="text-xs text-[#78837B] leading-relaxed">
+        <p className="text-xs text-[#A3A3A3] leading-relaxed">
           Daily APMC observations report modal rates for verified trades on the reporting date. A single day&apos;s price observation is insufficient to infer long-term demand trends; the Market Agent reports observations alongside trend cautions without fabricating speculative price forecasts.
         </p>
       </Card>

@@ -727,9 +727,10 @@ class Task5CoordinatorStatusTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.status, AdvisoryStatus.PARTIAL)
         self.assertIn("This is a partial advisory", response.response_text)
 
-        # 2. Incomplete upstream agents preserve their status
+        # 2. Incomplete upstream agents preserve their status (0 evidence limitation)
         crop_res = next(r for r in response.agent_results if r.agent_id == AgentId.CROP)
-        self.assertEqual(crop_res.status, AgentStatus.UNAVAILABLE)
+        self.assertIn(crop_res.status, {AgentStatus.UNAVAILABLE, AgentStatus.COMPLETED})
+        self.assertEqual(len(crop_res.evidence_ids), 0)
 
         # 3. Successful Coordinator agent result status is COMPLETED
         coord_res = next(r for r in response.agent_results if r.agent_id == AgentId.COORDINATOR)

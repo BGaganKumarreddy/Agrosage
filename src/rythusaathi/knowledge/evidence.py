@@ -5,7 +5,8 @@ from ..domain.evidence import (ContentReference, EvidenceMode, EvidenceRecord,
 from .retrieval import RetrievedChunk
 
 
-def to_evidence_record(result: RetrievedChunk, *, request_id: str) -> EvidenceRecord:
+def to_evidence_record(result: RetrievedChunk, *, request_id: str,
+                       tier: str | None = None) -> EvidenceRecord:
     chunk = result.chunk
     source_type = (EvidenceSourceType.EXTERNAL_DATA
                    if chunk.source.source_type.value == "secondary_explanation"
@@ -33,6 +34,7 @@ def to_evidence_record(result: RetrievedChunk, *, request_id: str) -> EvidenceRe
         mode=EvidenceMode.CACHED, status=EvidenceStatus.AVAILABLE,
         relevance=max(0.0, min(1.0, result.similarity)), page_or_section=page_section,
         quality_notes=tuple(x for x in (
+            f"Retrieval tier: {tier}" if tier else None,
             "Source classified as secondary explanation" if chunk.source.source_type.value == "secondary_explanation" else None,
             f"Source reliability: {chunk.source.reliability.value}",
             f"Revision: {chunk.source.revision}" if chunk.source.revision else None,

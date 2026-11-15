@@ -46,16 +46,16 @@ export const RiskAlertsViewPage = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E6EAE4]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#414141]/60">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="active" size="sm">Dual-Tier Risk Classification</Badge>
-            <span className="text-xs text-[#78837B]">• Active Hazards vs Background Susceptibilities</span>
+            <span className="text-xs text-[#A3A3A3]">• Active Hazards vs Background Susceptibilities</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-[#202B24] tracking-tight">
+          <h1 className="text-2xl font-extrabold text-[#ECECEC] tracking-tight">
             Agricultural Hazard & Risk Intelligence
           </h1>
-          <p className="text-sm text-[#78837B] mt-0.5">
+          <p className="text-sm text-[#A3A3A3] mt-0.5">
             Real-time screening for excess rain, temperature stress, and evidence-grounded pest outbreaks
           </p>
         </div>

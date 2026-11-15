@@ -15,5 +15,10 @@ export const configurationService = {
     const res = await apiClient.get('/configuration/providers');
     return res.data;
   },
+
+  async resolveLocation({ latitude, longitude }) {
+    const res = await apiClient.post('/configuration/resolve-location', { latitude, longitude });
+    return res.data;
+  },
 };
 

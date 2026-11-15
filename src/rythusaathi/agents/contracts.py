@@ -26,6 +26,7 @@ from ..domain import (
 
 class AgentStatus(StrEnum):
     COMPLETED = "completed"
+    COMPLETED_WITH_FALLBACK = "completed_with_fallback"
     PARTIAL = "partial"
     UNAVAILABLE = "unavailable"
     SKIPPED = "skipped"
@@ -35,6 +36,7 @@ class AgentStatus(StrEnum):
 
 class AdvisoryStatus(StrEnum):
     COMPLETED = "completed"
+    COMPLETED_WITH_WARNINGS = "completed_with_warnings"
     PARTIAL = "partial"
     NEEDS_CLARIFICATION = "needs_clarification"
     FAILED = "failed"
@@ -55,6 +57,35 @@ class FarmerIntent(StrEnum):
     MARKET = "market"
     SCHEME = "scheme"
     GENERAL = "general"
+
+
+class IntakeDecisionType(StrEnum):
+    READY_FOR_ADVISORY = "ready_for_advisory"
+    NEEDS_CLARIFICATION = "needs_clarification"
+    PARTIAL_ADVISORY = "partial_advisory"
+
+
+@dataclass(frozen=True, slots=True)
+class ClarificationQuestion:
+    """Farmer-friendly follow-up question for missing agricultural context."""
+
+    field: str
+    text: str
+    options: tuple[str, ...] = ()
+    allow_free_text: bool = True
+    allow_skip: bool = True
+
+
+@dataclass(frozen=True, slots=True)
+class IntakeDecision:
+    """Typed decision distinguishing whether context is sufficient for specialist execution."""
+
+    decision: IntakeDecisionType
+    understood_intent: str
+    known_context: dict[str, str | None]
+    missing_required_fields: tuple[str, ...] = ()
+    helpful_fields: tuple[str, ...] = ()
+    next_question: ClarificationQuestion | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -111,6 +142,7 @@ class IntakePayload:
     farming_problem: str | None = None
     provider_id: str | None = None
     model_id: str | None = None
+    intake_decision: IntakeDecision | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -275,6 +307,54 @@ class AdvisoryResponse:
             generated = getattr(result.payload, "generated_statements", ())
             if any(not set(item.evidence_ids) <= evidence_ids for item in generated):
                 raise ValueError("generated statement citations must exist in advisory evidence")
+
+
+def aggregate_workflow_status(
+    agent_results: Sequence[AgentResult],
+    *,
+    has_conflicts: bool = False,
+    missing_fields: Sequence[str] = (),
+    intake_status: AgentStatus = AgentStatus.COMPLETED,
+) -> AdvisoryStatus:
+    """Aggregate specialist outcomes into overall workflow status per Stage 5 specification.
+
+    Workflow-level outcomes:
+    - COMPLETED: All active agents produced verified, full results.
+    - COMPLETED_WITH_WARNINGS: All active agents succeeded, but one or more used fallback
+      or produced non-fatal advisory warnings.
+    - PARTIAL: Some specialist agents provided partial data, fixture data, or were unavailable/skipped.
+    - NEEDS_CLARIFICATION: Core context (crop or location) is missing.
+    - CANCELLED: One or more agents was cancelled.
+    - FAILED: All specialist agents failed.
+    """
+    if any(f in {"crop", "location"} for f in missing_fields):
+        return AdvisoryStatus.NEEDS_CLARIFICATION
+    if any(r.status is AgentStatus.CANCELLED for r in agent_results):
+        return AdvisoryStatus.CANCELLED
+
+    specialists = [r for r in agent_results if r.agent_id != AgentId.INTAKE and r.agent_id != AgentId.COORDINATOR]
+    if specialists and all(r.status is AgentStatus.FAILED for r in specialists):
+        return AdvisoryStatus.FAILED
+
+    has_partial_or_unavailable = (
+        intake_status is AgentStatus.PARTIAL
+        or has_conflicts
+        or any(
+            r.status in {AgentStatus.UNAVAILABLE, AgentStatus.SKIPPED, AgentStatus.PARTIAL, AgentStatus.FAILED}
+            for r in specialists
+        )
+    )
+    if has_partial_or_unavailable:
+        return AdvisoryStatus.PARTIAL
+
+    has_fallback = (
+        any(r.status is AgentStatus.COMPLETED_WITH_FALLBACK for r in specialists)
+        or any(getattr(r.payload, "interpretation_mode", None) == "deterministic_fallback" for r in specialists)
+    )
+    if has_fallback:
+        return AdvisoryStatus.COMPLETED_WITH_WARNINGS
+
+    return AdvisoryStatus.COMPLETED
 
 
 class WeatherProvider(Protocol):

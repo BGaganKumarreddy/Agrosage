@@ -84,8 +84,8 @@ export const AdvisoryResultsPage = () => {
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <div className="h-6 w-32 bg-slate-200 rounded animate-pulse" />
-            <div className="h-4 w-64 bg-slate-200 rounded animate-pulse" />
+            <div className="h-6 w-32 bg-[#303030] rounded animate-pulse" />
+            <div className="h-4 w-64 bg-[#303030] rounded animate-pulse" />
           </div>
         </div>
         <CardSkeleton />
@@ -112,10 +112,10 @@ export const AdvisoryResultsPage = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-6 print:m-0 print:p-0">
       {/* Top action bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E6EAE4] print:hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#414141]/60 print:hidden">
         <div className="flex items-center gap-3">
           <Link to="/advisories">
-            <button className="p-2 rounded-xl border border-[#E6EAE4] bg-white hover:bg-[#F7F8F4] text-[#78837B] transition-colors">
+            <button className="p-2 rounded-xl border border-[#414141] bg-[#262626] hover:bg-[#303030] text-[#A3A3A3] hover:text-[#ECECEC] transition-colors">
               <ArrowLeft className="w-4 h-4" />
             </button>
           </Link>
@@ -124,11 +124,11 @@ export const AdvisoryResultsPage = () => {
               <Badge variant={advisory.status?.toLowerCase()} size="sm">
                 {advisory.status}
               </Badge>
-              <span className="text-xs text-[#78837B]">
+              <span className="text-xs text-[#A3A3A3]">
                 ID: {advisory.advisory_id}
               </span>
             </div>
-            <h1 className="text-xl font-bold text-[#202B24] tracking-tight mt-0.5">
+            <h1 className="text-xl font-bold text-[#ECECEC] tracking-tight mt-0.5">
               Agricultural Advisory Intelligence Report
             </h1>
           </div>
@@ -199,7 +199,7 @@ export const AdvisoryResultsPage = () => {
       >
         {trace ? (
           <div className="space-y-4 text-xs font-mono">
-            <div className="p-3 bg-[#F7F8F4] rounded-xl border border-[#E6EAE4] space-y-1">
+            <div className="p-3 bg-[#1f1f1f] rounded-xl border border-[#414141] space-y-1 text-[#ECECEC]">
               <div><strong>Status:</strong> {trace.status}</div>
               <div><strong>Board State:</strong> {trace.board_state}</div>
               <div><strong>Conflicts Detected:</strong> {trace.conflicts?.length || 0}</div>
@@ -207,28 +207,28 @@ export const AdvisoryResultsPage = () => {
             </div>
 
             <div>
-              <h5 className="font-sans font-bold text-sm text-[#202B24] mb-2">Agent Executions:</h5>
+              <h5 className="font-sans font-bold text-sm text-[#ECECEC] mb-2">Agent Executions:</h5>
               <div className="space-y-2">
                 {(trace.agent_executions || []).map((ex, idx) => (
-                  <div key={idx} className="p-2.5 rounded-lg border border-[#E6EAE4] bg-white flex items-center justify-between">
+                  <div key={idx} className="p-2.5 rounded-lg border border-[#414141] bg-[#1f1f1f] flex items-center justify-between text-[#ECECEC]">
                     <div>
-                      <strong className="text-[#183D2B]">{ex.agent_id}</strong>: {ex.status}
+                      <strong className="text-[#8DBB91]">{ex.agent_id}</strong>: {ex.status}
                     </div>
-                    <span className="text-[#78837B]">{Math.round(ex.duration_ms || 0)}ms</span>
+                    <span className="text-[#A3A3A3]">{Math.round(ex.duration_ms || 0)}ms</span>
                   </div>
                 ))}
               </div>
             </div>
 
             <div>
-              <h5 className="font-sans font-bold text-sm text-[#202B24] mb-2">Raw JSON Payload:</h5>
-              <pre className="p-3 bg-slate-900 text-emerald-400 rounded-xl overflow-x-auto max-h-72 text-[11px] leading-relaxed">
+              <h5 className="font-sans font-bold text-sm text-[#ECECEC] mb-2">Raw JSON Payload:</h5>
+              <pre className="p-3 bg-zinc-950 text-emerald-400 border border-[#414141] rounded-xl overflow-x-auto max-h-72 text-[11px] leading-relaxed">
                 {JSON.stringify(trace, null, 2)}
               </pre>
             </div>
           </div>
         ) : (
-          <div className="py-8 text-center text-xs text-[#78837B]">
+          <div className="py-8 text-center text-xs text-[#A3A3A3]">
             Loading execution trace records...
           </div>
         )}

@@ -59,17 +59,17 @@ export const AdminUsersPage = () => {
           <div className="flex items-center gap-2 mb-1">
             <Link
               to="/admin"
-              className="text-xs text-[#347A50] hover:underline flex items-center gap-1 font-semibold"
+              className="text-xs text-[#8DBB91] hover:underline flex items-center gap-1 font-semibold"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Control Center</span>
             </Link>
           </div>
-          <h1 className="text-2xl font-extrabold text-[#202B24] tracking-tight">
+          <h1 className="text-2xl font-extrabold text-[#ECECEC] tracking-tight">
             Tenant User Accounts
           </h1>
-          <p className="text-sm text-[#78837B] mt-1">
-            Review registered farmers and administrative roles for tenant <span className="font-semibold text-[#202B24]">{user?.tenant_id}</span>.
+          <p className="text-sm text-[#A3A3A3] mt-1">
+            Review registered farmers and administrative roles for tenant <span className="font-semibold text-[#ECECEC]">{user?.tenant_id}</span>.
           </p>
         </div>
 
@@ -92,8 +92,8 @@ export const AdminUsersPage = () => {
               icon={Search}
             />
           </div>
-          <div className="text-xs font-semibold text-[#78837B]">
-            Total Accounts: <span className="text-[#202B24] font-bold">{filteredUsers.length}</span>
+          <div className="text-xs font-semibold text-[#A3A3A3]">
+            Total Accounts: <span className="text-[#ECECEC] font-bold">{filteredUsers.length}</span>
           </div>
         </div>
       </Card>
@@ -115,7 +115,7 @@ export const AdminUsersPage = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#F7F8F4] text-[#78837B] text-xs uppercase font-semibold border-b border-[#E6EAE4]">
+              <thead className="bg-[#1f1f1f] text-[#A3A3A3] text-xs uppercase font-semibold border-b border-[#414141]">
                 <tr>
                   <th className="py-3.5 px-4">Username / Identity</th>
                   <th className="py-3.5 px-4">Role</th>
@@ -124,23 +124,25 @@ export const AdminUsersPage = () => {
                   <th className="py-3.5 px-4 text-right">User ID</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E6EAE4]">
+              <tbody className="divide-y divide-[#414141]/60">
                 {filteredUsers.map((u) => {
                   const isAdmin = u.role === 'tenant_admin';
                   return (
-                    <tr key={u.user_id} className="hover:bg-[#F7F8F4]/50 transition-colors">
-                      <td className="py-3.5 px-4 font-medium text-[#202B24]">
+                    <tr key={u.user_id} className="hover:bg-[#2a2a2a] transition-colors">
+                      <td className="py-3.5 px-4 font-medium text-[#ECECEC]">
                         <div className="flex items-center gap-2">
                           <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${
-                              isAdmin ? 'bg-amber-100 text-amber-800' : 'bg-[#DCE9DC] text-[#183D2B]'
+                              isAdmin
+                                ? 'bg-amber-950/60 border border-amber-800/60 text-amber-300'
+                                : 'bg-[#263e2d] border border-[#3d6545] text-[#8DBB91]'
                             }`}
                           >
                             {u.username.charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <p className="font-semibold text-sm">{u.username}</p>
-                            <p className="text-[11px] text-[#78837B]">{isAdmin ? 'Tenant Administrator' : 'Farmer Member'}</p>
+                            <p className="text-[11px] text-[#737373]">{isAdmin ? 'Tenant Administrator' : 'Farmer Member'}</p>
                           </div>
                         </div>
                       </td>
@@ -151,24 +153,24 @@ export const AdminUsersPage = () => {
                       </td>
                       <td className="py-3.5 px-4">
                         {u.disabled ? (
-                          <span className="inline-flex items-center gap-1 text-xs text-red-700 font-medium">
+                          <span className="inline-flex items-center gap-1 text-xs text-red-400 font-medium">
                             <UserX className="w-3.5 h-3.5" />
                             <span>Disabled</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-xs text-[#347A50] font-medium">
+                          <span className="inline-flex items-center gap-1 text-xs text-[#8DBB91] font-medium">
                             <UserCheck className="w-3.5 h-3.5" />
                             <span>Active</span>
                           </span>
                         )}
                       </td>
-                      <td className="py-3.5 px-4 text-xs text-[#78837B]">
+                      <td className="py-3.5 px-4 text-xs text-[#A3A3A3]">
                         <div className="flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5" />
                           <span>{new Date(u.created_at).toLocaleDateString()}</span>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 text-right font-mono text-xs text-[#78837B]">
+                      <td className="py-3.5 px-4 text-right font-mono text-xs text-[#737373]">
                         {u.user_id.slice(0, 16)}...
                       </td>
                     </tr>

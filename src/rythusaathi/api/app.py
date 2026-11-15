@@ -14,6 +14,7 @@ from .routes import (
     conversations_router,
     credentials_router,
     history_router,
+    profile_router,
 )
 
 
@@ -51,6 +52,7 @@ def create_app() -> FastAPI:
     app.include_router(configuration_router, prefix=api_v1_prefix)
     app.include_router(conversations_router, prefix=api_v1_prefix)
     app.include_router(history_router, prefix=api_v1_prefix)
+    app.include_router(profile_router, prefix=api_v1_prefix)
     app.include_router(admin_router, prefix=api_v1_prefix)
 
     @app.get("/api/v1/health", tags=["Health"], summary="System health check")

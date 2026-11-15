@@ -29,7 +29,7 @@ from ..inference.service import (
     AuthenticatedIdentityMismatch,
     AuthenticatedInferenceService,
 )
-from ..security import AuthorizationDenied
+from ..security import AuthorizationDenied, redact_sensitive_text
 
 
 class WorkflowInference(Protocol):
@@ -452,6 +452,7 @@ async def call_structured(
             f"{'.'.join(str(loc) for loc in err.get('loc', ()))}: {err.get('msg', '')}"
             for err in exc.errors()
         )
+        sanitized_errors = redact_sensitive_text(sanitized_errors) or ""
         diag = InferenceDiagnostic(
             code=malformed_diag_code,
             stage=InferenceStage.RESPONSE_VALIDATION,

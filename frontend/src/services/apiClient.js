@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../utils/constants';
+import { getStoredToken } from '../utils/tokenStorage';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -9,7 +10,7 @@ const apiClient = axios.create({
   timeout: 45000, // 45 seconds for LLM workflow synthesis
 });
 
-let tokenGetter = () => localStorage.getItem('rythusaathi_token');
+let tokenGetter = getStoredToken;
 let onUnauthorizedCallback = null;
 
 export const setTokenGetter = (fn) => {
@@ -38,8 +39,16 @@ apiClient.interceptors.response.use(
   (error) => {
     const status = error.response ? error.response.status : null;
     const data = error.response ? error.response.data : null;
+    const url = error.config?.url || '';
 
-    if (status === 401 && onUnauthorizedCallback) {
+    // Ignore 401s from auth-specific endpoints to prevent infinite logout loops
+    // and preserve form-level authentication error messages
+    const isAuthEndpoint =
+      url.includes('/auth/login') ||
+      url.includes('/auth/register') ||
+      url.includes('/auth/logout');
+
+    if (status === 401 && !isAuthEndpoint && onUnauthorizedCallback) {
       onUnauthorizedCallback();
     }
 

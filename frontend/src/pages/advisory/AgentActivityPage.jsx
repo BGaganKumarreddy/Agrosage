@@ -44,16 +44,16 @@ export const AgentActivityPage = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E6EAE4]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#414141]/60">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="active" size="sm">Microsoft Agent Framework</Badge>
-            <span className="text-xs text-[#78837B]">• 7-Agent Reasoning Graph</span>
+            <span className="text-xs text-[#A3A3A3]">• 7-Agent Reasoning Graph</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-[#202B24] tracking-tight">
+          <h1 className="text-2xl font-extrabold text-[#ECECEC] tracking-tight">
             Seven-Agent Architecture & Graph Activity
           </h1>
-          <p className="text-sm text-[#78837B] mt-0.5">
+          <p className="text-sm text-[#A3A3A3] mt-0.5">
             Real-time status, execution timing, and blackboard synchronization across all 7 agents
           </p>
         </div>
@@ -78,20 +78,20 @@ export const AgentActivityPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card padding="p-5">
           <div className="flex items-center gap-2.5 mb-2">
-            <Cpu className="w-5 h-5 text-[#347A50]" />
-            <h4 className="font-bold text-sm text-[#202B24]">Shared Blackboard Consensus</h4>
+            <Cpu className="w-5 h-5 text-[#8DBB91]" />
+            <h4 className="font-bold text-sm text-[#ECECEC]">Shared Blackboard Consensus</h4>
           </div>
-          <p className="text-xs text-[#78837B] leading-relaxed">
+          <p className="text-xs text-[#A3A3A3] leading-relaxed">
             Specialist agents (Weather, Crop, Market, Scheme, and Risk Alert) independently post typed findings and cited evidence onto the centralized blackboard. The Coordinator agent reads validated claims, checks for mutual consistency, and produces the final farmer advisory.
           </p>
         </Card>
 
         <Card padding="p-5">
           <div className="flex items-center gap-2.5 mb-2">
-            <Activity className="w-5 h-5 text-[#347A50]" />
-            <h4 className="font-bold text-sm text-[#202B24]">Deterministic & LLM Dual Runtime</h4>
+            <Activity className="w-5 h-5 text-[#8DBB91]" />
+            <h4 className="font-bold text-sm text-[#ECECEC]">Deterministic & LLM Dual Runtime</h4>
           </div>
-          <p className="text-xs text-[#78837B] leading-relaxed">
+          <p className="text-xs text-[#A3A3A3] leading-relaxed">
             The system runs in zero-cost Deterministic Baseline mode by default. When an external provider is selected, token consumption is metered locally with strict rolling TPM reservations (30k for Cerebras, 7.2k for Groq) before dispatch.
           </p>
         </Card>

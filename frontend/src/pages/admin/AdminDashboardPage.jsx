@@ -50,12 +50,12 @@ export const AdminDashboardPage = () => {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="active" size="sm">System Administration</Badge>
-            <span className="text-xs text-[#78837B]">• Tenant: {user?.tenant_id || 'default'}</span>
+            <span className="text-xs text-[#A3A3A3]">• Tenant: {user?.tenant_id || 'default'}</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-[#202B24] tracking-tight">
+          <h1 className="text-2xl font-extrabold text-[#ECECEC] tracking-tight">
             Tenant Control & Telemetry Center
           </h1>
-          <p className="text-sm text-[#78837B] mt-1">
+          <p className="text-sm text-[#A3A3A3] mt-1">
             Monitor tenant member activity, agent execution performance, and system health.
           </p>
         </div>
@@ -79,15 +79,15 @@ export const AdminDashboardPage = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-[#78837B] uppercase tracking-wider">
+                <p className="text-xs font-semibold text-[#A3A3A3] uppercase tracking-wider">
                   Registered Farmers
                 </p>
-                <p className="text-3xl font-extrabold text-[#202B24] mt-1">
+                <p className="text-3xl font-extrabold text-[#ECECEC] mt-1">
                   {data.total_users}
                 </p>
-                <p className="text-xs text-[#347A50] mt-1 font-medium">Tenant Members</p>
+                <p className="text-xs text-[#8DBB91] mt-1 font-medium">Tenant Members</p>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-[#DCE9DC] flex items-center justify-center text-[#183D2B]">
+              <div className="w-12 h-12 rounded-2xl bg-[#263e2d] border border-[#3d6545] flex items-center justify-center text-[#8DBB91]">
                 <Users className="w-6 h-6" />
               </div>
             </div>
@@ -96,15 +96,15 @@ export const AdminDashboardPage = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-[#78837B] uppercase tracking-wider">
+                <p className="text-xs font-semibold text-[#A3A3A3] uppercase tracking-wider">
                   Consultations Logged
                 </p>
-                <p className="text-3xl font-extrabold text-[#202B24] mt-1">
+                <p className="text-3xl font-extrabold text-[#ECECEC] mt-1">
                   {data.total_consultations}
                 </p>
-                <p className="text-xs text-[#347A50] mt-1 font-medium">Seven-agent Executions</p>
+                <p className="text-xs text-[#8DBB91] mt-1 font-medium">Seven-agent Executions</p>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-800">
+              <div className="w-12 h-12 rounded-2xl bg-sky-950/60 border border-sky-800/60 flex items-center justify-center text-sky-400">
                 <FileText className="w-6 h-6" />
               </div>
             </div>
@@ -113,15 +113,15 @@ export const AdminDashboardPage = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-[#78837B] uppercase tracking-wider">
+                <p className="text-xs font-semibold text-[#A3A3A3] uppercase tracking-wider">
                   Active BYOK Keys
                 </p>
-                <p className="text-3xl font-extrabold text-[#202B24] mt-1">
+                <p className="text-3xl font-extrabold text-[#ECECEC] mt-1">
                   {data.active_credentials}
                 </p>
-                <p className="text-xs text-amber-700 mt-1 font-medium">AES-256 Encrypted</p>
+                <p className="text-xs text-amber-400 mt-1 font-medium">AES-256 Encrypted</p>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-800">
+              <div className="w-12 h-12 rounded-2xl bg-amber-950/60 border border-amber-800/60 flex items-center justify-center text-amber-400">
                 <KeyRound className="w-6 h-6" />
               </div>
             </div>
@@ -130,15 +130,15 @@ export const AdminDashboardPage = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-[#78837B] uppercase tracking-wider">
+                <p className="text-xs font-semibold text-[#A3A3A3] uppercase tracking-wider">
                   System Status
                 </p>
-                <p className="text-2xl font-extrabold text-[#347A50] mt-1 capitalize">
+                <p className="text-2xl font-extrabold text-[#8DBB91] mt-1 capitalize">
                   {data.system_status}
                 </p>
-                <p className="text-xs text-[#78837B] mt-1 font-medium">7 Agents Online</p>
+                <p className="text-xs text-[#A3A3A3] mt-1 font-medium">7 Agents Online</p>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-800">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-950/60 border border-emerald-800/60 flex items-center justify-center text-emerald-400">
                 <Activity className="w-6 h-6" />
               </div>
             </div>
@@ -150,18 +150,18 @@ export const AdminDashboardPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <div className="space-y-4">
-            <div className="w-10 h-10 rounded-xl bg-[#DCE9DC] flex items-center justify-center text-[#183D2B]">
+            <div className="w-10 h-10 rounded-xl bg-[#263e2d] border border-[#3d6545] flex items-center justify-center text-[#8DBB91]">
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#202B24]">User Management</h3>
-              <p className="text-xs text-[#78837B] mt-1">
+              <h3 className="text-base font-bold text-[#ECECEC]">User Management</h3>
+              <p className="text-xs text-[#A3A3A3] mt-1">
                 Audit tenant memberships, inspect registered accounts, and verify role allocations.
               </p>
             </div>
             <Link
               to="/admin/users"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#347A50] hover:text-[#183D2B] transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8DBB91] hover:text-white transition-colors"
             >
               <span>Manage Users</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -171,18 +171,18 @@ export const AdminDashboardPage = () => {
 
         <Card>
           <div className="space-y-4">
-            <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-800">
+            <div className="w-10 h-10 rounded-xl bg-purple-950/60 border border-purple-800/60 flex items-center justify-center text-purple-400">
               <Cpu className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#202B24]">Agent Telemetry</h3>
-              <p className="text-xs text-[#78837B] mt-1">
+              <h3 className="text-base font-bold text-[#ECECEC]">Agent Telemetry</h3>
+              <p className="text-xs text-[#A3A3A3] mt-1">
                 Execution latencies, success rates, and token allocations for all 7 advisory agents.
               </p>
             </div>
             <Link
               to="/admin/agents"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#347A50] hover:text-[#183D2B] transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8DBB91] hover:text-white transition-colors"
             >
               <span>View Agent Telemetry</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -192,18 +192,18 @@ export const AdminDashboardPage = () => {
 
         <Card>
           <div className="space-y-4">
-            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-800">
+            <div className="w-10 h-10 rounded-xl bg-[#2a2a2a] border border-[#414141] flex items-center justify-center text-[#A3A3A3]">
               <Server className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#202B24]">System Specifications</h3>
-              <p className="text-xs text-[#78837B] mt-1">
+              <h3 className="text-base font-bold text-[#ECECEC]">System Specifications</h3>
+              <p className="text-xs text-[#A3A3A3] mt-1">
                 Runtime configuration, Argon2id security parameters, and registry sizing.
               </p>
             </div>
             <Link
               to="/admin/system"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#347A50] hover:text-[#183D2B] transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8DBB91] hover:text-white transition-colors"
             >
               <span>Inspect Runtime</span>
               <ArrowRight className="w-3.5 h-3.5" />

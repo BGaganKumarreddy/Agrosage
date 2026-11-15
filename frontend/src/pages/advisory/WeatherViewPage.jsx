@@ -44,16 +44,16 @@ export const WeatherViewPage = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E6EAE4]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#414141]/60">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="active" size="sm">Open-Meteo Integration</Badge>
-            <span className="text-xs text-[#78837B]">• Live Meteorological Stream</span>
+            <span className="text-xs text-[#A3A3A3]">• Live Meteorological Stream</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-[#202B24] tracking-tight">
+          <h1 className="text-2xl font-extrabold text-[#ECECEC] tracking-tight">
             Agricultural Weather Observations
           </h1>
-          <p className="text-sm text-[#78837B] mt-0.5">
+          <p className="text-sm text-[#A3A3A3] mt-0.5">
             Real-time verified temperature, humidity, precipitation accumulation, and 3-day agricultural forecast
           </p>
         </div>
@@ -72,11 +72,11 @@ export const WeatherViewPage = () => {
       )}
 
       {/* Meteorological Architecture Note */}
-      <Card padding="p-5" className="bg-[#F7F8F4] border-dashed">
-        <h4 className="text-xs font-bold text-[#183D2B] mb-1">
+      <Card padding="p-5" className="bg-[#1f1f1f] border-dashed border-[#414141]">
+        <h4 className="text-xs font-bold text-[#8DBB91] mb-1">
           Grounding Methodology
         </h4>
-        <p className="text-xs text-[#78837B] leading-relaxed">
+        <p className="text-xs text-[#A3A3A3] leading-relaxed">
           The Weather Agent queries the Open-Meteo REST API for geographic coordinates mapped to the farmer&apos;s administrative district. Soil moisture levels, precipitation forecasts, and wind velocities are extracted to compute real-time spray windows and excess rain risk alerts.
         </p>
       </Card>

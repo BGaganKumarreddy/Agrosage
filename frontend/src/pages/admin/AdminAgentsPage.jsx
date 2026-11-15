@@ -45,16 +45,16 @@ export const AdminAgentsPage = () => {
           <div className="flex items-center gap-2 mb-1">
             <Link
               to="/admin"
-              className="text-xs text-[#347A50] hover:underline flex items-center gap-1 font-semibold"
+              className="text-xs text-[#8DBB91] hover:underline flex items-center gap-1 font-semibold"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Control Center</span>
             </Link>
           </div>
-          <h1 className="text-2xl font-extrabold text-[#202B24] tracking-tight">
+          <h1 className="text-2xl font-extrabold text-[#ECECEC] tracking-tight">
             Seven-Agent Telemetry & Execution Health
           </h1>
-          <p className="text-sm text-[#78837B] mt-1">
+          <p className="text-sm text-[#A3A3A3] mt-1">
             Audit runtime latency, status distributions, and execution reliability across all specialized agents.
           </p>
         </div>
@@ -84,14 +84,14 @@ export const AdminAgentsPage = () => {
             return (
               <Card key={item.agent_id}>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between border-b border-[#E6EAE4] pb-2.5">
+                  <div className="flex items-center justify-between border-b border-[#414141]/60 pb-2.5">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-[#DCE9DC] flex items-center justify-center text-[#183D2B]">
+                      <div className="w-8 h-8 rounded-lg bg-[#263e2d] border border-[#3d6545] flex items-center justify-center text-[#8DBB91]">
                         <Cpu className="w-4 h-4" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-sm text-[#202B24]">{item.agent_id} Agent</h3>
-                        <p className="text-[10px] text-[#78837B] uppercase font-semibold">Specialist</p>
+                        <h3 className="font-bold text-sm text-[#ECECEC]">{item.agent_id} Agent</h3>
+                        <p className="text-[10px] text-[#737373] uppercase font-semibold">Specialist</p>
                       </div>
                     </div>
                     <Badge variant={item.failed_executions > 0 ? 'critical' : 'active'} size="sm">
@@ -100,28 +100,28 @@ export const AdminAgentsPage = () => {
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-[#F7F8F4] p-2 rounded-lg">
-                      <p className="text-[#78837B] font-medium">Total Runs</p>
-                      <p className="text-base font-bold text-[#202B24] mt-0.5">{item.total_executions}</p>
+                    <div className="bg-[#1f1f1f] border border-[#414141] p-2 rounded-lg">
+                      <p className="text-[#A3A3A3] font-medium">Total Runs</p>
+                      <p className="text-base font-bold text-[#ECECEC] mt-0.5">{item.total_executions}</p>
                     </div>
 
-                    <div className="bg-[#F7F8F4] p-2 rounded-lg">
-                      <p className="text-[#78837B] font-medium">Avg Latency</p>
-                      <p className="text-base font-bold text-[#202B24] mt-0.5 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-[#347A50]" />
+                    <div className="bg-[#1f1f1f] border border-[#414141] p-2 rounded-lg">
+                      <p className="text-[#A3A3A3] font-medium">Avg Latency</p>
+                      <p className="text-base font-bold text-[#ECECEC] mt-0.5 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5 text-[#8DBB91]" />
                         <span>{item.average_duration_ms} ms</span>
                       </p>
                     </div>
                   </div>
 
-                  <div className="pt-1 flex items-center justify-between text-xs text-[#78837B]">
+                  <div className="pt-1 flex items-center justify-between text-xs text-[#A3A3A3]">
                     <span>Success Rate</span>
-                    <span className="font-bold text-[#347A50]">{successRate}%</span>
+                    <span className="font-bold text-[#8DBB91]">{successRate}%</span>
                   </div>
 
-                  <div className="w-full bg-[#E6EAE4] h-1.5 rounded-full overflow-hidden">
+                  <div className="w-full bg-[#303030] h-1.5 rounded-full overflow-hidden">
                     <div
-                      className="bg-[#347A50] h-full rounded-full transition-all"
+                      className="bg-[#8DBB91] h-full rounded-full transition-all"
                       style={{ width: `${successRate}%` }}
                     />
                   </div>

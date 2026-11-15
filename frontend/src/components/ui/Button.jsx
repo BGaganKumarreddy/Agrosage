@@ -13,21 +13,21 @@ export const Button = ({
   onClick,
   ...props
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed select-none';
+  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-[#212121] disabled:opacity-50 disabled:cursor-not-allowed select-none';
 
   const variants = {
-    primary: 'bg-[#183D2B] hover:bg-[#23543b] active:bg-[#10291d] text-white focus:ring-[#183D2B] shadow-sm',
-    secondary: 'bg-[#347A50] hover:bg-[#429563] text-white focus:ring-[#347A50] shadow-sm',
-    sage: 'bg-[#DCE9DC] hover:bg-[#c2e4cf] text-[#183D2B] focus:ring-[#347A50]',
-    outline: 'border border-[#E6EAE4] hover:border-[#347A50] hover:bg-[#F7F8F4] text-[#202B24] focus:ring-[#347A50] bg-white',
-    ghost: 'hover:bg-[#EAF2EA] text-[#202B24] focus:ring-[#347A50]',
-    danger: 'bg-[#D9534F] hover:bg-red-700 text-white focus:ring-red-600 shadow-sm',
+    primary: 'bg-[#8DBB91] hover:bg-[#7ba87f] active:bg-[#6c9970] text-[#171717] font-semibold focus:ring-[#8DBB91] shadow-sm',
+    secondary: 'bg-[#303030] hover:bg-[#3a3a3a] text-[#ECECEC] border border-[#414141] focus:ring-[#8DBB91] shadow-sm',
+    sage: 'bg-[#1e2a21] hover:bg-[#26372b] text-[#8DBB91] border border-[#8DBB91]/50 focus:ring-[#8DBB91]',
+    outline: 'border border-[#414141] hover:border-[#8DBB91]/60 hover:bg-[#2a2a2a] text-[#ECECEC] focus:ring-[#8DBB91] bg-transparent',
+    ghost: 'hover:bg-[#2a2a2a] text-[#ECECEC] focus:ring-[#8DBB91]',
+    danger: 'bg-red-700 hover:bg-red-600 text-white focus:ring-red-500 shadow-sm',
   };
 
   const sizes = {
     sm: 'text-xs px-3 py-1.5 gap-1.5',
-    md: 'text-sm px-4 py-2.5 gap-2',
-    lg: 'text-base px-6 py-3 gap-2.5',
+    md: 'text-xs sm:text-sm px-4 py-2 gap-2',
+    lg: 'text-sm sm:text-base px-6 py-2.5 gap-2.5',
   };
 
   return (
@@ -47,4 +47,3 @@ export const Button = ({
     </button>
   );
 };
-

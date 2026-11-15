@@ -17,6 +17,7 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input, Select } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
+import { farmProfileService } from '../../services/farmProfileService';
 
 const STORAGE_KEY = 'rythusaathi_farmer_profile';
 
@@ -34,25 +35,50 @@ export const FarmProfilePage = () => {
   const [irrigationSource, setIrrigationSource] = useState('borewell');
   const [isSaved, setIsSaved] = useState(false);
 
-  // Load saved profile if available
+  // Load saved profile if available from backend, falling back to localStorage
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_${user?.user_id || 'default'}`);
-      if (saved) {
-        const data = JSON.parse(saved);
-        if (data.farmerName) setFarmerName(data.farmerName);
-        if (data.selectedState) setSelectedState(data.selectedState);
-        if (data.selectedDistrict) setSelectedDistrict(data.selectedDistrict);
-        if (data.primaryCrop) setPrimaryCrop(data.primaryCrop);
-        if (data.farmSizeAcres) setFarmSizeAcres(data.farmSizeAcres);
-        if (data.soilType) setSoilType(data.soilType);
-        if (data.irrigationSource) setIrrigationSource(data.irrigationSource);
-      } else if (user?.user_id) {
-        setFarmerName(user.user_id.split('-')[0] || 'Farmer');
+    let mounted = true;
+    async function fetchBackendProfile() {
+      try {
+        const backendProf = await farmProfileService.getProfile();
+        if (mounted && backendProf && (backendProf.farm_name || backendProf.location || backendProf.crop)) {
+          if (backendProf.farm_name) setFarmerName(backendProf.farm_name);
+          if (backendProf.location_id) setSelectedDistrict(backendProf.location_id);
+          if (backendProf.crop_id) setPrimaryCrop(backendProf.crop_id);
+          if (backendProf.farm_size_acres !== null && backendProf.farm_size_acres !== undefined) {
+            setFarmSizeAcres(String(backendProf.farm_size_acres));
+          }
+          if (backendProf.soil_type) setSoilType(backendProf.soil_type);
+          if (backendProf.irrigation_source) setIrrigationSource(backendProf.irrigation_source);
+          return;
+        }
+      } catch {
+        // Fallback to localStorage if backend profile not reachable
       }
-    } catch {
-      // ignore JSON parse errors
+
+      try {
+        const saved = localStorage.getItem(`${STORAGE_KEY}_${user?.user_id || 'default'}`);
+        if (saved) {
+          const data = JSON.parse(saved);
+          if (data.farmerName) setFarmerName(data.farmerName);
+          if (data.selectedState) setSelectedState(data.selectedState);
+          if (data.selectedDistrict) setSelectedDistrict(data.selectedDistrict);
+          if (data.primaryCrop) setPrimaryCrop(data.primaryCrop);
+          if (data.farmSizeAcres) setFarmSizeAcres(data.farmSizeAcres);
+          if (data.soilType) setSoilType(data.soilType);
+          if (data.irrigationSource) setIrrigationSource(data.irrigationSource);
+        } else if (user?.user_id) {
+          setFarmerName(user.user_id.split('-')[0] || 'Farmer');
+        }
+      } catch {
+        // ignore JSON parse errors
+      }
     }
+
+    fetchBackendProfile();
+    return () => {
+      mounted = false;
+    };
   }, [user]);
 
   // Hierarchical location filtering
@@ -61,7 +87,7 @@ export const FarmProfilePage = () => {
     (l) => l.level === 'district' && (!selectedState || l.parent_id === selectedState)
   );
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     const profile = {
       farmerName,
@@ -73,6 +99,26 @@ export const FarmProfilePage = () => {
       irrigationSource,
       updatedAt: new Date().toISOString(),
     };
+
+    // 1. Persist to backend authenticated profile store
+    try {
+      const selectedDistrictObj = locations.find((l) => l.location_id === selectedDistrict);
+      const selectedCropObj = crops.find((c) => c.crop_id === primaryCrop);
+      await farmProfileService.updateProfile({
+        farm_name: farmerName || null,
+        location: selectedDistrictObj?.display_name || null,
+        location_id: selectedDistrict || null,
+        crop: selectedCropObj?.common_names?.[0] || null,
+        crop_id: primaryCrop || null,
+        farm_size_acres: farmSizeAcres ? parseFloat(farmSizeAcres) : null,
+        soil_type: soilType || null,
+        irrigation_source: irrigationSource || null,
+      });
+    } catch (err) {
+      console.warn('Could not persist to backend store:', err);
+    }
+
+    // 2. Persist to localStorage for fallback resilience
     localStorage.setItem(`${STORAGE_KEY}_${user?.user_id || 'default'}`, JSON.stringify(profile));
     setIsSaved(true);
     toast.success('Farm profile saved successfully!', 'Profile Updated');
@@ -85,12 +131,12 @@ export const FarmProfilePage = () => {
       <div>
         <div className="flex items-center gap-2 mb-1">
           <Badge variant="active" size="sm">Farmer First</Badge>
-          <span className="text-xs text-[#78837B]">• Personalized Agronomic Context</span>
+          <span className="text-xs text-[#A3A3A3]">• Personalized Agronomic Context</span>
         </div>
-        <h1 className="text-2xl font-extrabold text-[#202B24] tracking-tight">
+        <h1 className="text-2xl font-extrabold text-[#ECECEC] tracking-tight">
           Farm Profile & Field Parameters
         </h1>
-        <p className="text-sm text-[#78837B] mt-1">
+        <p className="text-sm text-[#A3A3A3] mt-1">
           Keep your default farm location and soil attributes up-to-date for instant advisory grounding.
         </p>
       </div>
@@ -98,8 +144,8 @@ export const FarmProfilePage = () => {
       <form onSubmit={handleSave} className="space-y-6">
         <Card>
           <div className="space-y-6">
-            <h2 className="text-base font-bold text-[#202B24] flex items-center gap-2 border-b border-[#E6EAE4] pb-3">
-              <UserCheck className="w-5 h-5 text-[#347A50]" />
+            <h2 className="text-base font-bold text-[#ECECEC] flex items-center gap-2 border-b border-[#414141]/60 pb-3">
+              <UserCheck className="w-5 h-5 text-[#8DBB91]" />
               <span>Farmer & Holding Details</span>
             </h2>
 
@@ -130,8 +176,8 @@ export const FarmProfilePage = () => {
 
         <Card>
           <div className="space-y-6">
-            <h2 className="text-base font-bold text-[#202B24] flex items-center gap-2 border-b border-[#E6EAE4] pb-3">
-              <MapPin className="w-5 h-5 text-[#347A50]" />
+            <h2 className="text-base font-bold text-[#ECECEC] flex items-center gap-2 border-b border-[#414141]/60 pb-3">
+              <MapPin className="w-5 h-5 text-[#8DBB91]" />
               <span>Geographic Hierarchy</span>
             </h2>
 
@@ -176,8 +222,8 @@ export const FarmProfilePage = () => {
 
         <Card>
           <div className="space-y-6">
-            <h2 className="text-base font-bold text-[#202B24] flex items-center gap-2 border-b border-[#E6EAE4] pb-3">
-              <Sprout className="w-5 h-5 text-[#347A50]" />
+            <h2 className="text-base font-bold text-[#ECECEC] flex items-center gap-2 border-b border-[#414141]/60 pb-3">
+              <Sprout className="w-5 h-5 text-[#8DBB91]" />
               <span>Agronomic Characteristics</span>
             </h2>
 
@@ -226,8 +272,8 @@ export const FarmProfilePage = () => {
         </Card>
 
         <div className="flex items-center justify-between pt-2">
-          <div className="flex items-center gap-2 text-xs text-[#78837B]">
-            <Shield className="w-4 h-4 text-[#347A50]" />
+          <div className="flex items-center gap-2 text-xs text-[#A3A3A3]">
+            <Shield className="w-4 h-4 text-[#8DBB91]" />
             <span>Profile stored locally per tenant session. Never shared with unapproved third parties.</span>
           </div>
 

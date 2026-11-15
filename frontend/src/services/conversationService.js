@@ -79,6 +79,20 @@ export const conversationService = {
     const res = await apiClient.delete(`/conversations/${encodeURIComponent(conversationId)}`);
     return res.data;
   },
+
+  /**
+   * Update conversation title or field context.
+   */
+  async updateConversation(conversationId, { title, crop, location, growth_stage, variety } = {}) {
+    const payload = {};
+    if (title !== undefined) payload.title = title;
+    if (crop !== undefined) payload.crop = crop;
+    if (location !== undefined) payload.location = location;
+    if (growth_stage !== undefined) payload.growth_stage = growth_stage;
+    if (variety !== undefined) payload.variety = variety;
+    const res = await apiClient.patch(`/conversations/${encodeURIComponent(conversationId)}`, payload);
+    return res.data;
+  },
 };
 
 export default conversationService;

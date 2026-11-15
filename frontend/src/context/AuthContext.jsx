@@ -1,46 +1,80 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { authService } from '../services/authService';
 import { setTokenGetter, setOnUnauthorized } from '../services/apiClient';
+import { getStoredToken, setStoredToken, clearStoredToken } from '../utils/tokenStorage';
 
 const AuthContext = createContext(null);
 
-const TOKEN_KEY = 'rythusaathi_auth_token';
-
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
+  const [token, setToken] = useState(() => getStoredToken());
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Concurrency guard refs to prevent thundering herd and infinite loops
+  const isHandlingUnauthorizedRef = useRef(false);
+  const isLoggingOutRef = useRef(false);
+
   // Wire up apiClient token getter
   useEffect(() => {
-    setTokenGetter(() => localStorage.getItem(TOKEN_KEY));
+    setTokenGetter(getStoredToken);
   }, []);
 
+  // Explicit user-initiated logout
   const logout = useCallback(async () => {
+    if (isLoggingOutRef.current) return;
+    isLoggingOutRef.current = true;
+
     try {
-      if (token) {
+      const activeToken = getStoredToken();
+      if (activeToken) {
         await authService.logout();
       }
+    } catch {
+      // Ignore network failures on server-side logout
     } finally {
-      localStorage.removeItem(TOKEN_KEY);
+      clearStoredToken();
+      try {
+        localStorage.removeItem('agrosage_auth_username');
+      } catch {}
       setToken(null);
       setUser(null);
+      isLoggingOutRef.current = false;
     }
-  }, [token]);
+  }, []);
+
+  // Coordinated session expiration handler triggered by 401 response interceptor
+  // Clears state exactly once without issuing duplicate/failing logout requests
+  const handleUnauthorized = useCallback(() => {
+    if (isHandlingUnauthorizedRef.current) return;
+    isHandlingUnauthorizedRef.current = true;
+
+    clearStoredToken();
+    try {
+      localStorage.removeItem('agrosage_auth_username');
+    } catch {}
+    setToken(null);
+    setUser(null);
+
+    // Reset lock after tick to permit future logins/sessions
+    setTimeout(() => {
+      isHandlingUnauthorizedRef.current = false;
+    }, 500);
+  }, []);
 
   // Wire 401 callback
   useEffect(() => {
-    setOnUnauthorized(() => {
-      logout();
-    });
-  }, [logout]);
+    setOnUnauthorized(handleUnauthorized);
+    return () => {
+      setOnUnauthorized(null);
+    };
+  }, [handleUnauthorized]);
 
   // Fetch current user if token exists on boot
   useEffect(() => {
     let isMounted = true;
 
     async function initAuth() {
-      const storedToken = localStorage.getItem(TOKEN_KEY);
+      const storedToken = getStoredToken();
       if (!storedToken) {
         if (isMounted) setIsLoading(false);
         return;
@@ -49,13 +83,23 @@ export const AuthProvider = ({ children }) => {
       try {
         const userData = await authService.getMe();
         if (isMounted) {
-          setUser(userData);
+          let savedUsername = null;
+          try {
+            savedUsername = localStorage.getItem('agrosage_auth_username');
+          } catch {}
+          setUser({
+            ...userData,
+            username: savedUsername || userData.user_id,
+          });
           setToken(storedToken);
         }
       } catch (err) {
-        // Token invalid or expired
+        // Token invalid or expired: clear local credentials without recursive network calls
         if (isMounted) {
-          localStorage.removeItem(TOKEN_KEY);
+          clearStoredToken();
+          try {
+            localStorage.removeItem('agrosage_auth_username');
+          } catch {}
           setToken(null);
           setUser(null);
         }
@@ -73,10 +117,14 @@ export const AuthProvider = ({ children }) => {
 
   const login = async ({ username, password, tenant_id }) => {
     const data = await authService.login({ username, password, tenant_id });
-    localStorage.setItem(TOKEN_KEY, data.access_token);
+    setStoredToken(data.access_token);
+    try {
+      localStorage.setItem('agrosage_auth_username', username);
+    } catch {}
     setToken(data.access_token);
     setUser({
       user_id: data.user_id,
+      username: username,
       tenant_id: data.tenant_id,
       roles: data.roles,
       expires_at: data.expires_at,
@@ -101,7 +149,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       return userData;
     } catch {
-      logout();
+      handleUnauthorized();
       return null;
     }
   };

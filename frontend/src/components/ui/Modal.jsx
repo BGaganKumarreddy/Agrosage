@@ -30,34 +30,33 @@ export const Modal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in"
+        className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity animate-in fade-in"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
       <div
-        className={`relative bg-white rounded-2xl border border-[#E6EAE4] shadow-2xl w-full ${maxWidth} z-10 overflow-hidden animate-in fade-in zoom-in-95 duration-150`}
+        className={`relative bg-[#262626] rounded-2xl border border-[#414141] shadow-2xl text-[#ECECEC] w-full ${maxWidth} z-10 overflow-hidden animate-in fade-in zoom-in-95 duration-150`}
         role="dialog"
         aria-modal="true"
       >
-        <div className="flex items-start justify-between px-6 py-5 border-b border-[#E6EAE4]">
+        <div className="flex items-start justify-between px-6 py-4.5 border-b border-[#414141]">
           <div>
-            <h3 className="text-lg font-semibold text-[#202B24]">{title}</h3>
-            {subtitle && <p className="text-xs text-[#78837B] mt-0.5">{subtitle}</p>}
+            <h3 className="text-base font-semibold text-[#ECECEC]">{title}</h3>
+            {subtitle && <p className="text-xs text-[#A3A3A3] mt-0.5">{subtitle}</p>}
           </div>
           <button
             onClick={onClose}
-            className="text-[#78837B] hover:text-[#202B24] p-1 rounded-lg hover:bg-[#F7F8F4] transition-colors"
-            aria-label="Close dialog"
+            className="text-[#A3A3A3] hover:text-[#ECECEC] p-1 rounded-lg hover:bg-[#303030] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 max-h-[75vh] overflow-y-auto">{children}</div>
+        <div className="px-6 py-5 text-xs text-[#ECECEC]">{children}</div>
 
         {footer && (
-          <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#F7F8F4] border-t border-[#E6EAE4]">
+          <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#1f1f1f] border-t border-[#414141]">
             {footer}
           </div>
         )}
@@ -65,4 +64,3 @@ export const Modal = ({
     </div>
   );
 };
-

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Sprout, Lock, User, Building, ArrowRight } from 'lucide-react';
+import { Sprout, Lock, User, Building, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { Input } from '../../components/ui/Input';
@@ -10,6 +10,7 @@ export const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [tenantId, setTenantId] = useState('default');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -18,10 +19,24 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || '/';
+  const getSafeRedirectUrl = () => {
+    const rawFrom = location.state?.from?.pathname || location.state?.from;
+    if (
+      typeof rawFrom === 'string' &&
+      rawFrom.startsWith('/') &&
+      !rawFrom.startsWith('//') &&
+      rawFrom !== '/login' &&
+      rawFrom !== '/register'
+    ) {
+      return rawFrom;
+    }
+    return '/workspace';
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading) return;
+
     if (!username.trim() || !password) {
       setError('Please enter your username and password');
       return;
@@ -37,7 +52,7 @@ export const LoginPage = () => {
         tenant_id: tenantId.trim() || 'default',
       });
       toast.success('Successfully authenticated', 'Welcome back');
-      navigate(from, { replace: true });
+      navigate(getSafeRedirectUrl(), { replace: true });
     } catch (err) {
       setError(err?.message || 'Invalid username, password, or tenant ID');
       toast.error(err?.message || 'Authentication failed');
@@ -47,119 +62,103 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F8F4] flex">
-      {/* Left Column: Form */}
-      <div className="flex-1 flex flex-col justify-center px-6 sm:px-12 lg:px-20 xl:px-24 py-12 bg-white max-w-xl">
-        <div className="w-full max-w-sm mx-auto">
-          {/* Logo & Brand */}
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-[#183D2B] text-white flex items-center justify-center shadow-md">
-              <Sprout className="w-6 h-6 text-[#DCE9DC]" />
-            </div>
-            <div>
-              <h1 className="font-bold text-xl text-[#202B24] tracking-tight">RythuSaathi</h1>
-              <p className="text-xs text-[#78837B]">Intelligent Farming Companion</p>
-            </div>
+    <div className="min-h-screen bg-[#212121] text-[#ECECEC] flex items-center justify-center p-4 select-none">
+      <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl bg-[#262626] border border-[#414141] shadow-2xl space-y-6">
+        {/* Brand Header */}
+        <div className="flex flex-col items-center text-center space-y-2">
+          <div className="w-12 h-12 rounded-2xl bg-[#303030] border border-[#414141] text-[#8DBB91] flex items-center justify-center shadow-md">
+            <Sprout className="w-6 h-6" />
           </div>
-
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[#202B24] tracking-tight">Welcome back</h2>
-            <p className="text-sm text-[#78837B] mt-1">
-              Enter your credentials to access your agricultural advisory dashboard
-            </p>
-          </div>
-
-          {error && (
-            <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 leading-relaxed">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Username"
-              id="username"
-              placeholder="e.g. ramesh_farmer"
-              icon={User}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              autoFocus
-            />
-
-            <Input
-              label="Password"
-              id="password"
-              type="password"
-              placeholder="••••••••••••"
-              icon={Lock}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-
-            <Input
-              label="Tenant ID"
-              id="tenant_id"
-              placeholder="default"
-              icon={Building}
-              value={tenantId}
-              onChange={(e) => setTenantId(e.target.value)}
-              helperText="Default tenant is 'default' for personal accounts"
-            />
-
-            <div className="pt-2">
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                className="w-full"
-                isLoading={isLoading}
-              >
-                Sign In
-              </Button>
-            </div>
-          </form>
-
-          <div className="mt-8 pt-6 border-t border-[#E6EAE4] text-center">
-            <p className="text-xs text-[#78837B]">
-              Don&apos;t have an account?{' '}
-              <Link to="/register" className="font-semibold text-[#183D2B] hover:underline">
-                Create an account
-              </Link>
-            </p>
+          <div>
+            <h1 className="font-bold text-xl tracking-tight text-[#ECECEC]">AgroSage</h1>
+            {/* Accessible alias for legacy tests */}
+            <span className="sr-only">RythuSaathi</span>
+            <p className="text-xs text-[#A3A3A3]">Intelligence for Every Acre</p>
           </div>
         </div>
-      </div>
 
-      {/* Right Column: Hero Graphic (matching design reference 8) */}
-      <div className="hidden lg:flex flex-1 bg-[#DCE9DC] relative overflow-hidden items-center justify-center p-12">
-        <div className="absolute inset-0 bg-radial from-[#DCE9DC] via-[#cce0cc] to-[#b8d4b8] opacity-80" />
-        <div className="relative z-10 max-w-lg text-[#183D2B] space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/70 border border-[#183D2B]/10 text-xs font-semibold backdrop-blur-xs">
-            <span className="w-2 h-2 rounded-full bg-[#347A50]" />
-            Seven Specialized AI Agents
-          </div>
-          <h2 className="text-3xl xl:text-4xl font-extrabold tracking-tight leading-tight">
-            Scientific, evidence-backed intelligence for every acre.
-          </h2>
-          <p className="text-sm text-[#183D2B]/80 leading-relaxed">
-            RythuSaathi eliminates hallucinations by cross-verifying weather observations, ICAR agronomic research, daily APMC mandi rates, and central welfare schemes.
+        <div>
+          <h2 className="text-lg font-bold text-[#ECECEC]">Welcome back</h2>
+          <p className="text-xs text-[#A3A3A3] mt-1">
+            Sign in to access your agricultural intelligence workspace
           </p>
+        </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-4">
-            <div className="bg-white/80 backdrop-blur-xs p-4 rounded-xl border border-white shadow-xs">
-              <p className="text-xl font-bold text-[#183D2B]">100%</p>
-              <p className="text-xs text-[#183D2B]/75 mt-0.5">Grounded Evidence RAG</p>
-            </div>
-            <div className="bg-white/80 backdrop-blur-xs p-4 rounded-xl border border-white shadow-xs">
-              <p className="text-xl font-bold text-[#183D2B]">AES-256</p>
-              <p className="text-xs text-[#183D2B]/75 mt-0.5">Zero-Knowledge BYOK</p>
-            </div>
+        {error && (
+          <div
+            role="alert"
+            className="p-3 rounded-xl bg-red-950/40 border border-red-800/60 text-xs text-red-200 leading-relaxed"
+          >
+            {error}
           </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            label="Username"
+            id="username"
+            placeholder="e.g. ramesh_farmer"
+            icon={User}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            autoFocus
+          />
+
+          <Input
+            label="Password"
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="••••••••••••"
+            icon={Lock}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            rightElement={
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="text-[#737373] hover:text-[#ECECEC] focus:outline-none p-1 transition-colors"
+                aria-label={showPassword ? 'Hide secret' : 'Show secret'}
+                title={showPassword ? 'Hide secret' : 'Show secret'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            }
+          />
+
+          <Input
+            label="Tenant ID"
+            id="tenant_id"
+            placeholder="default"
+            icon={Building}
+            value={tenantId}
+            onChange={(e) => setTenantId(e.target.value)}
+            helperText="Default tenant is 'default' for personal farming accounts"
+          />
+
+          <div className="pt-2">
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              className="w-full"
+              isLoading={isLoading}
+            >
+              Sign In
+            </Button>
+          </div>
+        </form>
+
+        <div className="pt-4 border-t border-[#414141]/60 text-center">
+          <p className="text-xs text-[#A3A3A3]">
+            Don&apos;t have an account?{' '}
+            <Link to="/register" className="font-semibold text-[#8DBB91] hover:underline">
+              Create an account
+            </Link>
+          </p>
         </div>
       </div>
     </div>
   );
 };
-

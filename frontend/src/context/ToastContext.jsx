@@ -39,17 +39,17 @@ export const ToastProvider = ({ children }) => {
       <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none px-4">
         {toasts.map((t) => {
           const icons = {
-            success: <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />,
-            error: <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />,
-            warning: <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />,
-            info: <Info className="w-5 h-5 text-sky-600 shrink-0" />,
+            success: <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />,
+            error: <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />,
+            warning: <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />,
+            info: <Info className="w-5 h-5 text-sky-400 shrink-0" />,
           };
 
           const borders = {
-            success: 'border-emerald-200 bg-white text-slate-800 shadow-lg shadow-emerald-950/5',
-            error: 'border-red-200 bg-white text-slate-800 shadow-lg shadow-red-950/5',
-            warning: 'border-amber-200 bg-white text-slate-800 shadow-lg shadow-amber-950/5',
-            info: 'border-sky-200 bg-white text-slate-800 shadow-lg shadow-sky-950/5',
+            success: 'border-emerald-800/80 bg-[#1e2a21] text-emerald-100 shadow-xl shadow-black/50',
+            error: 'border-red-800/80 bg-[#2d1b1b] text-red-100 shadow-xl shadow-black/50',
+            warning: 'border-amber-800/80 bg-[#2a241b] text-amber-100 shadow-xl shadow-black/50',
+            info: 'border-sky-800/80 bg-[#18232e] text-sky-100 shadow-xl shadow-black/50',
           };
 
           return (
@@ -60,12 +60,12 @@ export const ToastProvider = ({ children }) => {
             >
               {icons[t.type]}
               <div className="flex-1 min-w-0">
-                {t.title && <p className="text-sm font-semibold text-slate-900 leading-none mb-1">{t.title}</p>}
-                <p className="text-sm text-slate-600 leading-relaxed break-words">{t.message}</p>
+                {t.title && <p className="text-sm font-semibold text-[#ECECEC] leading-none mb-1">{t.title}</p>}
+                <p className="text-sm text-[#A3A3A3] leading-relaxed break-words">{t.message}</p>
               </div>
               <button
                 onClick={() => removeToast(t.id)}
-                className="text-slate-400 hover:text-slate-600 p-0.5 rounded transition-colors"
+                className="text-[#737373] hover:text-[#ECECEC] p-0.5 rounded transition-colors"
                 aria-label="Close notification"
               >
                 <X className="w-4 h-4" />

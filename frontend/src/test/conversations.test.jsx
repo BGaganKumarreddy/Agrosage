@@ -16,6 +16,7 @@ vi.mock('../services/conversationService', () => ({
     createConversation: vi.fn(),
     sendMessage: vi.fn(),
     deleteConversation: vi.fn(),
+    updateConversation: vi.fn(),
   },
   default: {
     listConversations: vi.fn(),
@@ -23,6 +24,7 @@ vi.mock('../services/conversationService', () => ({
     createConversation: vi.fn(),
     sendMessage: vi.fn(),
     deleteConversation: vi.fn(),
+    updateConversation: vi.fn(),
   },
 }));
 
@@ -41,17 +43,41 @@ vi.mock('../services/credentialService', () => ({
 }));
 
 // Mock configService
-vi.mock('../services/configurationService', () => ({
-  configurationService: {
+vi.mock('../services/configurationService', () => {
+  const mockConfigService = {
     getCrops: vi.fn().mockResolvedValue([
       { crop_id: 'crop:cereal:rice', common_names: ['Rice'], scientific_name: 'Oryza sativa' },
     ]),
     getLocations: vi.fn().mockResolvedValue([
       { location_id: 'location:district:in-pb-ludhiana', display_name: 'Ludhiana', level: 'district' },
+      { location_id: 'location:district:in-tg-adilabad', display_name: 'Adilabad', level: 'district' },
     ]),
+    getProviders: vi.fn().mockResolvedValue([]),
+    resolveLocation: vi.fn().mockResolvedValue({
+      status: 'resolved',
+      resolved_location_id: 'location:district:in-pb-ludhiana',
+      display_name: 'Ludhiana',
+      state: 'Punjab',
+      distance_km: 4.2,
+      confidence: 'exact_match',
+      candidates: [
+        {
+          location_id: 'location:district:in-pb-ludhiana',
+          display_name: 'Ludhiana',
+          state: 'Punjab',
+          distance_km: 4.2,
+        },
+      ],
+      user_confirmation_required: true,
+      message: 'Detected proximity to Ludhiana, Punjab (4.2 km).',
+    }),
     getSystemConfig: vi.fn().mockResolvedValue({}),
-  },
-}));
+  };
+  return {
+    configurationService: mockConfigService,
+    default: mockConfigService,
+  };
+});
 
 describe('Conversational Advisory Chat Tests', () => {
   beforeEach(() => {
@@ -387,6 +413,115 @@ describe('Conversational Advisory Chat Tests', () => {
       expect(
         screen.getByText(/No government scheme inquiry was requested; scheme lookup is skipped/i)
       ).toBeInTheDocument();
+    });
+  });
+
+  it('7. Opens location picker modal and allows manual district selection', async () => {
+    conversationService.listConversations.mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      limit: 50,
+      offset: 0,
+    });
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText(/Welcome to RythuSaathi Assistant/i)).toBeInTheDocument();
+    });
+
+    // Click the location button in the composer
+    const locationBtn = screen.getByTitle(/Detect field location with browser GPS/i);
+    fireEvent.click(locationBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Agricultural Field Location/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Use Current Browser Location \(GPS\)/i })).toBeInTheDocument();
+    });
+
+    // Select district from list
+    const ludhianaEl = await screen.findByText('Ludhiana');
+    fireEvent.click(ludhianaEl);
+
+    // Confirm location selection
+    const confirmBtn = screen.getByRole('button', { name: /Confirm Location/i });
+    fireEvent.click(confirmBtn);
+
+    await waitFor(() => {
+      // The modal should close and the active context bar should show Ludhiana
+      expect(screen.queryByText(/Agricultural Field Location/i)).not.toBeInTheDocument();
+      expect(screen.getByText('Ludhiana')).toBeInTheDocument();
+    });
+  });
+
+  it('8. Syncs field context edits via updateConversation in an active conversation', async () => {
+    const mockConv = {
+      conversation_id: 'conv-sync-1',
+      title: 'Context Sync Test',
+      context: {
+        crop: 'Rice',
+        location: 'Ludhiana',
+        growth_stage: 'Tillering',
+        variety: null,
+      },
+      messages: [
+        {
+          message_id: 'msg-u1',
+          role: 'user',
+          content: 'How is the crop looking?',
+          created_at: new Date().toISOString(),
+        },
+        {
+          message_id: 'msg-a1',
+          role: 'assistant',
+          content: 'Crop status normal.',
+          created_at: new Date().toISOString(),
+        },
+      ],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    conversationService.listConversations.mockResolvedValueOnce({
+      items: [{ conversation_id: 'conv-sync-1', title: 'Context Sync Test', message_count: 2 }],
+      total: 1,
+      limit: 50,
+      offset: 0,
+    });
+    conversationService.getConversation.mockResolvedValueOnce(mockConv);
+    conversationService.updateConversation.mockResolvedValueOnce({
+      ...mockConv,
+      context: {
+        ...mockConv.context,
+        variety: 'Basmati-370',
+      },
+    });
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText(/Crop status normal/i)).toBeInTheDocument();
+    });
+
+    // Open context drawer
+    const adjustBtn = screen.getByRole('button', { name: /Adjust Field Context/i });
+    fireEvent.click(adjustBtn);
+
+    // Edit variety
+    const varietyInput = screen.getByLabelText(/Variety/i);
+    fireEvent.change(varietyInput, { target: { value: 'Basmati-370' } });
+
+    // Click Apply Context
+    const applyBtn = screen.getByRole('button', { name: /Apply Context/i });
+    fireEvent.click(applyBtn);
+
+    await waitFor(() => {
+      expect(conversationService.updateConversation).toHaveBeenCalledWith(
+        'conv-sync-1',
+        expect.objectContaining({
+          variety: 'Basmati-370',
+        })
+      );
     });
   });
 });

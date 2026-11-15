@@ -56,3 +56,40 @@ class ProviderSchema(BaseModel):
     supported_models: list[str] = Field(default_factory=list)
     description: str
 
+
+class ResolveLocationRequest(BaseModel):
+    """Coordinates submitted for browser geolocation resolution."""
+
+    model_config = ConfigDict(frozen=True)
+
+    latitude: float = Field(ge=-90.0, le=90.0, description="WGS84 latitude")
+    longitude: float = Field(ge=-180.0, le=180.0, description="WGS84 longitude")
+
+
+class SupportedDistrictCandidate(BaseModel):
+    """Catalog-verified candidate district."""
+
+    model_config = ConfigDict(frozen=True)
+
+    location_id: str
+    display_name: str
+    district: str
+    state: str
+    distance_km: float
+
+
+class ResolvedLocationResponse(BaseModel):
+    """Validated agricultural location candidate matching registered catalog."""
+
+    model_config = ConfigDict(frozen=True)
+
+    location_id: str
+    display_name: str
+    district: str
+    state: str
+    state_id: str | None = None
+    distance_km: float
+    is_within_threshold: bool
+    candidate_summary: str
+    supported_districts: list[SupportedDistrictCandidate] = Field(default_factory=list)
+

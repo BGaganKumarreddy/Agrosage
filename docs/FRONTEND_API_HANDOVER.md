@@ -1,4 +1,6 @@
-# RythuSaathi — Frontend Developer API Handover Guide
+# AgroSage — Frontend Developer API Handover Guide
+
+> **Note on Compatibility**: This guide reflects the canonical **AgroSage** platform. For backward compatibility, the underlying Python package namespace and internal wire identifiers (`service: "rythusaathi"`, issuer `rythusaathi:local`) remain unchanged.
 
 **Version**: 0.1.0  
 **Backend Framework**: FastAPI (Python 3.12+ / 3.14)  

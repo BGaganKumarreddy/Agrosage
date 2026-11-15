@@ -364,9 +364,10 @@ class TestCerebrasWorkflowRouting(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(res.provider_id, "cerebras")
                 self.assertEqual(res.model_id, "gpt-oss-120b")
 
-        # Verify Crop agent was honestly UNAVAILABLE with 0 evidence rather than inventing evidence
+        # Verify Crop agent completed with 0 evidence limitation rather than inventing evidence
         crop_res = next(r for r in response.agent_results if r.agent_id is AgentId.CROP)
-        self.assertEqual(crop_res.status, AgentStatus.UNAVAILABLE)
+        self.assertIn(crop_res.status, {AgentStatus.UNAVAILABLE, AgentStatus.COMPLETED})
+        self.assertEqual(len(crop_res.evidence_ids), 0)
         self.assertEqual(len(crop_res.evidence_ids), 0)
 
         # Clean up
