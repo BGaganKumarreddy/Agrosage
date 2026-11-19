@@ -579,7 +579,11 @@ def resolve_followup_context(
             elif pending_question.field == "crop":
                 new_ctx.crop = canon_val
                 new_ctx.crop_id = canon_id
-                confirmed_set.add("crop")
+                new_ctx.crop_confirmed = canon_id is not None
+                if canon_id:
+                    confirmed_set.add("crop")
+                else:
+                    confirmed_set.discard("crop")
                 if "crop" in skipped_set:
                     skipped_set.remove("crop")
 
@@ -601,10 +605,13 @@ def resolve_followup_context(
             canon = rec.common_names[0].value if rec and rec.common_names else (rec.scientific_name if rec else overrides["crop"])
             new_ctx.crop = canon.title()
             new_ctx.crop_id = res.canonical_id
+            new_ctx.crop_confirmed = True
             confirmed_set.add("crop")
         else:
             new_ctx.crop = overrides["crop"].strip().title()
-            confirmed_set.add("crop")
+            new_ctx.crop_id = None
+            new_ctx.crop_confirmed = False
+            confirmed_set.discard("crop")
 
     if overrides.get("location"):
         loc_res = LOCATION_REGISTRY.resolve(overrides["location"])
@@ -645,6 +652,7 @@ def resolve_followup_context(
                     canon = rec.common_names[0].value if rec.common_names else rec.scientific_name
                     new_ctx.crop = canon.title()
                     new_ctx.crop_id = rec.crop_id
+                    new_ctx.crop_confirmed = True
                     confirmed_set.add("crop")
                     break
 
@@ -674,6 +682,7 @@ def resolve_followup_context(
                         canon = rec.common_names[0].value if rec.common_names else rec.scientific_name
                         new_ctx.crop = canon.title()
                         new_ctx.crop_id = rec.crop_id
+                        new_ctx.crop_confirmed = True
                         confirmed_set.add("crop")
                         break
 

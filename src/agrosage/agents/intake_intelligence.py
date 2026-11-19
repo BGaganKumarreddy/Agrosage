@@ -15,6 +15,7 @@ from .contracts import (
     IntakeDecisionType,
     WorkflowMode,
 )
+from ..domain import ContextFact, FactState
 from ..domain.registry import RegistryLevel
 from ..domain.seed import CROP_REGISTRY, LOCATION_REGISTRY
 
@@ -81,6 +82,7 @@ def _build_farmer_friendly_question(
                 "Cotton",
                 "Wheat",
                 "Maize",
+                "Tomato",
                 "Chilli",
                 "I'm not sure",
             ),
@@ -252,6 +254,43 @@ def evaluate_intake_decision(
     location_id = getattr(context, "location_id", None)
     growth_stage = getattr(context, "growth_stage", None)
     variety = getattr(context, "variety", None)
+
+    # Handle RequestContext where facts are ContextFact[EntityReference]
+    if isinstance(crop, ContextFact):
+        if crop.state is FactState.SUPPLIED and crop.value:
+            crop_id = crop.value.canonical_id
+            crop = crop.value.display_name
+            crop_confirmed = True
+        else:
+            crop = None
+            crop_id = None
+            crop_confirmed = False
+    else:
+        crop_confirmed = bool(getattr(context, "crop_confirmed", False))
+        if crop_id and CROP_REGISTRY.get(crop_id):
+            crop_confirmed = True
+        elif isinstance(crop, str) and crop.strip():
+            resolved_crop = CROP_REGISTRY.resolve(crop)
+            crop_confirmed = resolved_crop.canonical_id is not None
+            if crop_confirmed:
+                crop_id = resolved_crop.canonical_id
+        if not crop_confirmed:
+            crop = None
+            crop_id = None
+
+    if isinstance(location, ContextFact):
+        if location.state is FactState.SUPPLIED and location.value:
+            location_id = location.value.canonical_id
+            location = location.value.display_name
+        else:
+            location = None
+            location_id = None
+
+    if isinstance(growth_stage, ContextFact):
+        growth_stage = growth_stage.value if growth_stage.state is FactState.SUPPLIED else None
+
+    if isinstance(variety, ContextFact):
+        variety = variety.value.display_name if variety.state is FactState.SUPPLIED and variety.value else None
 
     observations = list(getattr(context, "observations", ()) or ())
     confirmed_fields = set(getattr(context, "confirmed_fields", ()) or ())

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from ...agents.contracts import WorkflowMode
 from .advisory import (
@@ -40,6 +40,7 @@ class ContextStateSchema(BaseModel):
 
     crop: str | None = None
     crop_id: str | None = None
+    crop_confirmed: bool = False
     location: str | None = None
     location_id: str | None = None
     growth_stage: str | None = None
@@ -49,6 +50,12 @@ class ContextStateSchema(BaseModel):
     farming_problem: str | None = None
     confirmed_fields: list[str] = Field(default_factory=list)
     skipped_fields: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _sync_crop_confirmed(self) -> ContextStateSchema:
+        if "crop" in self.confirmed_fields or bool(self.crop_id):
+            self.crop_confirmed = True
+        return self
 
 
 class ConversationMessageSchema(BaseModel):

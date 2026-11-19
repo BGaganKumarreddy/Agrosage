@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from ..domain import (
     AgentId,
     FactState,
@@ -141,36 +143,84 @@ class CropAgent(_DomainAgent):
                         "infest",
                         "damage",
                         "attack",
+                        "pectinophora",
+                        "gossypiella",
+                        "helicoverpa",
+                        "spodoptera",
+                        "whitefly",
+                        "aphid",
+                        "thrips",
+                        "jassid",
+                        "mite",
+                        "weevil",
+                        "insect",
+                        "larva",
+                        "larvae",
+                        "moth",
+                        "egg",
+                        "rosette",
+                        "rosetted",
+                        "locule",
+                        "frass",
+                        "stain",
+                        "etl",
+                        "nske",
+                        "azadirachtin",
+                        "parasitoid",
+                        "trichogramma",
                     )
                 )
+                national_queries = [case.request.query]
+                if (
+                    case.context.location.state is FactState.SUPPLIED
+                    and case.context.location.value
+                ):
+                    loc_disp = case.context.location.value.display_name
+                    cleaned_q = re.sub(
+                        rf"\b(?:in\s+)?{re.escape(loc_disp)}\b",
+                        "",
+                        case.request.query,
+                        flags=re.IGNORECASE,
+                    )
+                    cleaned_q = re.sub(r"\s+", " ", cleaned_q).strip()
+                    if cleaned_q and cleaned_q.lower() != case.request.query.lower():
+                        national_queries.append(cleaned_q)
+
                 if stage:
-                    for hit in self._knowledge.search(
-                        case.request.query,
-                        top_k=4,
-                        filters=RetrievalFilter(crop_id=crop_id, growth_stage=stage),
-                    ):
-                        if hit.chunk.crop_id != crop_id:
-                            continue
-                        chunk_geos = hit.chunk.geographic_applicability or ()
-                        if chunk_geos and "location:country:in" not in chunk_geos:
-                            continue
-                        hits_with_tier.setdefault(
-                            hit.chunk.chunk_id, (hit, "tier_2_broader_geography")
-                        )
+                    for q_candidate in national_queries:
+                        for hit in self._knowledge.search(
+                            q_candidate,
+                            top_k=4,
+                            filters=RetrievalFilter(crop_id=crop_id, growth_stage=stage),
+                        ):
+                            if hit.chunk.crop_id != crop_id:
+                                continue
+                            chunk_geos = hit.chunk.geographic_applicability or ()
+                            if chunk_geos and "location:country:in" not in chunk_geos:
+                                continue
+                            hits_with_tier.setdefault(
+                                hit.chunk.chunk_id, (hit, "tier_2_broader_geography")
+                            )
+                        if hits_with_tier:
+                            break
+
                 if not hits_with_tier and is_pest_or_protection:
-                    for hit in self._knowledge.search(
-                        case.request.query,
-                        top_k=4,
-                        filters=RetrievalFilter(crop_id=crop_id),
-                    ):
-                        if hit.chunk.crop_id != crop_id:
-                            continue
-                        chunk_geos = hit.chunk.geographic_applicability or ()
-                        if chunk_geos and "location:country:in" not in chunk_geos:
-                            continue
-                        hits_with_tier.setdefault(
-                            hit.chunk.chunk_id, (hit, "tier_2_broader_geography")
-                        )
+                    for q_candidate in national_queries:
+                        for hit in self._knowledge.search(
+                            q_candidate,
+                            top_k=4,
+                            filters=RetrievalFilter(crop_id=crop_id),
+                        ):
+                            if hit.chunk.crop_id != crop_id:
+                                continue
+                            chunk_geos = hit.chunk.geographic_applicability or ()
+                            if chunk_geos and "location:country:in" not in chunk_geos:
+                                continue
+                            hits_with_tier.setdefault(
+                                hit.chunk.chunk_id, (hit, "tier_2_broader_geography")
+                            )
+                        if hits_with_tier:
+                            break
 
         else:
             # Tier 4: General crop guidance (when location is unconfirmed)
@@ -221,8 +271,12 @@ class CropAgent(_DomainAgent):
         # Tier 5: Structured Limitation Result (Zero-Match Outcome)
         if not hits_with_tier:
             crop_name = (
-                case.context.crop.value.display_name
-                if case.context.crop.state is FactState.SUPPLIED
+                case.context.crop.value.display_name.title()
+                if (
+                    case.context.crop.state is FactState.SUPPLIED
+                    and case.context.crop.value
+                    and hasattr(case.context.crop.value.display_name, "title")
+                )
                 else crop_id
             )
             loc_name = (

@@ -225,6 +225,13 @@ class CropRegistry:
             candidate = term.removeprefix("crop:").strip()
             if any(_normalize(c.scientific_name) == candidate or any(_normalize(n.value) == candidate for n in c.common_names + c.regional_names) for c in self.records):
                 term = candidate
+        # Clarification controls commonly send answers such as "crop tomato".
+        # Treat only this explicit label as presentation syntax; resolution
+        # below remains exact and never applies general fuzzy matching.
+        if term.startswith("crop "):
+            candidate = term.removeprefix("crop ").strip()
+            if candidate:
+                term = candidate
         exact = [crop for crop in self.records if (
             term == _normalize(crop.crop_id) or any(
             (language is None or name.language.casefold() == language.casefold())
@@ -247,10 +254,13 @@ class CropRegistry:
                               candidate_ids=tuple(sorted(c.crop_id for c in exact)),
                               message="crop entry is outside its effective period")
         partial = self.search(query, language=language, region_ids=region_ids, on_date=day)
-        if partial:
+        if len(partial) > 1:
             return Resolution(status=ResolutionStatus.AMBIGUOUS,
                               candidate_ids=tuple(sorted(c.crop_id for c in partial)),
                               message="selection is not an exact match")
+        if partial:
+            return Resolution(status=ResolutionStatus.NOT_FOUND,
+                              message="crop selection must exactly match a registry name")
         return Resolution(status=ResolutionStatus.NOT_FOUND,
                           message="crop is not present in this registry version")
 

@@ -338,7 +338,20 @@ async def create_conversation(
     initial_ctx = ContextStateSchema()
     if req.crop:
         initial_ctx.crop = req.crop
-        initial_ctx.confirmed_fields.append("crop")
+        crop_res = CROP_REGISTRY.resolve(req.crop)
+        if crop_res.canonical_id:
+            crop_rec = CROP_REGISTRY.get(crop_res.canonical_id)
+            initial_ctx.crop = (
+                crop_rec.common_names[0].value.title()
+                if (crop_rec and crop_rec.common_names)
+                else req.crop
+            )
+            initial_ctx.crop_id = crop_res.canonical_id
+            initial_ctx.crop_confirmed = True
+            initial_ctx.confirmed_fields.append("crop")
+        else:
+            initial_ctx.crop_id = None
+            initial_ctx.crop_confirmed = False
     if req.location:
         initial_ctx.location = req.location
         initial_ctx.confirmed_fields.append("location")
@@ -386,6 +399,8 @@ async def create_conversation(
         if decision.known_context:
             if not updated_ctx.crop and decision.known_context.get("crop"):
                 updated_ctx.crop = decision.known_context["crop"]
+            if updated_ctx.crop and updated_ctx.crop_id:
+                updated_ctx.crop_confirmed = True
             if not updated_ctx.location and decision.known_context.get("location"):
                 updated_ctx.location = decision.known_context["location"]
             if not updated_ctx.growth_stage and decision.known_context.get("growth_stage"):
@@ -592,6 +607,8 @@ async def send_message(
     if decision.known_context:
         if not updated_ctx.crop and decision.known_context.get("crop"):
             updated_ctx.crop = decision.known_context["crop"]
+        if updated_ctx.crop and updated_ctx.crop_id:
+            updated_ctx.crop_confirmed = True
         if not updated_ctx.location and decision.known_context.get("location"):
             updated_ctx.location = decision.known_context["location"]
         if not updated_ctx.growth_stage and decision.known_context.get("growth_stage"):
@@ -711,14 +728,19 @@ async def update_conversation(
                     else val
                 )
                 updated_ctx.crop_id = crop_res.canonical_id
+                updated_ctx.crop_confirmed = True
             else:
                 updated_ctx.crop = val
                 updated_ctx.crop_id = None
-            if "crop" not in confirmed:
+                updated_ctx.crop_confirmed = False
+            if updated_ctx.crop_confirmed and "crop" not in confirmed:
                 confirmed.append("crop")
+            elif not updated_ctx.crop_confirmed and "crop" in confirmed:
+                confirmed.remove("crop")
         else:
             updated_ctx.crop = None
             updated_ctx.crop_id = None
+            updated_ctx.crop_confirmed = False
             if "crop" in confirmed:
                 confirmed.remove("crop")
 

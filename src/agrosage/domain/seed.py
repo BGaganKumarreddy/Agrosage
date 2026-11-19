@@ -134,6 +134,22 @@ COTTON = CropRecord(
     effective_from=_EFFECTIVE_FROM,
 )
 
+TOMATO = CropRecord(
+    crop_id="crop:solanum-lycopersicum",
+    common_names=(
+        NameVariant(value="tomato"),
+        NameVariant(value="tomatoes"),
+        NameVariant(value="tomato crop"),
+        # Deliberate, bounded correction for the farmer-facing typo observed in
+        # conversation intake. This is an alias, not fuzzy matching.
+        NameVariant(value="tomotoes"),
+    ),
+    scientific_name="Solanum lycopersicum L.",
+    category=CropCategory.VEGETABLE,
+    source_references=("https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:818246-1",),
+    effective_from=_EFFECTIVE_FROM,
+)
+
 MAIZE = CropRecord(
     crop_id="crop:zea-mays",
     common_names=(NameVariant(value="maize"), NameVariant(value="corn")),
@@ -161,7 +177,7 @@ BLACK_GRAM = CropRecord(
 )
 
 CROP_REGISTRY = CropRegistry(CROP_REGISTRY_METADATA,
-                             (RICE, WHEAT, COTTON, MAIZE, CHICKPEA, BLACK_GRAM))
+                             (RICE, WHEAT, COTTON, TOMATO, MAIZE, CHICKPEA, BLACK_GRAM))
 
 LOCATION_REGISTRY_METADATA = RegistryMetadata(
     registry_id="agrosage:location-seed", version=SEED_VERSION,
