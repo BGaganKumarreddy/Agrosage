@@ -1,4 +1,4 @@
-"""Owner-scoped persistent conversations and follow-up intelligence engine for RythuSaathi."""
+"""Owner-scoped persistent conversations and follow-up intelligence engine for AgroSage."""
 
 from __future__ import annotations
 

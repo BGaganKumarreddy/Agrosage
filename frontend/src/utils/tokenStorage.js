@@ -1,13 +1,13 @@
 /**
  * Centralized authentication token storage management for AgroSage.
  *
- * Enforces the canonical storage key `rythusaathi_auth_token` while providing
+ * Enforces the canonical storage key `agrosage_auth_token` while providing
  * transparent, one-time backward-compatible migration for any legacy session
- * stored under `rythusaathi_token`.
+ * stored under `agrosage_token`.
  */
 
-export const AUTH_TOKEN_KEY = 'rythusaathi_auth_token';
-export const LEGACY_AUTH_TOKEN_KEY = 'rythusaathi_token';
+export const AUTH_TOKEN_KEY = 'agrosage_auth_token';
+export const LEGACY_AUTH_TOKEN_KEY = 'agrosage_token';
 
 /**
  * Retrieve the active authentication token, migrating from legacy key if present.

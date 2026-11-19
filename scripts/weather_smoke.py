@@ -11,15 +11,15 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from rythusaathi.agents.open_meteo import OpenMeteoWeatherProvider
-from rythusaathi.domain.seed import LOCATION_REGISTRY
+from agrosage.agents.open_meteo import OpenMeteoWeatherProvider
+from agrosage.domain.seed import LOCATION_REGISTRY
 
 
 async def async_main(args: argparse.Namespace) -> int:
     provider = OpenMeteoWeatherProvider()
     location_query = args.location
     print("=" * 60)
-    print("RythuSaathi — Open-Meteo Weather Provider Smoke Test")
+    print("AgroSage — Open-Meteo Weather Provider Smoke Test")
     print("=" * 60)
     print(f"Location Query: {location_query}")
 

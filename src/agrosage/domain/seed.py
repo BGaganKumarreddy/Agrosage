@@ -11,7 +11,7 @@ _CROP_SEED_VERSION = "seed-2026.11-v2"
 _EFFECTIVE_FROM = date(2026, 1, 1)
 
 CROP_REGISTRY_METADATA = RegistryMetadata(
-    registry_id="rythusaathi:crop-seed", version=_CROP_SEED_VERSION,
+    registry_id="agrosage:crop-seed", version=_CROP_SEED_VERSION,
     effective_from=_EFFECTIVE_FROM, source_reference="https://powo.science.kew.org/",
     scope_note="Small cited starter catalog; absence does not mean a crop is unsupported in agriculture.",
 )
@@ -164,7 +164,7 @@ CROP_REGISTRY = CropRegistry(CROP_REGISTRY_METADATA,
                              (RICE, WHEAT, COTTON, MAIZE, CHICKPEA, BLACK_GRAM))
 
 LOCATION_REGISTRY_METADATA = RegistryMetadata(
-    registry_id="rythusaathi:location-seed", version=SEED_VERSION,
+    registry_id="agrosage:location-seed", version=SEED_VERSION,
     effective_from=_EFFECTIVE_FROM, source_reference="https://www.telangana.gov.in/about/districts/",
     scope_note="Small, source-attributed examples only; not a complete India location catalog or government ID list.",
 )
@@ -217,7 +217,7 @@ LOCATION_RECORDS = (
 LOCATION_REGISTRY = LocationRegistry(LOCATION_REGISTRY_METADATA, LOCATION_RECORDS)
 
 COVERAGE_REGISTRY_METADATA = RegistryMetadata(
-    registry_id="rythusaathi:coverage-seed",
+    registry_id="agrosage:coverage-seed",
     version=SEED_VERSION,
     effective_from=_EFFECTIVE_FROM,
     source_reference="https://icar.org.in/",

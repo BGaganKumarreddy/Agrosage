@@ -1,4 +1,4 @@
-"""Typed shared-intelligence contracts for the RythuSaathi workflow."""
+"""Typed shared-intelligence contracts for the AgroSage workflow."""
 
 from .board import (
     AGENT_WRITE_OWNERSHIP,

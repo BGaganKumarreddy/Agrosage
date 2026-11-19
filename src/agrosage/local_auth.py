@@ -14,7 +14,7 @@ from argon2.exceptions import InvalidHashError, VerifyMismatchError, Verificatio
 
 from .security import IdentityRole, VerifiedIdentity
 
-LOCAL_ISSUER = "rythusaathi:local"
+LOCAL_ISSUER = "agrosage:local"
 _INVALID_CREDENTIALS = "Authentication failed"
 
 

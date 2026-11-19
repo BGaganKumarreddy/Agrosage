@@ -1,4 +1,4 @@
-# AgroSage — Permanent Project Identity, Workspace Migration and Naming Safety Rules
+# AgroSage — Permanent Project Identity, Architecture and Naming Safety Rules
 
 **Effective immediately. These instructions apply to every future coding task and agent session in this repository.**
 
@@ -15,8 +15,10 @@
 | **Canonical Clone URL** | `https://github.com/BGaganKumarreddy/agrosage.git` |
 | **Main Branch** | `main` |
 | **Project Category** | AI-Powered Agricultural Intelligence Platform |
+| **Python Package Namespace** | `agrosage` |
+| **Python Package Directory** | `src/agrosage/` |
 
-The legacy product name `RythuSaathi` is **deprecated** for all new public-facing content, documentation, branding, user interface text, and commits.
+The project identity is strictly **AgroSage** across all public-facing content, documentation, branding, user interface text, internal Python namespaces, database identifiers, and commits.
 
 ---
 
@@ -39,7 +41,7 @@ Before performing **ANY** operation (inspecting code, editing files, running tes
 
 ### Immediate Stop Condition
 
-If the coding environment, terminal, IDE, or agent session points to the old `rythusaathi` directory:
+If the coding environment, terminal, IDE, or agent session points to an invalid or stale directory:
 - **Stop execution immediately.**
 - **Do not edit files.**
 - **Do not run tests.**
@@ -52,14 +54,15 @@ If the coding environment, terminal, IDE, or agent session points to the old `ry
 
 ## 3. Naming Policy
 
-For all new development:
+For all development:
 - Use **`AgroSage`** in frontend branding, page titles, user-visible text, documentation, and reports.
-- Use **`agrosage`** in new project-root directory references, scripts, and workspace configuration.
-- Use **`AgroSage`** or a clearly relevant feature name in new commit subjects.
-- Use the canonical AgroSage GitHub repository URL (`https://github.com/BGaganKumarreddy/agrosage.git`) in new documentation.
+- Use **`agrosage`** in project-root directory references, Python imports (`import agrosage`), scripts, and workspace configuration.
+- Use **`AgroSage`** or a clearly relevant feature name in commit subjects.
+- Use the canonical AgroSage GitHub repository URL (`https://github.com/BGaganKumarreddy/agrosage.git`) in documentation.
 
-### Prohibited in New Development
-Do not introduce the deprecated product name (`RythuSaathi`) into new:
+### Prohibited in Development
+Do not introduce legacy product identifiers into:
+- Source code or package imports.
 - Documentation.
 - Architecture diagrams.
 - Feature names.
@@ -70,54 +73,41 @@ Do not introduce the deprecated product name (`RythuSaathi`) into new:
 - Release notes.
 - Configuration examples.
 
-*Historical documents may retain the old name when historically necessary, but must never misrepresent the current product identity.*
-
 ---
 
-## 4. Critical Compatibility Exception — Internal Identifiers
+## 4. Canonical Architecture and Identifiers
 
-The existing Python package namespace:
+The canonical Python package namespace is:
 ```text
-rythusaathi
+agrosage
 ```
-**MUST remain unchanged for now.**
+Located in:
+```text
+src/agrosage/
+```
 
-**Strictly prohibited — Do not globally rename:**
-- Python import namespaces (`from rythusaathi...`, `import rythusaathi`).
-- Existing internal module paths (`src/rythusaathi/...`).
-- Database table names.
-- SQLite filenames (`*.sqlite3`).
-- Database migration identifiers.
-- Existing credential namespaces (e.g. `service: "rythusaathi"`, issuer `rythusaathi:local`).
-- Existing historical test fixtures.
-- Historical migration records.
+**Canonical Identifiers:**
+- Python import namespaces: `from agrosage...`, `import agrosage`.
+- Internal module paths: `src/agrosage/...`.
+- Database filenames: `tmp/agrosage-auth.sqlite3`, `tmp/agrosage-history.sqlite3`, `agrosage.db`.
+- Credential namespaces: `service: "agrosage"`, issuer `agrosage:local`.
+- Frontend token storage keys: `agrosage_auth_token`, `agrosage_token`, `agrosage_farmer_profile`.
 
-These identifiers are actively referenced by existing code, persistent data stores, migration histories, and installed virtual environments. **Do not rename them merely to make every occurrence look consistent.**
-
-### Future Package Migration Protocol
-Any future internal package migration must be a separately approved task with:
-1. Dependency and import impact analysis.
-2. Database compatibility analysis.
-3. Migration and rollback strategy.
-4. Comprehensive regression tests.
-5. Documentation updates.
-6. Verified compatibility with existing user data.
+*Note*: External government welfare schemes (such as Telangana's official `Rythu Bharosa` welfare scheme, G.O. Rt. No. 18) are domain knowledge entities and must remain accurately cited per official government records.
 
 ---
 
-## 5. Stale Workspace-Path Audit & Classification
+## 5. Workspace-Path Audit & Classification
 
 When auditing files across the repository, classify every occurrence into one of five categories:
 
 | Class | Category | Action |
 |---|---|---|
 | **1** | **Defective stale workspace reference** | **Fix immediately** (e.g. outdated clone URLs, dead hardcoded paths, incorrect `cd` instructions). |
-| **2** | **Intentional internal Python compatibility identifier** | **Preserve** (e.g. `src/rythusaathi/`, package imports, `pyproject.toml` package name). |
-| **3** | **Historical documentation reference** | **Preserve** (e.g. archived phase reports, historical audit logs documenting prior workspace state). |
-| **4** | **Persistent database or migration identifier** | **Preserve** (e.g. SQLite filenames, table schemas, auth tokens, database records). |
-| **5** | **Harmless example or test fixture** | **Preserve** unless explicitly targeted by a new feature requirement. |
-
-**Do not execute indiscriminate global find-and-replace operations.** Fix only defective references.
+| **2** | **Canonical AgroSage Python package identifier** | **Preserve** (`src/agrosage/`, package imports, `pyproject.toml` package name). |
+| **3** | **Historical documentation reference** | **Update** to canonical AgroSage documentation standards. |
+| **4** | **Persistent database or migration identifier** | **Preserve canonical** (`agrosage-*.sqlite3`, table schemas, auth tokens, database records). |
+| **5** | **Test fixtures and assertions** | **Preserve canonical** (`agrosage:local`, AgroSage test assertions). |
 
 ---
 
@@ -134,7 +124,6 @@ Before **every** commit:
 8. Verify that the commit belongs to the correct repository.
 
 **Rules of engagement:**
-- Never commit from the old workspace.
 - Never create or use a second Git repository inside the project folder.
 - Never overwrite user data or rewrite existing Git history to resolve naming inconsistencies.
 
@@ -144,4 +133,4 @@ Before **every** commit:
 
 - **Every future agent session MUST read and follow this `AGENTS.md` before taking action.**
 - If other instruction files or developer prompts conflict with `AGENTS.md`, identify the conflict and resolve it explicitly instead of silently choosing one.
-- The coding agent must retain the canonical AgroSage identity across new sessions and must never revert to the old product name.
+- The coding agent must retain the canonical AgroSage identity across new sessions and must never revert to old product names.

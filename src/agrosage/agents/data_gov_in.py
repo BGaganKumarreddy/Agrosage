@@ -1,4 +1,4 @@
-"""data.gov.in Mandi Market Price Provider for RythuSaathi.
+"""data.gov.in Mandi Market Price Provider for AgroSage.
 
 Integrates the official Government of India Open Government Data (data.gov.in)
 Agmarknet daily market price API (resource 9ef84268-d588-465a-a308-a864a43d0070).
@@ -40,7 +40,7 @@ DEFAULT_TIMEOUT_SECONDS = 15.0
 IST = timezone(timedelta(hours=5, minutes=30), name="IST")
 
 DEFAULT_HEADERS: dict[str, str] = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) RythuSaathi/1.0",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AgroSage/1.0",
     "Accept": "application/json",
 }
 

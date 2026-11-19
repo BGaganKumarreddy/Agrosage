@@ -161,7 +161,7 @@ http://127.0.0.1:8000/api/v1
 ### 4. Start the backend
 Open a terminal at the repository root:
 ```powershell
-uv run uvicorn rythusaathi.api.app:app --reload --host 127.0.0.1 --port 8000
+uv run uvicorn agrosage.api.app:app --reload --host 127.0.0.1 --port 8000
 ```
 
 The backend endpoints are available at:
@@ -273,7 +273,7 @@ agrosage/
 │   ├── src/services/     # Backend API clients
 │   └── src/test/         # Frontend tests
 ├── scripts/              # CLI, ingestion and evaluation utilities
-├── src/rythusaathi/      # Backend package (internal namespace retained)
+├── src/agrosage/         # Backend package (AgroSage namespace)
 │   ├── agents/           # Seven agents and workflow orchestration
 │   ├── api/              # FastAPI app, routes and schemas
 │   ├── inference/        # Provider-neutral inference contracts/adapters
@@ -282,7 +282,7 @@ agrosage/
 └── tests/                # Backend unit, integration and reliability tests
 ```
 
-*The internal Python package remains named `rythusaathi` for compatibility. The user-facing product name is AgroSage.*
+*The canonical Python package is `agrosage`. The user-facing product name is AgroSage.*
 
 ---
 

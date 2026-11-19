@@ -31,19 +31,19 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from agent_framework import Message
 
-from rythusaathi.agents.llm import (
+from agrosage.agents.llm import (
     AuthenticatedGeminiInference,
     IntakeInterpretation,
     call_structured,
     make_json_request,
 )
-from rythusaathi.agents.workflow import _INTAKE_PROMPT
-from rythusaathi.credentials import (
+from agrosage.agents.workflow import _INTAKE_PROMPT
+from agrosage.credentials import (
     CredentialService,
     CredentialUnavailable,
     WindowsCredentialStore,
 )
-from rythusaathi.inference.contracts import (
+from agrosage.inference.contracts import (
     InferenceDiagnostic,
     InferenceDiagnosticCode,
     InferenceRequest,
@@ -51,14 +51,14 @@ from rythusaathi.inference.contracts import (
     InferenceTokenUsage,
     ProviderFailure,
 )
-from rythusaathi.inference.providers.gemini import (
+from agrosage.inference.providers.gemini import (
     DEFAULT_MODEL_ID,
     GEMINI_BASE_URL,
     GeminiProvider,
     GeminiProviderConfig,
 )
-from rythusaathi.inference.service import AuthenticatedGeminiService
-from rythusaathi.local_auth import LocalAuthentication
+from agrosage.inference.service import AuthenticatedGeminiService
+from agrosage.local_auth import LocalAuthentication
 
 
 async def run_gemini_smoke(
@@ -372,7 +372,7 @@ def print_smoke_report(
 ) -> None:
     """Print structured, sanitized smoke test report."""
     print("=" * 60)
-    print("RythuSaathi — Gemini 3.8 Flash Isolated Structured Smoke Test")
+    print("AgroSage — Gemini 3.8 Flash Isolated Structured Smoke Test")
     print("=" * 60)
     if success and interpretation is not None:
         http_status = usage.http_status if usage and usage.http_status else 200
@@ -615,7 +615,7 @@ def probe_gemini_transport(
         request_bytes = (
             f"HEAD / HTTP/1.1\r\n"
             f"Host: {host}\r\n"
-            f"User-Agent: RythuSaathi-Probe/1.0\r\n"
+            f"User-Agent: AgroSage-Probe/1.0\r\n"
             f"Connection: close\r\n\r\n"
         ).encode("latin1")
         ssock.sendall(request_bytes)
@@ -669,7 +669,7 @@ def probe_gemini_transport(
 def print_transport_probe_report(result: TransportProbeResult) -> None:
     """Print structured, non-inference transport probe report."""
     print("=" * 60)
-    print("RythuSaathi — Non-Inference Transport Diagnostic Probe")
+    print("AgroSage — Non-Inference Transport Diagnostic Probe")
     print("=" * 60)
     print("WARNING: This probe verifies network and TLS connectivity only.")
     print("A successful transport probe does NOT constitute Gemini LLM inference.")
@@ -804,7 +804,7 @@ async def async_main(args: argparse.Namespace) -> int:
         results: list[ExperimentResult] = []
 
         print("=" * 60)
-        print("RythuSaathi — Gemini Live Inference Isolation Experiment")
+        print("AgroSage — Gemini Live Inference Isolation Experiment")
         print("=" * 60)
 
         if mode in ("both", "minimal"):

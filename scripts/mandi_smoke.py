@@ -13,10 +13,10 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from rythusaathi.agents.data_gov_in import DataGovInMarketProvider, MandiDiagnosticCode
-from rythusaathi.credentials import CredentialService, WindowsCredentialStore
-from rythusaathi.domain.seed import CROP_REGISTRY, LOCATION_REGISTRY
-from rythusaathi.local_auth import LocalAuthentication
+from agrosage.agents.data_gov_in import DataGovInMarketProvider, MandiDiagnosticCode
+from agrosage.credentials import CredentialService, WindowsCredentialStore
+from agrosage.domain.seed import CROP_REGISTRY, LOCATION_REGISTRY
+from agrosage.local_auth import LocalAuthentication
 
 
 def _discover_db_defaults(db_path: Path) -> tuple[str | None, str | None]:
@@ -87,7 +87,7 @@ async def async_main(args: argparse.Namespace) -> int:
     location_id = location_matches[0].location_id if location_matches else args.location
 
     print("=" * 60)
-    print("RythuSaathi — data.gov.in Mandi Market Price Smoke Test")
+    print("AgroSage — data.gov.in Mandi Market Price Smoke Test")
     print("=" * 60)
     print(f"Crop: {args.crop} (Resolved ID: {crop_id})")
     print(f"Location: {args.location} (Resolved ID: {location_id})")

@@ -12,7 +12,7 @@ from fastapi import Depends, Header, status
 from ..agents import (
     DataGovInMarketProvider,
     OpenMeteoWeatherProvider,
-    RythuSaathiWorkflow,
+    AgroSageWorkflow,
     default_coverage_resolver,
 )
 from ..credentials import (
@@ -67,17 +67,17 @@ _KEY_STORE: KeyEncryptionInterface | None = None
 
 
 def get_auth_db_path() -> Path:
-    env_path = os.getenv("RYTHUSAATHI_AUTH_DB")
+    env_path = os.getenv("AGROSAGE_AUTH_DB")
     if env_path:
         return Path(env_path).resolve()
-    return ROOT / "tmp" / "rythusaathi-auth.sqlite3"
+    return ROOT / "tmp" / "agrosage-auth.sqlite3"
 
 
 def get_history_db_path() -> Path:
-    env_path = os.getenv("RYTHUSAATHI_HISTORY_DB")
+    env_path = os.getenv("AGROSAGE_HISTORY_DB")
     if env_path:
         return Path(env_path).resolve()
-    return ROOT / "tmp" / "rythusaathi-history.sqlite3"
+    return ROOT / "tmp" / "agrosage-history.sqlite3"
 
 
 def get_auth_service() -> LocalAuthentication:
@@ -102,7 +102,7 @@ def get_key_store() -> KeyEncryptionInterface:
         except Exception as exc:
             # Production MUST fail closed: in-memory fallback is only permitted
             # when explicitly enabled for testing or local development.
-            allow_in_memory = os.getenv("RYTHUSAATHI_ALLOW_IN_MEMORY_KEY_STORE", "").lower() in (
+            allow_in_memory = os.getenv("AGROSAGE_ALLOW_IN_MEMORY_KEY_STORE", "").lower() in (
                 "1",
                 "true",
                 "yes",
@@ -114,7 +114,7 @@ def get_key_store() -> KeyEncryptionInterface:
                     "OS-backed credential store (Windows Credential Manager) is unavailable. "
                     "Production requires a persistent OS credential store to protect encrypted BYOK secrets. "
                     "Ephemeral in-memory fallback is disabled by default to prevent silent data loss upon restart. "
-                    "Set RYTHUSAATHI_ALLOW_IN_MEMORY_KEY_STORE=1 only for isolated testing environments."
+                    "Set AGROSAGE_ALLOW_IN_MEMORY_KEY_STORE=1 only for isolated testing environments."
                 ) from exc
     return _KEY_STORE
 
@@ -205,9 +205,9 @@ def set_knowledge_base(kb: LocalKnowledgeBase | None) -> None:
 
 def get_workflow(
     knowledge: Annotated[LocalKnowledgeBase, Depends(get_knowledge_base)],
-) -> RythuSaathiWorkflow:
+) -> AgroSageWorkflow:
     """Build the seven-agent Microsoft Agent Framework workflow instance."""
-    return RythuSaathiWorkflow(
+    return AgroSageWorkflow(
         resolver=default_coverage_resolver(),
         knowledge=knowledge,
         weather_provider=OpenMeteoWeatherProvider(),

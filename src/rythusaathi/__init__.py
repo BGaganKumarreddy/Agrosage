@@ -1,1 +1,0 @@
-"""RythuSaathi backend package."""

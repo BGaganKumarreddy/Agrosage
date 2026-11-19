@@ -10,8 +10,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from rythusaathi.credentials import CredentialService, WindowsCredentialStore
-from rythusaathi.local_auth import LocalAuthentication
+from agrosage.credentials import CredentialService, WindowsCredentialStore
+from agrosage.local_auth import LocalAuthentication
 
 
 def _login(auth: LocalAuthentication, tenant_id: str) -> tuple[str, object]:
@@ -105,7 +105,7 @@ def _run(args: argparse.Namespace) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Manage local RythuSaathi users and OS-protected Gemini / Groq BYOK credentials"
+        description="Manage local AgroSage users and OS-protected Gemini / Groq BYOK credentials"
     )
     parser.add_argument("--database", type=Path,
                         default=ROOT / "tmp" / "phase5-local-auth.sqlite3",

@@ -19,10 +19,10 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from agent_framework import ChatResponse, Message
 
-from rythusaathi.agents import FarmerRequest, RythuSaathiWorkflow, WorkflowMode, empty_coverage_resolver
-from rythusaathi.domain.seed import CROP_REGISTRY
-from rythusaathi.inference.contracts import InferenceRequest, ProviderFailure, ProviderFailureKind, ProviderResponse
-from rythusaathi.knowledge import (
+from agrosage.agents import FarmerRequest, AgroSageWorkflow, WorkflowMode, empty_coverage_resolver
+from agrosage.domain.seed import CROP_REGISTRY
+from agrosage.inference.contracts import InferenceRequest, ProviderFailure, ProviderFailureKind, ProviderResponse
+from agrosage.knowledge import (
     DocumentProcessor,
     FastEmbedProvider,
     HashEmbeddingProvider,
@@ -31,7 +31,7 @@ from rythusaathi.knowledge import (
     load_curated,
     load_schemes,
 )
-from rythusaathi.agents.llm import CoordinatorDraft, IntakeInterpretation, SpecialistInterpretation
+from agrosage.agents.llm import CoordinatorDraft, IntakeInterpretation, SpecialistInterpretation
 
 
 def _text(message: Message) -> str:
@@ -137,7 +137,7 @@ async def evaluate(args) -> dict[str, object]:
         retrieval_relevance = relevance_hits / max(len(expected_supported), 1)
 
         inference = EvaluationInference(cases_by_query)
-        workflow = RythuSaathiWorkflow(resolver=empty_coverage_resolver(), knowledge=index)
+        workflow = AgroSageWorkflow(resolver=empty_coverage_resolver(), knowledge=index)
         responses = []
         context_checks = 0
         context_correct = 0

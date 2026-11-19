@@ -43,6 +43,50 @@ wheels = [
 ]
 
 [[package]]
+name = "agrosage"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "agent-framework-core" },
+    { name = "agent-framework-openai" },
+    { name = "argon2-cffi" },
+    { name = "cryptography" },
+    { name = "fastapi" },
+    { name = "keyring" },
+    { name = "openai" },
+    { name = "uvicorn" },
+]
+
+[package.optional-dependencies]
+pdf = [
+    { name = "pypdf" },
+]
+semantic = [
+    { name = "fastembed" },
+    { name = "huggingface-hub" },
+]
+test = [
+    { name = "httpx2" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "agent-framework-core", specifier = "==1.24.0" },
+    { name = "agent-framework-openai", specifier = "==1.18.0" },
+    { name = "argon2-cffi", specifier = ">=23.1,<26" },
+    { name = "cryptography", specifier = ">=43,<47" },
+    { name = "fastapi", specifier = ">=0.162.5" },
+    { name = "fastembed", marker = "extra == 'semantic'", specifier = ">=0.9,<0.10" },
+    { name = "httpx2", marker = "extra == 'test'", specifier = "==2.16.0" },
+    { name = "huggingface-hub", marker = "extra == 'semantic'", specifier = ">=0.20" },
+    { name = "keyring", specifier = ">=25,<27" },
+    { name = "openai", specifier = "==3.42.1" },
+    { name = "pypdf", marker = "extra == 'pdf'", specifier = ">=5,<7" },
+    { name = "uvicorn", specifier = ">=0.54.0" },
+]
+provides-extras = ["test", "pdf", "semantic"]
+
+[[package]]
 name = "annotated-doc"
 version = "0.0.6"
 source = { registry = "https://pypi.org/simple" }
@@ -1887,50 +1931,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/ac/c3/e2a2b89f2d3e2179a
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a0/f4/c67b0b3f1b9245e8d266f0f112c500d50e5b4e83cb6f3b71b6528104182a/requests-2.34.2-py3-none-any.whl", hash = "sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0", size = 73075, upload-time = "2026-05-14T19:25:26.443Z" },
 ]
-
-[[package]]
-name = "rythusaathi"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "agent-framework-core" },
-    { name = "agent-framework-openai" },
-    { name = "argon2-cffi" },
-    { name = "cryptography" },
-    { name = "fastapi" },
-    { name = "keyring" },
-    { name = "openai" },
-    { name = "uvicorn" },
-]
-
-[package.optional-dependencies]
-pdf = [
-    { name = "pypdf" },
-]
-semantic = [
-    { name = "fastembed" },
-    { name = "huggingface-hub" },
-]
-test = [
-    { name = "httpx2" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "agent-framework-core", specifier = "==1.24.0" },
-    { name = "agent-framework-openai", specifier = "==1.18.0" },
-    { name = "argon2-cffi", specifier = ">=23.1,<26" },
-    { name = "cryptography", specifier = ">=43,<47" },
-    { name = "fastapi", specifier = ">=0.162.5" },
-    { name = "fastembed", marker = "extra == 'semantic'", specifier = ">=0.9,<0.10" },
-    { name = "httpx2", marker = "extra == 'test'", specifier = "==2.16.0" },
-    { name = "huggingface-hub", marker = "extra == 'semantic'", specifier = ">=0.20" },
-    { name = "keyring", specifier = ">=25,<27" },
-    { name = "openai", specifier = "==3.42.1" },
-    { name = "pypdf", marker = "extra == 'pdf'", specifier = ">=5,<7" },
-    { name = "uvicorn", specifier = ">=0.54.0" },
-]
-provides-extras = ["test", "pdf", "semantic"]
 
 [[package]]
 name = "secretstorage"

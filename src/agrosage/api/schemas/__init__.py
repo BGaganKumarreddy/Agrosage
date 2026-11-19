@@ -1,4 +1,4 @@
-"""Pydantic schemas for the RythuSaathi REST API."""
+"""Pydantic schemas for the AgroSage REST API."""
 
 from .common import APIErrorDetail, SuccessResponse
 from .auth import LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, UserResponse

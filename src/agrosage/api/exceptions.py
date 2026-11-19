@@ -1,4 +1,4 @@
-"""Standardized HTTP exceptions and exception handlers for RythuSaathi API."""
+"""Standardized HTTP exceptions and exception handlers for AgroSage API."""
 
 from __future__ import annotations
 

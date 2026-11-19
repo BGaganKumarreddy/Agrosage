@@ -1,4 +1,4 @@
-"""FastAPI route definitions for RythuSaathi."""
+"""FastAPI route definitions for AgroSage."""
 
 from .admin import router as admin_router
 from .advisory import router as advisory_router

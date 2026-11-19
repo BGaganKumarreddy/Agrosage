@@ -1,4 +1,4 @@
-"""Open-Meteo weather adapter with geocoding and forecast support for RythuSaathi."""
+"""Open-Meteo weather adapter with geocoding and forecast support for AgroSage."""
 
 from __future__ import annotations
 

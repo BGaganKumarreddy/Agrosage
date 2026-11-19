@@ -41,7 +41,7 @@ async def _test_provider_key(provider_id: str, secret: str) -> TestConnectionRes
         if clean_provider == "groq":
             provider = GroqProvider()
             req = InferenceRequest(
-                messages=[Message(role="user", content="Ping")],
+                messages=[Message("user", ["Ping"])],
                 options={"max_tokens": 5},
                 agent_name="system",
             )
@@ -58,7 +58,7 @@ async def _test_provider_key(provider_id: str, secret: str) -> TestConnectionRes
         elif clean_provider == "cerebras":
             provider = CerebrasProvider()
             req = InferenceRequest(
-                messages=[Message(role="user", content="Ping")],
+                messages=[Message("user", ["Ping"])],
                 options={"max_tokens": 5},
                 agent_name="system",
             )
@@ -75,7 +75,7 @@ async def _test_provider_key(provider_id: str, secret: str) -> TestConnectionRes
         elif clean_provider == "gemini":
             provider = GeminiProvider()
             req = InferenceRequest(
-                messages=[Message(role="user", content="Ping")],
+                messages=[Message("user", ["Ping"])],
                 options={"max_tokens": 5},
                 agent_name="system",
             )

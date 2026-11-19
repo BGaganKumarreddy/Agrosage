@@ -1,4 +1,4 @@
-"""Agent workflow orchestration: defines RythuSaathiWorkflow and re-exports agent classes."""
+"""Agent workflow orchestration: defines AgroSageWorkflow and re-exports agent classes."""
 
 from __future__ import annotations
 
@@ -183,7 +183,7 @@ def _format_workflow_progress_event(event: Any) -> str | None:
     return None
 
 
-class RythuSaathiWorkflow:
+class AgroSageWorkflow:
     """Per-request Microsoft Agent Framework graph over the accepted Phase 2/3 services."""
 
     def __init__(
@@ -491,7 +491,7 @@ def empty_coverage_resolver() -> ContextResolver:
     from ..domain.seed import CROP_REGISTRY, LOCATION_REGISTRY
 
     metadata = RegistryMetadata(
-        registry_id="rythusaathi:phase4-empty-coverage",
+        registry_id="agrosage:phase4-empty-coverage",
         version="phase4-v1",
         effective_from=date(2026, 1, 1),
         source_reference="local:phase4-coverage-unconfigured",
@@ -508,7 +508,7 @@ __all__ = [
     "SchemeAgent",
     "RiskAlertAgent",
     "CoordinatorAgent",
-    "RythuSaathiWorkflow",
+    "AgroSageWorkflow",
     "default_coverage_resolver",
     "empty_coverage_resolver",
     "DEFAULT_WORKFLOW_DEADLINE_SECONDS",

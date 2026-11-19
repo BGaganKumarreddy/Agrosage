@@ -19,7 +19,7 @@ import { Input, Select } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { farmProfileService } from '../../services/farmProfileService';
 
-const STORAGE_KEY = 'rythusaathi_farmer_profile';
+const STORAGE_KEY = 'agrosage_farmer_profile';
 
 export const FarmProfilePage = () => {
   const { user } = useAuth();

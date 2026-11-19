@@ -31,32 +31,32 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from agent_framework import Message
 
-from rythusaathi.agents import (
+from agrosage.agents import (
     FarmerRequest,
-    RythuSaathiWorkflow,
+    AgroSageWorkflow,
     WorkflowMode,
     default_coverage_resolver,
     empty_coverage_resolver,
 )
-from rythusaathi.agents.contracts import MarketProvider, WeatherProvider
-from rythusaathi.agents.data_gov_in import DataGovInMarketProvider
-from rythusaathi.agents.open_meteo import OpenMeteoWeatherProvider
-from rythusaathi.agents.llm import (
+from agrosage.agents.contracts import MarketProvider, WeatherProvider
+from agrosage.agents.data_gov_in import DataGovInMarketProvider
+from agrosage.agents.open_meteo import OpenMeteoWeatherProvider
+from agrosage.agents.llm import (
     AuthenticatedCerebrasInference,
     CoordinatorDraft,
     call_structured,
     make_json_request,
     validate_evidence_ids,
 )
-from rythusaathi.agents.workflow import _COORDINATOR_PROMPT
-from rythusaathi.credentials import (
+from agrosage.agents.workflow import _COORDINATOR_PROMPT
+from agrosage.credentials import (
     CredentialService,
     CredentialUnavailable,
     WindowsCredentialStore,
 )
-from rythusaathi.domain import FactState
-from rythusaathi.domain.seed import CROP_REGISTRY
-from rythusaathi.inference.contracts import (
+from agrosage.domain import FactState
+from agrosage.domain.seed import CROP_REGISTRY
+from agrosage.inference.contracts import (
     InferenceDiagnostic,
     InferenceDiagnosticCode,
     InferenceRequest,
@@ -64,13 +64,13 @@ from rythusaathi.inference.contracts import (
     InferenceTokenUsage,
     ProviderFailure,
 )
-from rythusaathi.inference.providers.cerebras import (
+from agrosage.inference.providers.cerebras import (
     DEFAULT_MODEL_ID,
     CerebrasProvider,
     CerebrasProviderConfig,
 )
-from rythusaathi.inference.service import AuthenticatedCerebrasService
-from rythusaathi.knowledge import (
+from agrosage.inference.service import AuthenticatedCerebrasService
+from agrosage.knowledge import (
     DocumentProcessor,
     FastEmbedProvider,
     HashEmbeddingProvider,
@@ -78,7 +78,7 @@ from rythusaathi.knowledge import (
     load_curated,
     load_schemes,
 )
-from rythusaathi.local_auth import LocalAuthentication
+from agrosage.local_auth import LocalAuthentication
 
 
 @dataclass(frozen=True)
@@ -417,7 +417,7 @@ async def run_cerebras_workflow(
     wp = weather_provider or OpenMeteoWeatherProvider()
     mp = market_provider or DataGovInMarketProvider()
 
-    workflow = RythuSaathiWorkflow(
+    workflow = AgroSageWorkflow(
         resolver=res,
         knowledge=kb_store,
         weather_provider=wp,
@@ -568,7 +568,7 @@ def print_cerebras_experiment_report(result: CerebrasExperimentResult) -> None:
 
 
 async def main() -> int:
-    parser = argparse.ArgumentParser(description="RythuSaathi Cerebras Live Smoke Test Runner")
+    parser = argparse.ArgumentParser(description="AgroSage Cerebras Live Smoke Test Runner")
     parser.add_argument(
         "--stage",
         choices=["minimal", "coordinator", "workflow", "all"],
@@ -600,7 +600,7 @@ async def main() -> int:
     args = parser.parse_args()
 
     print("\n" + "=" * 60)
-    print("RythuSaathi — Cerebras Live Inference Smoke Test")
+    print("AgroSage — Cerebras Live Inference Smoke Test")
     print(f"Target Model: {args.model_id}")
     print("=" * 60)
 

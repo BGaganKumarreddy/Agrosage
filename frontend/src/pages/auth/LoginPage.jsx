@@ -72,7 +72,7 @@ export const LoginPage = () => {
           <div>
             <h1 className="font-bold text-xl tracking-tight text-[#ECECEC]">AgroSage</h1>
             {/* Accessible alias for legacy tests */}
-            <span className="sr-only">RythuSaathi</span>
+            <span className="sr-only">AgroSage</span>
             <p className="text-xs text-[#A3A3A3]">Intelligence for Every Acre</p>
           </div>
         </div>

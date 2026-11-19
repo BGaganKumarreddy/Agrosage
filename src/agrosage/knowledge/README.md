@@ -14,7 +14,7 @@ Run corpus ingestion explicitly:
 .venv\Scripts\python.exe scripts\ingest_knowledge.py --model-cache output\models
 ```
 
-The default index is `output/rythusaathi-knowledge-fastembed.sqlite3`. Install
+The default index is `output/agrosage-knowledge-fastembed.sqlite3`. Install
 the optional local runtime with `.venv\Scripts\python.exe -m pip install -e
 ".[semantic]"`. FastEmbed 0.9.1 uses ONNX Runtime on CPU and the
 multilingual MiniLM model `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`

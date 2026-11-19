@@ -52,11 +52,11 @@ class WindowsCredentialStore:
                 raise RuntimeError
         except Exception as exc:
             raise OsCredentialStoreUnavailable("OS credential store unavailable") from exc
-        self._service = "RythuSaathi local credential KEK"
+        self._service = "AgroSage local credential KEK"
 
     def get_or_create_key(self, key_version: str) -> bytes:
         try:
-            with _windows_mutex("Local\\RythuSaathi-Kek-" + key_version):
+            with _windows_mutex("Local\\AgroSage-Kek-" + key_version):
                 stored = self._backend.get_password(self._service, key_version)
                 if stored is None:
                     key = secrets.token_bytes(32)
@@ -84,7 +84,7 @@ class WindowsCredentialStore:
     def delete_key(self, key_version: str) -> None:
         """Delete a named KEK entry, used for adapter lifecycle verification/retirement."""
         try:
-            with _windows_mutex("Local\\RythuSaathi-Kek-" + key_version):
+            with _windows_mutex("Local\\AgroSage-Kek-" + key_version):
                 stored = self._backend.get_password(self._service, key_version)
                 if stored is not None:
                     self._backend.delete_password(self._service, key_version)

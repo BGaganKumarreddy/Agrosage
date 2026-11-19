@@ -1,4 +1,4 @@
-"""Typed risk assessment models and deterministic evaluation rules for RythuSaathi."""
+"""Typed risk assessment models and deterministic evaluation rules for AgroSage."""
 
 from __future__ import annotations
 

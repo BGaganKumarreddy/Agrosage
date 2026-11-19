@@ -31,30 +31,30 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from agent_framework import Message
 
-from rythusaathi.agents import (
+from agrosage.agents import (
     FarmerRequest,
-    RythuSaathiWorkflow,
+    AgroSageWorkflow,
     WorkflowMode,
     empty_coverage_resolver,
 )
-from rythusaathi.agents.contracts import MarketProvider, WeatherProvider
-from rythusaathi.agents.data_gov_in import DataGovInMarketProvider
-from rythusaathi.agents.open_meteo import OpenMeteoWeatherProvider
-from rythusaathi.agents.llm import (
+from agrosage.agents.contracts import MarketProvider, WeatherProvider
+from agrosage.agents.data_gov_in import DataGovInMarketProvider
+from agrosage.agents.open_meteo import OpenMeteoWeatherProvider
+from agrosage.agents.llm import (
     AuthenticatedGroqInference,
     IntakeInterpretation,
     call_structured,
     make_json_request,
 )
-from rythusaathi.agents.workflow import _INTAKE_PROMPT
-from rythusaathi.credentials import (
+from agrosage.agents.workflow import _INTAKE_PROMPT
+from agrosage.credentials import (
     CredentialService,
     CredentialUnavailable,
     WindowsCredentialStore,
 )
-from rythusaathi.domain import FactState
-from rythusaathi.domain.seed import CROP_REGISTRY
-from rythusaathi.inference.contracts import (
+from agrosage.domain import FactState
+from agrosage.domain.seed import CROP_REGISTRY
+from agrosage.inference.contracts import (
     InferenceDiagnostic,
     InferenceDiagnosticCode,
     InferenceRequest,
@@ -62,13 +62,13 @@ from rythusaathi.inference.contracts import (
     InferenceTokenUsage,
     ProviderFailure,
 )
-from rythusaathi.inference.providers.groq import (
+from agrosage.inference.providers.groq import (
     DEFAULT_MODEL_ID,
     GroqProvider,
     GroqProviderConfig,
 )
-from rythusaathi.inference.service import AuthenticatedGroqService
-from rythusaathi.knowledge import (
+from agrosage.inference.service import AuthenticatedGroqService
+from agrosage.knowledge import (
     DocumentProcessor,
     FastEmbedProvider,
     HashEmbeddingProvider,
@@ -76,7 +76,7 @@ from rythusaathi.knowledge import (
     load_curated,
     load_schemes,
 )
-from rythusaathi.local_auth import LocalAuthentication
+from agrosage.local_auth import LocalAuthentication
 
 
 @dataclass(frozen=True)
@@ -387,7 +387,7 @@ async def run_groq_workflow(
         ROOT / "tmp" / ("phase4-advisory-fastembed.sqlite3" if semantic else "phase4-advisory-hash.sqlite3")
     )
     store = _build_knowledge_base(kb_path, semantic=semantic, model_cache=model_cache)
-    workflow = RythuSaathiWorkflow(
+    workflow = AgroSageWorkflow(
         resolver=empty_coverage_resolver(),
         knowledge=store,
         weather_provider=weather_provider,
@@ -622,7 +622,7 @@ async def async_main(args: argparse.Namespace) -> int:
         results: list[GroqExperimentResult] = []
 
         print("=" * 60)
-        print("RythuSaathi — Groq Live Demo Inference Runner")
+        print("AgroSage — Groq Live Demo Inference Runner")
         print("=" * 60)
         print(f"Model ID: {args.model_id or DEFAULT_MODEL_ID}")
         print("Groq Free-Tier Limits: TPM=8,000 (Headroom=800), RPM=30, RPD=14,400")

@@ -267,7 +267,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
               </span>
             </div>
             {/* Accessible alias for legacy tests */}
-            <span className="sr-only">RythuSaathi</span>
+            <span className="sr-only">AgroSage</span>
             <p className="text-[11px] text-[#A3A3A3] truncate">Intelligence for Every Acre</p>
           </div>
         </NavLink>

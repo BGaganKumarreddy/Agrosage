@@ -6,8 +6,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from rythusaathi.domain.seed import CROP_REGISTRY
-from rythusaathi.knowledge import (DocumentProcessor, FastEmbedProvider,
+from agrosage.domain.seed import CROP_REGISTRY
+from agrosage.knowledge import (DocumentProcessor, FastEmbedProvider,
     HashEmbeddingProvider, PersistentKnowledgeBase, load_curated, load_schemes)
 
 
@@ -20,8 +20,8 @@ def main():
     provider = HashEmbeddingProvider() if args.lexical else FastEmbedProvider(
         cache_dir=args.model_cache or ROOT / "output" / "models")
     db_path = args.database or ROOT / "output" / (
-        "rythusaathi-knowledge-hash.sqlite3" if args.lexical
-        else "rythusaathi-knowledge-fastembed.sqlite3")
+        "agrosage-knowledge-hash.sqlite3" if args.lexical
+        else "agrosage-knowledge-fastembed.sqlite3")
     processor = DocumentProcessor()
     agricultural = load_curated(ROOT / "data/agricultural/icar_advisories.json", CROP_REGISTRY)
     schemes = load_schemes(ROOT / "data/schemes/central_agricultural_schemes.json")

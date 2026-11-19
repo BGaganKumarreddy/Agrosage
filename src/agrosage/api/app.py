@@ -1,4 +1,4 @@
-"""FastAPI application factory and middleware configuration for RythuSaathi."""
+"""FastAPI application factory and middleware configuration for AgroSage."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ from .routes import (
 def create_app() -> FastAPI:
     """Create and configure the production-quality local-first FastAPI application."""
     app = FastAPI(
-        title="RythuSaathi Agricultural Multi-Agent Advisory API",
+        title="AgroSage Agricultural Multi-Agent Advisory API",
         description=(
             "Local-first REST API exposing the seven-agent Microsoft Agent Framework "
             "agricultural advisory system to modern web frontends."
@@ -59,7 +59,7 @@ def create_app() -> FastAPI:
     async def health_check() -> dict[str, str | int]:
         return {
             "status": "healthy",
-            "service": "rythusaathi",
+            "service": "agrosage",
             "agents": 7,
             "version": "0.1.0",
         }

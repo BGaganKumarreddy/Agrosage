@@ -1,4 +1,4 @@
-"""Shared Pydantic models and response wrappers for RythuSaathi API."""
+"""Shared Pydantic models and response wrappers for AgroSage API."""
 
 from __future__ import annotations
 

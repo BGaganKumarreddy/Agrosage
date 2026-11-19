@@ -55,8 +55,6 @@ export const EmptyState = ({ onSelectPrompt }) => {
           <p className="text-xs sm:text-sm text-[#A3A3A3]">
             Intelligence for Every Acre • Multi-agent evidence-grounded agronomy
           </p>
-          {/* Legacy text compatibility for vitest test 1 */}
-          <span className="sr-only">Welcome to RythuSaathi Assistant</span>
           <span className="sr-only">Welcome to AgroSage Assistant</span>
         </div>
       </div>

@@ -1,4 +1,4 @@
-"""RythuSaathi FastAPI REST API package."""
+"""AgroSage FastAPI REST API package."""
 
 from .app import app, create_app
 

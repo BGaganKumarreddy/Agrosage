@@ -12,30 +12,30 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from rythusaathi.agents import (
+from agrosage.agents import (
     AuthenticatedCerebrasInference,
     AuthenticatedGeminiInference,
     AuthenticatedGroqInference,
     DataGovInMarketProvider,
     FarmerRequest,
     OpenMeteoWeatherProvider,
-    RythuSaathiWorkflow,
+    AgroSageWorkflow,
     WorkflowMode,
     default_coverage_resolver,
     empty_coverage_resolver,
 )
-from rythusaathi.domain.seed import CROP_REGISTRY
-from rythusaathi.credentials import CredentialService, WindowsCredentialStore
-from rythusaathi.inference.providers.cerebras import CerebrasProvider, CerebrasProviderConfig
-from rythusaathi.inference.providers.gemini import GeminiProvider, GeminiProviderConfig
-from rythusaathi.inference.providers.groq import GroqProvider, GroqProviderConfig
-from rythusaathi.inference.service import (
+from agrosage.domain.seed import CROP_REGISTRY
+from agrosage.credentials import CredentialService, WindowsCredentialStore
+from agrosage.inference.providers.cerebras import CerebrasProvider, CerebrasProviderConfig
+from agrosage.inference.providers.gemini import GeminiProvider, GeminiProviderConfig
+from agrosage.inference.providers.groq import GroqProvider, GroqProviderConfig
+from agrosage.inference.service import (
     AuthenticatedCerebrasService,
     AuthenticatedGeminiService,
     AuthenticatedGroqService,
 )
-from rythusaathi.local_auth import LocalAuthentication
-from rythusaathi.knowledge import (
+from agrosage.local_auth import LocalAuthentication
+from agrosage.knowledge import (
     DocumentProcessor,
     FastEmbedProvider,
     HashEmbeddingProvider,
@@ -174,7 +174,7 @@ async def _run(args: argparse.Namespace) -> int:
                     identity=identity,
                     credential_id=mandi_active[0].credential_id,
                 )
-        workflow = RythuSaathiWorkflow(
+        workflow = AgroSageWorkflow(
             resolver=default_coverage_resolver(),
             knowledge=store,
             weather_provider=weather_provider,
@@ -338,7 +338,7 @@ async def _run(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run the local RythuSaathi six-agent advisory workflow")
+    parser = argparse.ArgumentParser(description="Run the local AgroSage six-agent advisory workflow")
     parser.add_argument("question", nargs="*", help="farmer question; prompt interactively when omitted")
     parser.add_argument("--crop", help="explicit crop query (e.g. cotton)")
     parser.add_argument("--location", help="explicit location query (e.g. Adilabad)")

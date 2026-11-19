@@ -16,7 +16,7 @@ from ...agents import (
     DataGovInMarketProvider,
     FarmerRequest,
     OpenMeteoWeatherProvider,
-    RythuSaathiWorkflow,
+    AgroSageWorkflow,
     default_coverage_resolver,
 )
 from ...agents.contracts import AdvisoryStatus, AgentId, EvidenceRecord, WorkflowMode
@@ -159,7 +159,7 @@ async def create_advisory(
 
     weather_provider = OpenMeteoWeatherProvider()
 
-    workflow = RythuSaathiWorkflow(
+    workflow = AgroSageWorkflow(
         resolver=default_coverage_resolver(),
         knowledge=knowledge,
         weather_provider=weather_provider,
@@ -277,7 +277,7 @@ async def create_advisory(
             or "pmfby" in sid
             or "scheme" in sid
             or "bharosa" in sid
-            or "rythu" in sid
+            or "rythu-bharosa" in sid
         ):
             scheme_ev.append(ev_item)
 

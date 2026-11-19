@@ -7,10 +7,10 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from rythusaathi.knowledge import (DocumentProcessor, FastEmbedProvider,
+from agrosage.knowledge import (DocumentProcessor, FastEmbedProvider,
     HashEmbeddingProvider, LocalKnowledgeBase, RetrievalFilter,
     load_curated, load_schemes)
-from rythusaathi.domain.seed import CROP_REGISTRY
+from agrosage.domain.seed import CROP_REGISTRY
 
 
 def main():
