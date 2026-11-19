@@ -15,6 +15,7 @@ from .contracts import (
     IntakeDecisionType,
     WorkflowMode,
 )
+from ..domain.registry import RegistryLevel
 from ..domain.seed import CROP_REGISTRY, LOCATION_REGISTRY
 
 _WEATHER_INTENT_PATTERN = re.compile(
@@ -182,9 +183,11 @@ def map_clarification_answer(
 
     if field == "growth_stage":
         lower = trimmed.lower()
+        if "squaring" in lower:
+            return "squaring", None, False
         if any(term in lower for term in ("under 2 weeks", "recently", "transplanted", "seedling", "nursery")):
             return "seedling", None, False
-        if any(term in lower for term in ("one month", "around one month", "tillering", "vegetative", "squaring")):
+        if any(term in lower for term in ("one month", "around one month", "tillering", "vegetative")):
             return "tillering", None, False
         if any(term in lower for term in ("two months", "flowering", "panicle", "heading", "boll")):
             return "flowering", None, False
@@ -193,9 +196,15 @@ def map_clarification_answer(
         return trimmed.lower(), None, False
 
     if field == "location":
-        for rec in LOCATION_REGISTRY.records:
+        # Check district records first so e.g. "Warangal, Telangana" resolves to Warangal district rather than state Telangana
+        district_records = [rec for rec in LOCATION_REGISTRY.records if rec.level == RegistryLevel.DISTRICT]
+        for rec in district_records:
             if re.search(rf"\b{re.escape(rec.name)}\b", trimmed, re.I):
                 return rec.name, rec.location_id, False
+        for rec in LOCATION_REGISTRY.records:
+            if re.search(rf"\b{re.escape(rec.name)}\b", trimmed, re.I):
+                display = trimmed.strip().title() if ("," in trimmed or len(trimmed.split()) > 1) else rec.name
+                return display, rec.location_id, False
         loc_res = LOCATION_REGISTRY.resolve(trimmed)
         if loc_res.canonical_id:
             loc_rec = LOCATION_REGISTRY.get(loc_res.canonical_id)

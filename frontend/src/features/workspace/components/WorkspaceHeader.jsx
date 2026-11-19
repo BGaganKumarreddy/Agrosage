@@ -1,5 +1,6 @@
 import React from 'react';
-import { Menu, PanelLeft, Sprout, Bot } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Menu, PanelLeft, Sprout, Bot, Sparkles } from 'lucide-react';
 
 export const WorkspaceHeader = ({
   isSidebarCollapsed = false,
@@ -7,7 +8,10 @@ export const WorkspaceHeader = ({
   onOpenMobileNav,
   title = 'AgroSage',
   subtitle = 'Intelligence for Every Acre.',
+  executionMode = 'deterministic',
 }) => {
+  const navigate = useNavigate();
+
   return (
     <header className="h-14 w-full bg-[#212121]/90 backdrop-blur border-b border-[#414141] px-4 flex items-center justify-between z-10 shrink-0">
       <div className="flex items-center gap-3">
@@ -53,8 +57,18 @@ export const WorkspaceHeader = ({
         </div>
       </div>
 
-      {/* Right status indicator (static architecture descriptor without unverified live status dot) */}
+      {/* Right status indicator: Active Provider + 7-Agent Architecture */}
       <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => navigate('/credentials')}
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#262626] border border-[#414141] hover:border-[#8DBB91] text-[11px] text-[#ECECEC] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+          title="Click to manage AI Providers & BYOK Vault"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-[#8DBB91]" />
+          <span className="font-semibold capitalize">{executionMode}</span>
+        </button>
+
         <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#262626] border border-[#414141] text-[11px] text-[#A3A3A3]">
           <Bot className="w-3.5 h-3.5 text-[#8DBB91]" />
           <span>7-Agent Architecture</span>

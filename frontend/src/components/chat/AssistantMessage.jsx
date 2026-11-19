@@ -23,9 +23,16 @@ const AGENT_ICON_MAP = {
   Weather: CloudSun,
   Market: TrendingUp,
   Scheme: Landmark,
-  'Risk Alert': AlertTriangle,
-  RiskAlert: AlertTriangle,
+  'Risk Alert': ShieldAlert,
+  RiskAlert: ShieldAlert,
   Coordinator: Cpu,
+};
+
+const formatAgentName = (id) => {
+  if (!id) return 'Agent';
+  if (id.toLowerCase().includes('agent')) return id;
+  if (id === 'RiskAlert') return 'Risk Alert Agent';
+  return `${id} Agent`;
 };
 
 export const AssistantMessage = ({ message = {}, onSendFollowup }) => {
@@ -39,6 +46,12 @@ export const AssistantMessage = ({ message = {}, onSendFollowup }) => {
   const active_risk_alerts = Array.isArray(message.active_risk_alerts) ? message.active_risk_alerts : [];
   const uncertainty_and_limitations = Array.isArray(message.uncertainty_and_limitations) ? message.uncertainty_and_limitations : [];
   const suggested_next_steps = Array.isArray(message.suggested_next_steps) ? message.suggested_next_steps : [];
+
+  const reportedCount = agent_telemetry.length;
+  const completedCount = agent_telemetry.filter(
+    (a) => a.status?.toLowerCase() === 'completed' || a.status?.toLowerCase() === 'completed_with_fallback'
+  ).length;
+  const totalDuration = agent_telemetry.reduce((acc, curr) => acc + (curr.duration_ms || 0), 0);
 
   return (
     <div className="flex items-start gap-3 w-full group select-text">
@@ -185,7 +198,7 @@ export const AssistantMessage = ({ message = {}, onSendFollowup }) => {
               <Cpu className="w-3.5 h-3.5 text-[#8DBB91]" />
               <span className="text-[#ECECEC]">7-Agent Telemetry & Execution Trace</span>
               <span className="text-[10px] text-[#737373]">
-                ({agent_telemetry.length} agents reported)
+                ({completedCount > 0 ? `${completedCount}/7 completed` : `${reportedCount} agents reported`}{totalDuration > 0 ? ` • ${Math.round(totalDuration)} ms` : ''})
               </span>
             </div>
             {isTelemetryOpen ? (
@@ -200,41 +213,108 @@ export const AssistantMessage = ({ message = {}, onSendFollowup }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {agent_telemetry.map((agent, idx) => {
                   const Icon = AGENT_ICON_MAP[agent.agent_id] || Cpu;
-                  const isSkipped = agent.status.toLowerCase() === 'skipped';
-                  const isCompleted = agent.status.toLowerCase() === 'completed';
+                  const isCoordinator = agent.agent_id === 'Coordinator';
+                  const statusStr = (agent.status || '').toLowerCase();
+                  const isCompleted = statusStr === 'completed';
+                  const isFallback = statusStr === 'completed_with_fallback';
+                  const isSkipped = statusStr === 'skipped';
+                  const isFailed = statusStr === 'failed';
+                  const isPartial = statusStr === 'partial' || statusStr === 'completed_with_warnings';
+                  const displayName = formatAgentName(agent.agent_id);
 
                   return (
                     <div
-                      key={idx}
-                      className="p-2.5 rounded-lg bg-[#242424] border border-[#3b3b3b] space-y-1"
+                      key={agent.agent_id || idx}
+                      data-testid={`agent-card-${(agent.agent_id || '').toLowerCase().replace(/\s+/g, '-')}`}
+                      className={`p-3 rounded-lg border flex flex-col justify-between transition-all space-y-2 ${
+                        isCoordinator
+                          ? 'bg-[#1e2a21]/50 border-[#8DBB91]/50 shadow-sm'
+                          : isFailed
+                          ? 'bg-[#2a1b1b]/50 border-red-800/60'
+                          : isSkipped
+                          ? 'bg-[#1c1c1c]/40 border-[#333333]'
+                          : 'bg-[#242424] border-[#3b3b3b]'
+                      }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 font-semibold text-xs text-[#ECECEC]">
-                          <Icon className="w-3.5 h-3.5 text-[#8DBB91]" />
-                          <span>{agent.agent_id} Agent</span>
+                      <div>
+                        <div className="flex items-center justify-between gap-1">
+                          <div className="flex items-center gap-1.5 font-semibold text-xs text-[#ECECEC]">
+                            <Icon className="w-3.5 h-3.5 text-[#8DBB91]" />
+                            <span>{displayName}</span>
+                          </div>
+                          <span
+                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase shrink-0 ${
+                              isCompleted
+                                ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800'
+                                : isFallback
+                                ? 'bg-teal-950/60 text-teal-300 border-teal-800'
+                                : isSkipped
+                                ? 'bg-zinc-800 text-zinc-400 border-zinc-700'
+                                : isFailed
+                                ? 'bg-red-950/60 text-red-300 border-red-800'
+                                : isPartial
+                                ? 'bg-amber-950/60 text-amber-300 border-amber-800'
+                                : 'bg-zinc-900 text-zinc-500 border-zinc-800'
+                            }`}
+                          >
+                            {agent.status}
+                          </span>
                         </div>
-                        <span
-                          className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase ${
-                            isCompleted
-                              ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800'
-                              : isSkipped
-                              ? 'bg-zinc-800 text-zinc-400 border-zinc-700'
-                              : 'bg-amber-950/60 text-amber-300 border-amber-800'
-                          }`}
-                        >
-                          {agent.status}
-                        </span>
+
+                        {agent.summary && (
+                          <p className="text-[11px] text-[#A3A3A3] leading-relaxed mt-1.5">
+                            {agent.summary}
+                          </p>
+                        )}
+
+                        {/* Evidence citations */}
+                        {Array.isArray(agent.evidence_ids) && agent.evidence_ids.length > 0 && (
+                          <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                            <span className="text-[10px] text-[#737373]">Citations:</span>
+                            {agent.evidence_ids.slice(0, 3).map((eid, eidx) => (
+                              <span
+                                key={eidx}
+                                className="text-[9px] font-mono bg-[#1b2a1f] text-[#8DBB91] px-1.5 py-0.5 rounded border border-[#395c3f]/50 truncate max-w-[140px]"
+                                title={eid}
+                              >
+                                {eid}
+                              </span>
+                            ))}
+                            {agent.evidence_ids.length > 3 && (
+                              <span className="text-[9px] text-[#737373]">+{agent.evidence_ids.length - 3} more</span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Fallback reason or Error message */}
+                        {agent.error && (
+                          <div className="mt-1.5 text-[10px] text-red-300 bg-red-950/50 p-1.5 rounded border border-red-800/60">
+                            <strong className="text-red-200">Fallback Reason: </strong>
+                            <span>{agent.error}</span>
+                          </div>
+                        )}
+                        {isFallback && !agent.error && (
+                          <div className="mt-1.5 text-[10px] text-teal-300 bg-teal-950/50 p-1 rounded border border-teal-800/60">
+                            Synthesized via deterministic rule fallback.
+                          </div>
+                        )}
                       </div>
-                      {agent.summary && (
-                        <p className="text-[11px] text-[#A3A3A3] leading-relaxed">
-                          {agent.summary}
-                        </p>
-                      )}
-                      {agent.duration_ms !== undefined && agent.duration_ms !== null && (
-                        <p className="text-[10px] text-[#737373]">
-                          Duration: {agent.duration_ms} ms
-                        </p>
-                      )}
+
+                      {/* Card Footer Telemetry Metadata */}
+                      <div className="pt-2 border-t border-[#3b3b3b]/60 flex flex-wrap items-center justify-between text-[10px] text-[#737373] gap-2">
+                        <span>
+                          Duration: <strong className="text-[#A3A3A3]">{agent.duration_ms !== null && agent.duration_ms !== undefined ? `${Math.round(agent.duration_ms)} ms` : '—'}</strong>
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="capitalize">{agent.provider_id || 'Deterministic'}</span>
+                          {agent.model_id && (
+                            <>
+                              <span>•</span>
+                              <span className="truncate max-w-[80px]" title={agent.model_id}>{agent.model_id}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   );
                 })}

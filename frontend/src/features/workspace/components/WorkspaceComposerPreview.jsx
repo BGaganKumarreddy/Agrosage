@@ -13,6 +13,8 @@ export const WorkspaceComposerPreview = ({
   context = null,
   isInheritedFromFarm = false,
   onOpenContextDrawer,
+  executionMode = 'deterministic',
+  setExecutionMode,
 }) => {
   const textareaRef = useRef(null);
 
@@ -140,8 +142,24 @@ export const WorkspaceComposerPreview = ({
             )}
           </div>
 
-          {/* Send Action */}
+          {/* Send Action & Mode Row */}
           <div className="flex items-center gap-2">
+            {/* Execution Mode Select */}
+            <div className="flex items-center gap-1 text-[11px] text-[#737373]">
+              <select
+                data-testid="execution-mode-select"
+                aria-label="Inference execution mode"
+                value={executionMode}
+                onChange={(e) => setExecutionMode && setExecutionMode(e.target.value)}
+                className="bg-[#262626] border border-[#414141] rounded-lg px-2 py-1 text-[11px] text-[#ECECEC] focus:outline-none focus:border-[#8DBB91] cursor-pointer"
+              >
+                <option value="deterministic">Deterministic Baseline</option>
+                <option value="cerebras">Cerebras Engine</option>
+                <option value="gemini">Google Gemini API</option>
+                <option value="groq">Groq Cloud LPU</option>
+              </select>
+            </div>
+
             <button
               type="button"
               onClick={onSend}

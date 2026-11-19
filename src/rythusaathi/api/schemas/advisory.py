@@ -71,6 +71,8 @@ class AgentResultSchema(BaseModel):
     error: str | None = None
     provider_id: str | None = None
     model_id: str | None = None
+    evidence_ids: list[str] = Field(default_factory=list)
+    finding_ids: list[str] = Field(default_factory=list)
 
 
 class AdvisoryResponseSchema(BaseModel):

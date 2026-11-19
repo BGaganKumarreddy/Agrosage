@@ -11,8 +11,41 @@ class CreateCredentialRequest(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    provider_id: str = Field(min_length=1, max_length=64, description="Target provider (e.g. cerebras, gemini, groq, data.gov.in)")
+    provider_id: str = Field(
+        min_length=1,
+        max_length=64,
+        description="Target provider (e.g. cerebras, gemini, groq, data.gov.in)",
+    )
     secret: str = Field(min_length=1, max_length=512, description="API key or secret token")
+
+
+class RotateCredentialRequest(BaseModel):
+    """Payload to update/rotate an existing credential's secret in the vault."""
+
+    model_config = ConfigDict(frozen=True)
+
+    secret: str = Field(min_length=1, max_length=512, description="New API key or secret token")
+
+
+class TestCredentialRequest(BaseModel):
+    """Payload to test an unsaved provider API key before storing."""
+
+    model_config = ConfigDict(frozen=True)
+
+    provider_id: str | None = Field(default=None, min_length=1, max_length=64)
+    secret: str | None = Field(default=None, min_length=1, max_length=512)
+
+
+class TestConnectionResponse(BaseModel):
+    """Sanitized test connection result."""
+
+    model_config = ConfigDict(frozen=True)
+
+    ok: bool
+    provider_id: str
+    status: str  # connected, invalid_credential, rate_limited, provider_unavailable, connection_error
+    latency_ms: float
+    message: str
 
 
 class CredentialResponse(BaseModel):
@@ -34,4 +67,3 @@ class CredentialListResponse(BaseModel):
 
     items: list[CredentialResponse]
     total: int
-

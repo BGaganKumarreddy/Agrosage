@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Sprout,
   Plus,
@@ -12,6 +13,7 @@ import {
   Trash2,
   Check,
   Loader2,
+  KeyRound,
 } from 'lucide-react';
 
 export const WorkspaceMobileNavigation = ({
@@ -34,6 +36,7 @@ export const WorkspaceMobileNavigation = ({
   const [editingTitle, setEditingTitle] = useState('');
   const drawerRef = useRef(null);
   const triggerElementRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleSaveRename = (convId) => {
     if (editingTitle.trim() && onRenameConversation) {
@@ -354,9 +357,27 @@ export const WorkspaceMobileNavigation = ({
         </div>
 
         {/* Bottom Section */}
-        <div className="p-4 border-t border-[#414141] space-y-3 bg-[#171717]">
+        <div className="p-4 border-t border-[#414141] space-y-2 bg-[#171717]">
+          {/* AI Providers Vault Entry */}
           <button
             type="button"
+            onClick={() => {
+              onClose();
+              navigate('/credentials');
+            }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#A3A3A3] hover:text-[#8DBB91] hover:bg-[#212121] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+            aria-label="Mobile AI Providers & BYOK Vault"
+          >
+            <KeyRound className="w-4 h-4 text-[#8DBB91]" />
+            <span>AI Providers & Vault</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              navigate('/settings');
+            }}
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#212121] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
             aria-label="Mobile workspace settings"
           >

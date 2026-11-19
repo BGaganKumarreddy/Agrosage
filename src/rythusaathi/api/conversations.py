@@ -19,6 +19,7 @@ from ..domain import (
     EvidenceStatus,
     FactState,
 )
+from ..domain.registry import RegistryLevel
 from ..domain.seed import CROP_REGISTRY, LOCATION_REGISTRY
 from ..security import VerifiedIdentity
 from .history import _history_db
@@ -567,14 +568,20 @@ def resolve_followup_context(
             if pending_question.field == "growth_stage":
                 new_ctx.growth_stage = canon_val
                 confirmed_set.add("growth_stage")
+                if "growth_stage" in skipped_set:
+                    skipped_set.remove("growth_stage")
             elif pending_question.field == "location":
                 new_ctx.location = canon_val
                 new_ctx.location_id = canon_id
                 confirmed_set.add("location")
+                if "location" in skipped_set:
+                    skipped_set.remove("location")
             elif pending_question.field == "crop":
                 new_ctx.crop = canon_val
                 new_ctx.crop_id = canon_id
                 confirmed_set.add("crop")
+                if "crop" in skipped_set:
+                    skipped_set.remove("crop")
 
     # 1. Detect Intent
     intent = "follow_up"
@@ -671,24 +678,59 @@ def resolve_followup_context(
                         break
 
     if "location" not in confirmed_set or not new_ctx.location:
-        for rec in LOCATION_REGISTRY.records:
+        # Check district records first so e.g. "Warangal, Telangana" matches Warangal district
+        district_records = [r for r in LOCATION_REGISTRY.records if r.level == RegistryLevel.DISTRICT]
+        matched_loc = False
+        for rec in district_records:
             if re.search(rf"\b{re.escape(rec.name)}\b", message, re.I):
                 if not re.search(rf"\b(?:not|instead of)\s+{re.escape(rec.name)}\b", message, re.I):
                     new_ctx.location = rec.name
                     new_ctx.location_id = rec.location_id
                     confirmed_set.add("location")
+                    if "location" in skipped_set:
+                        skipped_set.remove("location")
+                    matched_loc = True
                     break
+        if not matched_loc:
+            for rec in LOCATION_REGISTRY.records:
+                if re.search(rf"\b{re.escape(rec.name)}\b", message, re.I):
+                    if not re.search(rf"\b(?:not|instead of)\s+{re.escape(rec.name)}\b", message, re.I):
+                        new_ctx.location = rec.name
+                        new_ctx.location_id = rec.location_id
+                        confirmed_set.add("location")
+                        if "location" in skipped_set:
+                            skipped_set.remove("location")
+                        break
 
-    if "growth_stage" not in confirmed_set or not new_ctx.growth_stage:
+    if "growth_stage" not in confirmed_set or not new_ctx.growth_stage or new_ctx.growth_stage.lower() == "unknown":
         stages = [
-            "nursery", "tillering", "panicle initiation", "flowering", "grain filling",
-            "seedling", "vegetative", "squaring", "boll formation", "maturity",
-            "crown root initiation", "jointing", "heading", "ripening",
+            ("flowering / boll formation", "flowering"),
+            ("flowering", "flowering"),
+            ("boll formation", "boll-development"),
+            ("boll development", "boll-development"),
+            ("squaring / branching", "squaring"),
+            ("squaring", "squaring"),
+            ("early vegetative / seedling", "seedling"),
+            ("seedling", "seedling"),
+            ("vegetative", "vegetative"),
+            ("tillering / jointing", "tillering"),
+            ("tillering", "tillering"),
+            ("nursery", "seedling"),
+            ("panicle initiation", "flowering"),
+            ("panicle", "flowering"),
+            ("grain filling", "flowering"),
+            ("maturity", "maturity"),
+            ("crown root initiation", "seedling"),
+            ("jointing", "tillering"),
+            ("heading", "flowering"),
+            ("ripening", "maturity"),
         ]
-        for st in stages:
-            if re.search(rf"\b{re.escape(st)}\b", message, re.I):
-                new_ctx.growth_stage = st
+        for st_phrase, st_canon in stages:
+            if re.search(rf"\b{re.escape(st_phrase)}\b", message, re.I):
+                new_ctx.growth_stage = st_canon
                 confirmed_set.add("growth_stage")
+                if "growth_stage" in skipped_set:
+                    skipped_set.remove("growth_stage")
                 break
 
     # 5. Accumulate observations

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Sprout,
   Plus,
@@ -13,6 +14,8 @@ import {
   Trash2,
   Check,
   Loader2,
+  KeyRound,
+  Cpu,
 } from 'lucide-react';
 
 export const WorkspaceSidebar = ({
@@ -30,6 +33,7 @@ export const WorkspaceSidebar = ({
   historyError = null,
   onRetryHistory,
 }) => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState('');
@@ -279,10 +283,33 @@ export const WorkspaceSidebar = ({
       </div>
 
       {/* Bottom Footer Section */}
-      <div className="p-3 border-t border-[#414141] space-y-2 bg-[#171717]">
+      <div className="p-3 border-t border-[#414141] space-y-1.5 bg-[#171717]">
+        {/* AI Providers & BYOK Vault Entry */}
+        <button
+          type="button"
+          onClick={() => navigate('/credentials')}
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#A3A3A3] hover:text-[#8DBB91] hover:bg-[#212121] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+          aria-label="AI Providers & BYOK Vault"
+        >
+          <KeyRound className="w-4 h-4 text-[#8DBB91]" />
+          <span>AI Providers & Vault</span>
+        </button>
+
+        {/* Seven-Agent Graph Telemetry Entry */}
+        <button
+          type="button"
+          onClick={() => navigate('/agent-activity')}
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#A3A3A3] hover:text-[#8DBB91] hover:bg-[#212121] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+          aria-label="Seven-Agent Architecture & Activity"
+        >
+          <Cpu className="w-4 h-4 text-[#8DBB91]" />
+          <span>7-Agent Architecture</span>
+        </button>
+
         {/* Settings Entry */}
         <button
           type="button"
+          onClick={() => navigate('/settings')}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#212121] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
           aria-label="Workspace settings"
         >

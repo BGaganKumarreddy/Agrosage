@@ -2,7 +2,14 @@
 
 from .common import APIErrorDetail, SuccessResponse
 from .auth import LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, UserResponse
-from .credentials import CreateCredentialRequest, CredentialListResponse, CredentialResponse
+from .credentials import (
+    CreateCredentialRequest,
+    CredentialListResponse,
+    CredentialResponse,
+    RotateCredentialRequest,
+    TestConnectionResponse,
+    TestCredentialRequest,
+)
 from .advisory import (
     AdvisoryCreateRequest,
     AdvisoryResponseSchema,

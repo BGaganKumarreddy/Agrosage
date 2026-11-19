@@ -50,6 +50,21 @@ export const WorkspaceShell = ({ previewMode = false }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState(null);
   const [pendingUserMessage, setPendingUserMessage] = useState(null);
+  const [executionMode, setExecutionMode] = useState(() => {
+    try {
+      return localStorage.getItem('agrosage_active_provider') || 'deterministic';
+    } catch {
+      return 'deterministic';
+    }
+  });
+
+  const handleSetExecutionMode = useCallback((newMode) => {
+    setExecutionMode(newMode);
+    try {
+      localStorage.setItem('agrosage_active_provider', newMode);
+      localStorage.setItem('agrosage_execution_mode', newMode);
+    } catch {}
+  }, []);
 
   const messagesEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
@@ -183,7 +198,7 @@ export const WorkspaceShell = ({ previewMode = false }) => {
           location: savedFarmProfile?.location || undefined,
           growth_stage: savedFarmProfile?.growth_stage || undefined,
           variety: savedFarmProfile?.variety || undefined,
-          mode: 'deterministic',
+          mode: executionMode,
         });
         setActiveConversation(newConv);
         setConversations((prev) => [
@@ -271,7 +286,7 @@ export const WorkspaceShell = ({ previewMode = false }) => {
           location: newContext.location || undefined,
           growth_stage: newContext.growth_stage || undefined,
           variety: newContext.variety || undefined,
-          mode: 'deterministic',
+          mode: executionMode,
         });
         setActiveConversation(newConv);
         setConversations((prev) => [
@@ -358,7 +373,7 @@ export const WorkspaceShell = ({ previewMode = false }) => {
           location: savedFarmProfile?.location || undefined,
           growth_stage: savedFarmProfile?.growth_stage || undefined,
           variety: savedFarmProfile?.variety || undefined,
-          mode: 'deterministic',
+          mode: executionMode,
         });
 
         setActiveConversation(newConv);
@@ -395,7 +410,7 @@ export const WorkspaceShell = ({ previewMode = false }) => {
 
         const asstMsg = await conversationService.sendMessage(convId, {
           content: textToSend,
-          mode: 'deterministic',
+          mode: executionMode,
         });
 
         setPendingUserMessage(null);
@@ -505,6 +520,7 @@ export const WorkspaceShell = ({ previewMode = false }) => {
           onOpenMobileNav={handleOpenMobileNav}
           title="AgroSage"
           subtitle="Intelligence for Every Acre."
+          executionMode={executionMode}
         />
 
         {/* Scrollable Conversation Viewport & Empty State */}
@@ -638,6 +654,8 @@ export const WorkspaceShell = ({ previewMode = false }) => {
             context={activeConversation?.context}
             isInheritedFromFarm={isInheritedFromFarm}
             onOpenContextDrawer={() => setIsContextDrawerOpen(true)}
+            executionMode={executionMode}
+            setExecutionMode={handleSetExecutionMode}
           />
         </main>
       </div>

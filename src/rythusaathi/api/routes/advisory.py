@@ -195,6 +195,8 @@ async def create_advisory(
 
     for ar in response.agent_results:
         summary_val = getattr(ar.payload, "summary", getattr(ar.payload, "note", None)) if ar.payload else None
+        prov = ar.provider_id or (response.provider_id if response.execution_mode != WorkflowMode.DETERMINISTIC else "deterministic")
+        mod = ar.model_id or (response.model_id if response.execution_mode != WorkflowMode.DETERMINISTIC else None)
         agent_results.append(
             AgentResultSchema(
                 agent_id=ar.agent_id.value,
@@ -202,8 +204,10 @@ async def create_advisory(
                 duration_ms=ar.duration_ms,
                 summary=summary_val,
                 error=ar.error.message if ar.error else None,
-                provider_id=ar.provider_id,
-                model_id=ar.model_id,
+                provider_id=prov,
+                model_id=mod,
+                evidence_ids=list(getattr(ar, "evidence_ids", ()) or ()),
+                finding_ids=list(getattr(ar, "finding_ids", ()) or ()),
             )
         )
 
