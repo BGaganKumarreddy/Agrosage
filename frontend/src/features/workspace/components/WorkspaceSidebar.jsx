@@ -68,7 +68,7 @@ export const WorkspaceSidebar = ({
 
   return (
     <aside
-      className="hidden lg:flex w-64 h-full bg-[#171717] border-r border-[#414141] flex-col justify-between select-none shrink-0 overflow-x-hidden transition-all duration-200 z-20"
+      className="hidden lg:flex w-64 h-full bg-[var(--theme-bg-sidebar)] border-r border-[var(--theme-border)] flex-col justify-between select-none shrink-0 overflow-x-hidden transition-colors duration-200 z-20"
       aria-label="Workspace sidebar"
     >
       {/* Top Section */}
@@ -76,14 +76,14 @@ export const WorkspaceSidebar = ({
         {/* Brand Header & Collapse Toggle */}
         <div className="flex items-center justify-between px-1 py-1">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#262626] border border-[#414141] flex items-center justify-center text-[#8DBB91] shadow-sm">
+            <div className="w-8 h-8 rounded-xl bg-[var(--theme-bg-card)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-accent)] shadow-sm">
               <Sprout className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-bold text-sm tracking-tight text-[#ECECEC] block leading-none">
+              <span className="font-bold text-sm tracking-tight text-[var(--theme-text-main)] block leading-none">
                 AgroSage
               </span>
-              <span className="text-[10px] text-[#A3A3A3] block leading-none mt-1">
+              <span className="text-[10px] text-[var(--theme-text-muted)] block leading-none mt-1">
                 Intelligence for Every Acre
               </span>
             </div>
@@ -92,11 +92,11 @@ export const WorkspaceSidebar = ({
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="p-1.5 rounded-lg text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#262626] border border-transparent hover:border-[#414141] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+            className="p-1.5 rounded-lg text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)] border border-transparent hover:border-[var(--theme-border)] transition-colors focus-visible:ring-2 focus-visible:ring-[var(--theme-accent)] focus-visible:outline-none"
             aria-label="Collapse sidebar"
             title="Collapse sidebar"
           >
-            <PanelLeftClose className="w-4 h-4" />
+            <PanelLeftClose className="w-4 h-4 text-[var(--theme-accent)]" />
           </button>
         </div>
 
@@ -104,39 +104,39 @@ export const WorkspaceSidebar = ({
         <button
           type="button"
           onClick={onNewChat}
-          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#212121] border border-[#414141] hover:bg-[#262626] hover:border-[#8DBB91]/40 text-sm font-medium text-[#ECECEC] transition-all group focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[var(--theme-bg-composer)] border border-[var(--theme-border)] hover:bg-[var(--theme-bg-hover)] hover:border-[var(--theme-accent)] text-sm font-semibold text-[var(--theme-text-main)] transition-all group focus-visible:ring-2 focus-visible:ring-[var(--theme-accent)] focus-visible:outline-none shadow-sm"
           aria-label="Start new consultation"
         >
           <div className="flex items-center gap-2.5">
-            <Plus className="w-4 h-4 text-[#8DBB91] group-hover:scale-110 transition-transform" />
+            <Plus className="w-4 h-4 text-[var(--theme-accent)] group-hover:scale-110 transition-transform" />
             <span>New Consultation</span>
           </div>
-          <span className="text-[10px] text-[#737373] bg-[#262626] border border-[#414141] px-1.5 py-0.5 rounded">
-            Ctrl+K
+          <span className="text-[10px] text-[var(--theme-text-muted)] bg-[var(--theme-bg-sidebar)] border border-[var(--theme-border)] px-1.5 py-0.5 rounded">
+            New
           </span>
         </button>
 
         {/* Search Input */}
         <div className="relative">
-          <Search className="w-3.5 h-3.5 text-[#737373] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-3.5 h-3.5 text-[var(--theme-text-muted)] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search conversations..."
             aria-label="Search conversations"
-            className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#212121] border border-[#414141] text-xs text-[#ECECEC] placeholder-[#737373] focus:border-[#8DBB91] focus:ring-1 focus:ring-[#8DBB91] outline-none transition-colors"
+            className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[var(--theme-bg-card)] border border-[var(--theme-border)] text-xs text-[var(--theme-text-main)] placeholder-[var(--theme-text-subtle)] focus:border-[var(--theme-accent)] focus:ring-1 focus:ring-[var(--theme-accent)] outline-none transition-colors"
           />
         </div>
 
         {/* Conversation History Section */}
         <div className="pt-2 flex-1 flex flex-col min-h-0">
           <div className="flex items-center justify-between px-1 mb-2 shrink-0">
-            <span className="text-[11px] font-semibold text-[#737373] uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-[var(--theme-text-subtle)] uppercase tracking-wider">
               Recent Consultations
             </span>
             {conversations.length > 0 && (
-              <span className="text-[10px] text-[#737373] bg-[#262626] px-1.5 py-0.5 rounded border border-[#414141]">
+              <span className="text-[10px] text-[var(--theme-text-muted)] bg-[var(--theme-bg-card)] px-1.5 py-0.5 rounded border border-[var(--theme-border)]">
                 {conversations.length}
               </span>
             )}
@@ -144,8 +144,8 @@ export const WorkspaceSidebar = ({
 
           {isLoadingHistory ? (
             <div className="p-4 text-center space-y-2" data-testid="sidebar-loading-history">
-              <Loader2 className="w-4 h-4 animate-spin text-[#8DBB91] mx-auto" />
-              <p className="text-xs text-[#A3A3A3]">Loading consultations...</p>
+              <Loader2 className="w-4 h-4 animate-spin text-[var(--theme-accent)] mx-auto" />
+              <p className="text-xs text-[var(--theme-text-muted)]">Loading consultations...</p>
             </div>
           ) : historyError ? (
             <div className="p-3 rounded-xl bg-red-950/30 border border-red-800/50 text-xs text-red-200 text-center space-y-2">
@@ -154,7 +154,7 @@ export const WorkspaceSidebar = ({
                 <button
                   type="button"
                   onClick={onRetryHistory}
-                  className="px-2.5 py-1 rounded bg-[#303030] hover:bg-[#383838] border border-[#414141] text-[10px] text-[#ECECEC] transition-colors"
+                  className="px-2.5 py-1 rounded bg-[var(--theme-bg-hover)] border border-[var(--theme-border)] text-[10px] text-[var(--theme-text-main)] transition-colors"
                 >
                   Retry
                 </button>
@@ -162,21 +162,21 @@ export const WorkspaceSidebar = ({
             </div>
           ) : conversations.length === 0 ? (
             <div
-              className="p-4 rounded-xl bg-[#212121]/60 border border-[#414141]/60 text-center space-y-2"
+              className="p-4 rounded-xl bg-[var(--theme-bg-card)]/60 border border-[var(--theme-border)] text-center space-y-2"
               data-testid="sidebar-empty-history"
             >
-              <div className="w-8 h-8 rounded-full bg-[#262626] border border-[#414141] text-[#737373] mx-auto flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-[var(--theme-bg-card)] border border-[var(--theme-border)] text-[var(--theme-text-muted)] mx-auto flex items-center justify-center">
                 <MessageSquare className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-xs font-medium text-[#ECECEC]">No previous consultations</p>
-                <p className="text-[11px] text-[#A3A3A3] mt-0.5 leading-relaxed">
+                <p className="text-xs font-medium text-[var(--theme-text-main)]">No previous consultations</p>
+                <p className="text-[11px] text-[var(--theme-text-muted)] mt-0.5 leading-relaxed">
                   Your consultation history will appear here once you begin.
                 </p>
               </div>
             </div>
           ) : filteredConversations.length === 0 ? (
-            <div className="p-3 text-center text-xs text-[#737373]">
+            <div className="p-3 text-center text-xs text-[var(--theme-text-muted)]">
               No consultations match &quot;{searchQuery}&quot;
             </div>
           ) : (
@@ -190,8 +190,8 @@ export const WorkspaceSidebar = ({
                     key={c.conversation_id}
                     className={`group flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-colors cursor-pointer ${
                       isActive
-                        ? 'bg-[#262626] border border-[#8DBB91]/50 text-[#ECECEC] font-medium'
-                        : 'text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#212121] border border-transparent'
+                        ? 'bg-[var(--theme-bg-hover)] border border-[var(--theme-accent)] text-[var(--theme-text-main)] font-semibold shadow-sm'
+                        : 'text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)]/70 border border-transparent'
                     }`}
                     onClick={() => onSelectConversation && onSelectConversation(c.conversation_id)}
                     data-testid={`conversation-item-${c.conversation_id}`}
@@ -204,7 +204,7 @@ export const WorkspaceSidebar = ({
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       <MessageSquare
                         className={`w-3.5 h-3.5 shrink-0 ${
-                          isActive ? 'text-[#8DBB91]' : 'text-[#737373]'
+                          isActive ? 'text-[var(--theme-accent)]' : 'text-[var(--theme-text-subtle)]'
                         }`}
                       />
                       {isEditing ? (
@@ -217,7 +217,7 @@ export const WorkspaceSidebar = ({
                             if (e.key === 'Escape') setEditingId(null);
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          className="bg-[#171717] border border-[#8DBB91] px-1.5 py-0.5 rounded text-xs text-[#ECECEC] w-full outline-none"
+                          className="bg-[var(--theme-bg-card)] border border-[var(--theme-accent)] px-1.5 py-0.5 rounded text-xs text-[var(--theme-text-main)] w-full outline-none"
                           autoFocus
                         />
                       ) : (
@@ -236,7 +236,7 @@ export const WorkspaceSidebar = ({
                             handleSaveRename(c.conversation_id);
                           }}
                           aria-label="Save rename"
-                          className="p-1 text-[#8DBB91] hover:text-white"
+                          className="p-1 text-[var(--theme-accent)] hover:text-white"
                         >
                           <Check className="w-3 h-3" />
                         </button>
@@ -252,7 +252,7 @@ export const WorkspaceSidebar = ({
                               }}
                               aria-label={`Rename ${c.title}`}
                               title="Rename consultation"
-                              className="p-1 text-[#737373] hover:text-[#ECECEC] rounded"
+                              className="p-1 text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] rounded"
                             >
                               <Pencil className="w-3 h-3" />
                             </button>
@@ -266,7 +266,7 @@ export const WorkspaceSidebar = ({
                               }}
                               aria-label={`Delete ${c.title}`}
                               title="Delete consultation"
-                              className="p-1 text-[#737373] hover:text-red-400 rounded"
+                              className="p-1 text-[var(--theme-text-muted)] hover:text-red-400 rounded"
                             >
                               <Trash2 className="w-3 h-3" />
                             </button>
@@ -283,15 +283,15 @@ export const WorkspaceSidebar = ({
       </div>
 
       {/* Bottom Footer Section */}
-      <div className="p-3 border-t border-[#414141] space-y-1.5 bg-[#171717]">
+      <div className="p-3 border-t border-[var(--theme-border)] space-y-1.5 bg-[var(--theme-bg-sidebar)]">
         {/* AI Providers & BYOK Vault Entry */}
         <button
           type="button"
           onClick={() => navigate('/credentials')}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#A3A3A3] hover:text-[#8DBB91] hover:bg-[#212121] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[var(--theme-text-muted)] hover:text-[var(--theme-accent)] hover:bg-[var(--theme-bg-hover)] transition-colors focus-visible:ring-2 focus-visible:ring-[var(--theme-accent)] focus-visible:outline-none"
           aria-label="AI Providers & BYOK Vault"
         >
-          <KeyRound className="w-4 h-4 text-[#8DBB91]" />
+          <KeyRound className="w-4 h-4 text-[var(--theme-accent)]" />
           <span>AI Providers & Vault</span>
         </button>
 
@@ -299,10 +299,10 @@ export const WorkspaceSidebar = ({
         <button
           type="button"
           onClick={() => navigate('/agent-activity')}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#A3A3A3] hover:text-[#8DBB91] hover:bg-[#212121] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[var(--theme-text-muted)] hover:text-[var(--theme-accent)] hover:bg-[var(--theme-bg-hover)] transition-colors focus-visible:ring-2 focus-visible:ring-[var(--theme-accent)] focus-visible:outline-none"
           aria-label="Seven-Agent Architecture & Activity"
         >
-          <Cpu className="w-4 h-4 text-[#8DBB91]" />
+          <Cpu className="w-4 h-4 text-[var(--theme-accent)]" />
           <span>7-Agent Architecture</span>
         </button>
 
@@ -310,7 +310,7 @@ export const WorkspaceSidebar = ({
         <button
           type="button"
           onClick={() => navigate('/settings')}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#212121] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)] transition-colors focus-visible:ring-2 focus-visible:ring-[var(--theme-accent)] focus-visible:outline-none"
           aria-label="Workspace settings"
         >
           <Settings className="w-4 h-4" />
@@ -318,18 +318,18 @@ export const WorkspaceSidebar = ({
         </button>
 
         {/* User Profile Area */}
-        <div className="flex items-center justify-between p-2 rounded-xl bg-[#212121] border border-[#414141]">
+        <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--theme-bg-card)] border border-[var(--theme-border)]">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-[#303030] border border-[#414141] text-[#8DBB91] flex items-center justify-center font-bold text-xs shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[var(--theme-accent)] text-black flex items-center justify-center font-bold text-xs shrink-0">
               {userInitial}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-[#ECECEC] truncate leading-none">
+              <p className="text-xs font-semibold text-[var(--theme-text-main)] truncate leading-none">
                 {displayIdentifier}
               </p>
               <div className="flex items-center gap-1.5 mt-1">
-                <Shield className="w-3 h-3 text-[#A3A3A3] shrink-0" />
-                <span className="text-[10px] text-[#A3A3A3] truncate">
+                <Shield className="w-3 h-3 text-[var(--theme-text-muted)] shrink-0" />
+                <span className="text-[10px] text-[var(--theme-text-muted)] truncate">
                   {roleDisplay} • {tenantId}
                 </span>
               </div>
@@ -339,7 +339,7 @@ export const WorkspaceSidebar = ({
             <button
               type="button"
               onClick={onLogout}
-              className="p-1.5 rounded-lg text-[#A3A3A3] hover:text-red-400 hover:bg-[#262626] border border-transparent hover:border-[#414141] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+              className="p-1.5 rounded-lg text-[var(--theme-text-muted)] hover:text-red-400 hover:bg-[var(--theme-bg-hover)] border border-transparent hover:border-[var(--theme-border)] transition-colors focus-visible:ring-2 focus-visible:ring-[var(--theme-accent)] focus-visible:outline-none"
               aria-label="Sign out"
               title="Sign out"
             >

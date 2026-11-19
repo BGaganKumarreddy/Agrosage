@@ -1,0 +1,61 @@
+# ==============================================================================
+# AgroSage — Multi-Container Docker Compose Stack
+# ==============================================================================
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    image: agrosage-backend:local
+    container_name: agrosage-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - AGROSAGE_AUTH_DB=/app/data/storage/auth.sqlite3
+      - AGROSAGE_HISTORY_DB=/app/data/storage/history.sqlite3
+      - AGROSAGE_KEYS_DIR=/app/data/storage/.keys
+      - AGROSAGE_MASTER_KEY=${AGROSAGE_MASTER_KEY:-}
+    volumes:
+      - agrosage-storage:/app/data/storage
+    networks:
+      - agrosage-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health').read()"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: /api/v1
+    image: agrosage-frontend:local
+    container_name: agrosage-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - agrosage-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:80/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  agrosage-storage:
+    name: agrosage-storage
+
+networks:
+  agrosage-network:
+    name: agrosage-network
+    driver: bridge

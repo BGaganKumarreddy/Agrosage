@@ -17,6 +17,8 @@ from ..agents import (
 )
 from ..credentials import (
     CredentialService,
+    EnvKeyStore,
+    FileKeyStore,
     KeyEncryptionInterface,
     OsCredentialStoreUnavailable,
     WindowsCredentialStore,
@@ -67,14 +69,14 @@ _KEY_STORE: KeyEncryptionInterface | None = None
 
 
 def get_auth_db_path() -> Path:
-    env_path = os.getenv("AGROSAGE_AUTH_DB")
+    env_path = os.getenv("AGROSAGE_AUTH_DB") or os.getenv("RYTHUSAATHI_AUTH_DB")
     if env_path:
         return Path(env_path).resolve()
     return ROOT / "tmp" / "agrosage-auth.sqlite3"
 
 
 def get_history_db_path() -> Path:
-    env_path = os.getenv("AGROSAGE_HISTORY_DB")
+    env_path = os.getenv("AGROSAGE_HISTORY_DB") or os.getenv("RYTHUSAATHI_HISTORY_DB")
     if env_path:
         return Path(env_path).resolve()
     return ROOT / "tmp" / "agrosage-history.sqlite3"
@@ -96,26 +98,61 @@ def set_auth_service(service: LocalAuthentication | None) -> None:
 def get_key_store() -> KeyEncryptionInterface:
     global _KEY_STORE
     if _KEY_STORE is None:
-        try:
-            _KEY_STORE = WindowsCredentialStore()
-            _KEY_STORE.get_or_create_key("api-check-v1")
-        except Exception as exc:
-            # Production MUST fail closed: in-memory fallback is only permitted
-            # when explicitly enabled for testing or local development.
-            allow_in_memory = os.getenv("AGROSAGE_ALLOW_IN_MEMORY_KEY_STORE", "").lower() in (
-                "1",
-                "true",
-                "yes",
-            )
-            if allow_in_memory:
-                _KEY_STORE = InMemoryKeyStore()
-            else:
+        # 1. Container Master Key secret (AGROSAGE_MASTER_KEY or RYTHUSAATHI_MASTER_KEY)
+        env_master = os.getenv("AGROSAGE_MASTER_KEY") or os.getenv("RYTHUSAATHI_MASTER_KEY")
+        if env_master and env_master.strip():
+            store = EnvKeyStore(env_master)
+            store.get_or_create_key("api-check-v1")
+            _KEY_STORE = store
+            return _KEY_STORE
+
+        allow_in_memory = (
+            os.getenv("AGROSAGE_ALLOW_IN_MEMORY_KEY_STORE", "")
+            or os.getenv("RYTHUSAATHI_ALLOW_IN_MEMORY_KEY_STORE", "")
+        ).lower() in (
+            "1",
+            "true",
+            "yes",
+        )
+
+        # 2. Windows Credential Manager (Native Windows environment)
+        import sys
+        if sys.platform == "win32":
+            try:
+                store = WindowsCredentialStore()
+                store.get_or_create_key("api-check-v1")
+                _KEY_STORE = store
+                return _KEY_STORE
+            except Exception as exc:
+                if allow_in_memory:
+                    _KEY_STORE = InMemoryKeyStore()
+                    return _KEY_STORE
                 raise OsCredentialStoreUnavailable(
                     "OS-backed credential store (Windows Credential Manager) is unavailable. "
                     "Production requires a persistent OS credential store to protect encrypted BYOK secrets. "
                     "Ephemeral in-memory fallback is disabled by default to prevent silent data loss upon restart. "
                     "Set AGROSAGE_ALLOW_IN_MEMORY_KEY_STORE=1 only for isolated testing environments."
                 ) from exc
+
+        # 3. FileKeyStore in persistent volume (Linux containers / POSIX environments)
+        try:
+            auth_db = get_auth_db_path()
+            keys_dir = os.getenv("AGROSAGE_KEYS_DIR") or os.getenv("RYTHUSAATHI_KEYS_DIR")
+            if not keys_dir:
+                keys_dir = auth_db.parent / ".keys"
+            store = FileKeyStore(keys_dir)
+            store.get_or_create_key("api-check-v1")
+            _KEY_STORE = store
+            return _KEY_STORE
+        except Exception as exc:
+            if allow_in_memory:
+                _KEY_STORE = InMemoryKeyStore()
+                return _KEY_STORE
+            raise OsCredentialStoreUnavailable(
+                "Persistent credential store is unavailable. "
+                "In Linux containers, a writable volume (/app/data/storage/.keys) or AGROSAGE_MASTER_KEY must be provided. "
+                "Set AGROSAGE_ALLOW_IN_MEMORY_KEY_STORE=1 only for isolated testing environments."
+            ) from exc
     return _KEY_STORE
 
 

@@ -25,7 +25,7 @@ export const AppLayout = ({ title, breadcrumbs }) => {
   }, [location.pathname, location.search]);
 
   return (
-    <div className="min-h-screen bg-[#212121] text-[#ECECEC] flex overflow-x-hidden">
+    <div className="min-h-screen bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] flex overflow-x-hidden transition-colors">
       {/* Sidebar */}
       <Sidebar
         isOpen={mobileSidebarOpen}
@@ -47,7 +47,7 @@ export const AppLayout = ({ title, breadcrumbs }) => {
           isSidebarCollapsed={desktopCollapsed}
           onToggleSidebar={toggleDesktopCollapse}
         />
-        <main className="flex-1 flex flex-col w-full min-h-0">
+        <main className="flex-1 flex flex-col w-full min-h-0 bg-[var(--theme-bg-main)]">
           <Outlet />
         </main>
       </div>

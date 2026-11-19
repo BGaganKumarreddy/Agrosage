@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import ctypes
 import json
+import os
 import secrets
 import sqlite3
 import sys
@@ -92,6 +93,114 @@ class WindowsCredentialStore:
                     raise ValueError
         except Exception as exc:
             raise OsCredentialStoreUnavailable("OS credential store unavailable") from exc
+
+
+class FileKeyStore:
+    """Persistent KEK storage in a protected directory (for Linux containers and POSIX systems).
+
+    Keys are stored with strict owner-only file permissions (0600 on POSIX).
+    File operations are synchronized with a lock.
+    """
+
+    def __init__(self, keys_dir: str | Path | None = None):
+        if keys_dir is None:
+            keys_dir = Path("/app/data/storage/.keys")
+        self.keys_dir = Path(keys_dir).resolve()
+        try:
+            self.keys_dir.mkdir(parents=True, exist_ok=True)
+            if hasattr(os, "chmod"):
+                try:
+                    os.chmod(self.keys_dir, 0o700)
+                except OSError:
+                    pass
+        except Exception as exc:
+            raise OsCredentialStoreUnavailable(f"Cannot initialize key directory: {self.keys_dir}") from exc
+        self._lock = threading.Lock()
+
+    def _key_path(self, key_version: str) -> Path:
+        safe_version = "".join(c for c in key_version if c.isalnum() or c in ("-", "_", "."))
+        if not safe_version:
+            raise ValueError("Invalid key version")
+        return self.keys_dir / f".kek_{safe_version}.bin"
+
+    def get_or_create_key(self, key_version: str) -> bytes:
+        with self._lock:
+            path = self._key_path(key_version)
+            if path.is_file():
+                return self.get_key(key_version)
+            try:
+                key = secrets.token_bytes(32)
+                tmp_path = path.with_suffix(".tmp")
+                flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+                if hasattr(os, "O_BINARY"):
+                    flags |= os.O_BINARY
+                fd = os.open(str(tmp_path), flags, 0o600)
+                try:
+                    os.write(fd, key)
+                finally:
+                    os.close(fd)
+                if hasattr(os, "chmod"):
+                    try:
+                        os.chmod(tmp_path, 0o600)
+                    except OSError:
+                        pass
+                tmp_path.replace(path)
+                return key
+            except Exception as exc:
+                raise OsCredentialStoreUnavailable(f"Failed to generate KEK for {key_version}") from exc
+
+    def get_key(self, key_version: str) -> bytes:
+        path = self._key_path(key_version)
+        if not path.is_file():
+            raise OsCredentialStoreUnavailable(f"Key {key_version} not found in {self.keys_dir}")
+        try:
+            data = path.read_bytes()
+            if len(data) != 32:
+                raise ValueError(f"Invalid key length for {key_version}")
+            return data
+        except Exception as exc:
+            raise OsCredentialStoreUnavailable(f"Failed to read KEK {key_version}") from exc
+
+    def delete_key(self, key_version: str) -> None:
+        with self._lock:
+            path = self._key_path(key_version)
+            if path.is_file():
+                try:
+                    path.write_bytes(secrets.token_bytes(32))
+                    path.unlink()
+                except Exception as exc:
+                    raise OsCredentialStoreUnavailable(f"Failed to delete KEK {key_version}") from exc
+
+
+class EnvKeyStore:
+    """KEK store derived deterministically from AGROSAGE_MASTER_KEY using HKDF-SHA256."""
+
+    def __init__(self, master_key: str | None = None):
+        key_str = master_key or os.getenv("AGROSAGE_MASTER_KEY") or os.getenv("RYTHUSAATHI_MASTER_KEY")
+        if not key_str or not key_str.strip():
+            raise OsCredentialStoreUnavailable("AGROSAGE_MASTER_KEY is not set or empty")
+        self._secret = key_str.strip().encode("utf-8")
+
+    def get_or_create_key(self, key_version: str) -> bytes:
+        return self.get_key(key_version)
+
+    def get_key(self, key_version: str) -> bytes:
+        from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+        from cryptography.hazmat.primitives import hashes
+        try:
+            hkdf = HKDF(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=b"AgroSage-EnvKeyStore-v1",
+                info=key_version.encode("utf-8"),
+            )
+            return hkdf.derive(self._secret)
+        except Exception as exc:
+            raise OsCredentialStoreUnavailable(f"Failed to derive KEK for {key_version}") from exc
+
+    def delete_key(self, key_version: str) -> None:
+        """Stateless derivation does not support deletion."""
+        pass
 
 
 class CredentialUnavailable(RuntimeError):

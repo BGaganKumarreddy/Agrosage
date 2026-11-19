@@ -310,14 +310,14 @@ export const ConversationalAdvisoryPage = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] bg-[#212121] text-[#ECECEC] relative overflow-hidden">
+    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] relative overflow-hidden transition-colors">
       {/* Scrollable Conversation Stream */}
       <div className="flex-1 overflow-y-auto px-4 py-6 scroll-smooth">
         <div className="max-w-3xl mx-auto w-full space-y-6">
           {isLoadingActiveConv ? (
             <div className="flex flex-col items-center justify-center py-24 text-center space-y-3">
-              <Loader2 className="w-8 h-8 animate-spin text-[#8DBB91]" />
-              <p className="text-xs text-[#A3A3A3]">
+              <Loader2 className="w-8 h-8 animate-spin text-[var(--theme-accent)]" />
+              <p className="text-xs text-[var(--theme-text-muted)]">
                 Loading conversation & field context...
               </p>
             </div>
@@ -358,7 +358,7 @@ export const ConversationalAdvisoryPage = () => {
       </div>
 
       {/* Fixed Rounded Bottom Composer */}
-      <div className="shrink-0 bg-gradient-to-t from-[#212121] via-[#212121]/95 to-transparent pt-3">
+      <div className="shrink-0 bg-gradient-to-t from-[var(--theme-bg-main)] via-[var(--theme-bg-main)]/95 to-transparent pt-3">
         <MessageComposer
           inputText={inputText}
           setInputText={setInputText}

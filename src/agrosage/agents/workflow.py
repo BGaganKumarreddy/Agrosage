@@ -500,6 +500,10 @@ def empty_coverage_resolver() -> ContextResolver:
     return ContextResolver(CROP_REGISTRY, LOCATION_REGISTRY, CoverageRegistry(metadata))
 
 
+# Compatibility alias for legacy tests and references
+RythuSaathiWorkflow = AgroSageWorkflow
+
+
 __all__ = [
     "IntakeAgent",
     "WeatherAgent",
@@ -509,6 +513,7 @@ __all__ = [
     "RiskAlertAgent",
     "CoordinatorAgent",
     "AgroSageWorkflow",
+    "RythuSaathiWorkflow",
     "default_coverage_resolver",
     "empty_coverage_resolver",
     "DEFAULT_WORKFLOW_DEADLINE_SECONDS",

@@ -476,7 +476,7 @@ export const WorkspaceShell = ({ previewMode = false }) => {
     activeConversation.messages.length > 0;
 
   return (
-    <div className="h-screen w-screen bg-[#212121] text-[#ECECEC] flex overflow-hidden select-none">
+    <div className="h-screen w-screen bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] flex overflow-hidden select-none transition-colors">
       {/* Desktop Navigation Rail / Sidebar */}
       <WorkspaceSidebar
         isCollapsed={sidebarCollapsed}
@@ -512,7 +512,7 @@ export const WorkspaceShell = ({ previewMode = false }) => {
       />
 
       {/* Main Workspace Column */}
-      <div className="flex-1 flex flex-col h-full min-w-0 bg-[#212121] overflow-hidden">
+      <div className="flex-1 flex flex-col h-full min-w-0 bg-[var(--theme-bg-main)] overflow-hidden">
         {/* Workspace Minimal Header */}
         <WorkspaceHeader
           isSidebarCollapsed={sidebarCollapsed}

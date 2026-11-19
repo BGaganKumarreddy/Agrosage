@@ -56,13 +56,13 @@ export const AssistantMessage = ({ message = {}, onSendFollowup }) => {
   return (
     <div className="flex items-start gap-3 w-full group select-text">
       {/* AgroSage Avatar */}
-      <div className="w-8 h-8 rounded-xl bg-[#263e2d] border border-[#3d6545] text-[#8DBB91] flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+      <div className="w-8 h-8 rounded-xl bg-[var(--theme-bg-card)] border border-[var(--theme-border)] text-[var(--theme-accent)] flex items-center justify-center shrink-0 shadow-sm mt-0.5">
         <Sprout className="w-4 h-4" />
       </div>
 
       <div className="flex-1 min-w-0 space-y-3.5">
         {/* Main Response Content */}
-        <p className="text-sm text-[#ECECEC] leading-relaxed whitespace-pre-line space-y-2">
+        <p className="text-sm text-[var(--theme-text-main)] leading-relaxed whitespace-pre-line space-y-2">
           {content}
         </p>
 

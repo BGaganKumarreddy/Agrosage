@@ -13,14 +13,14 @@ export const Button = ({
   onClick,
   ...props
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-[#212121] disabled:opacity-50 disabled:cursor-not-allowed select-none';
+  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-[var(--theme-bg-main)] disabled:opacity-50 disabled:cursor-not-allowed select-none';
 
   const variants = {
-    primary: 'bg-[#8DBB91] hover:bg-[#7ba87f] active:bg-[#6c9970] text-[#171717] font-semibold focus:ring-[#8DBB91] shadow-sm',
-    secondary: 'bg-[#303030] hover:bg-[#3a3a3a] text-[#ECECEC] border border-[#414141] focus:ring-[#8DBB91] shadow-sm',
-    sage: 'bg-[#1e2a21] hover:bg-[#26372b] text-[#8DBB91] border border-[#8DBB91]/50 focus:ring-[#8DBB91]',
-    outline: 'border border-[#414141] hover:border-[#8DBB91]/60 hover:bg-[#2a2a2a] text-[#ECECEC] focus:ring-[#8DBB91] bg-transparent',
-    ghost: 'hover:bg-[#2a2a2a] text-[#ECECEC] focus:ring-[#8DBB91]',
+    primary: 'bg-[var(--theme-accent)] hover:bg-[var(--theme-accent-hover)] text-black font-semibold focus:ring-[var(--theme-accent)] shadow-sm',
+    secondary: 'bg-[var(--theme-bg-composer)] hover:bg-[var(--theme-bg-hover)] text-[var(--theme-text-main)] border border-[var(--theme-border)] focus:ring-[var(--theme-accent)] shadow-sm',
+    sage: 'bg-[var(--theme-badge-bg)] hover:bg-[var(--theme-bg-hover)] text-[var(--theme-accent)] border border-[var(--theme-border)] focus:ring-[var(--theme-accent)]',
+    outline: 'border border-[var(--theme-border)] hover:border-[var(--theme-accent)] hover:bg-[var(--theme-bg-hover)] text-[var(--theme-text-main)] focus:ring-[var(--theme-accent)] bg-transparent',
+    ghost: 'hover:bg-[var(--theme-bg-hover)] text-[var(--theme-text-main)] focus:ring-[var(--theme-accent)]',
     danger: 'bg-red-700 hover:bg-red-600 text-white focus:ring-red-500 shadow-sm',
   };
 

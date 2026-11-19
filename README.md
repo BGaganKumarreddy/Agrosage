@@ -180,6 +180,31 @@ Open the Vite URL printed in the terminal (the usual local address is `http://lo
 
 ---
 
+## Run with Docker Compose
+
+AgroSage can be run in containerized environments with full service isolation, named volume persistence, and reverse-proxy routing:
+
+```bash
+# 1. (Optional) Configure custom ports or encryption key
+cp .env.docker.example .env
+
+# 2. Build and launch backend and frontend
+docker compose up --build -d
+
+# 3. Access web application
+# Frontend UI: http://localhost:3000
+# Backend API & Docs: http://localhost:8000/docs
+```
+
+To stop containers while preserving database persistence and encryption keys:
+```bash
+docker compose down
+```
+
+For complete details on Linux BYOK encryption, GHCR image publishing, backup/restore, and container troubleshooting, refer to [`docs/DOCKER_CI_CD_GUIDE.md`](docs/DOCKER_CI_CD_GUIDE.md).
+
+---
+
 ## Configure an LLM provider
 
 AgroSage supports a Bring Your Own Key (BYOK) model. Live inference through Cerebras, Groq, or Google Gemini requires a valid provider credential enrolled for the local user, as well as provider availability and remaining quota.
@@ -288,6 +313,7 @@ agrosage/
 
 ## Project documentation
 
+- [`docs/DOCKER_CI_CD_GUIDE.md`](docs/DOCKER_CI_CD_GUIDE.md) — Comprehensive Docker, Compose, and GitHub Actions CI/CD infrastructure guide.
 - [`docs/FRONTEND_API_HANDOVER.md`](docs/FRONTEND_API_HANDOVER.md) — API contracts and frontend integration reference.
 - [`docs/STAGE_6_FINAL_LOCAL_ACCEPTANCE_REPORT.md`](docs/STAGE_6_FINAL_LOCAL_ACCEPTANCE_REPORT.md) — final local farmer-journey acceptance evidence.
 - [`docs/FINAL_REPOSITORY_AUDIT_REPORT.md`](docs/FINAL_REPOSITORY_AUDIT_REPORT.md) — repository audit, findings, and submission-readiness assessment.

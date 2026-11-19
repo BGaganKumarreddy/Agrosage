@@ -138,21 +138,21 @@ export const WorkspaceMobileNavigation = ({
         role="dialog"
         aria-modal="true"
         aria-label="Mobile workspace navigation"
-        className="relative w-72 max-w-[85vw] h-full bg-[#171717] border-r border-[#414141] flex flex-col justify-between shadow-2xl z-10 select-none overflow-x-hidden animate-in slide-in-from-left duration-200"
+        className="relative w-72 max-w-[85vw] h-full bg-[var(--theme-bg-sidebar)] border-r border-[var(--theme-border)] flex flex-col justify-between shadow-2xl z-10 select-none overflow-x-hidden animate-in slide-in-from-left duration-200"
       >
         {/* Top Section */}
         <div className="flex flex-col p-4 space-y-4">
           {/* Header & Close Button */}
-          <div className="flex items-center justify-between pb-2 border-b border-[#414141]">
+          <div className="flex items-center justify-between pb-2 border-b border-[var(--theme-border)]">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-[#262626] border border-[#414141] flex items-center justify-center text-[#8DBB91]">
+              <div className="w-8 h-8 rounded-xl bg-[var(--theme-bg-card)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-accent)]">
                 <Sprout className="w-5 h-5" />
               </div>
               <div>
-                <span className="font-bold text-sm tracking-tight text-[#ECECEC] block leading-none">
+                <span className="font-bold text-sm tracking-tight text-[var(--theme-text-main)] block leading-none">
                   AgroSage
                 </span>
-                <span className="text-[10px] text-[#A3A3A3] block leading-none mt-1">
+                <span className="text-[10px] text-[var(--theme-text-muted)] block leading-none mt-1">
                   Mobile Workspace
                 </span>
               </div>
@@ -161,7 +161,7 @@ export const WorkspaceMobileNavigation = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-lg text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#262626] border border-transparent hover:border-[#414141] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+              className="p-1.5 rounded-lg text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)] border border-transparent hover:border-[var(--theme-border)] transition-colors focus-visible:ring-2 focus-visible:ring-[var(--theme-accent)] focus-visible:outline-none"
               aria-label="Close navigation"
             >
               <X className="w-5 h-5" />
@@ -175,36 +175,36 @@ export const WorkspaceMobileNavigation = ({
               onNewChat();
               onClose();
             }}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#212121] border border-[#414141] hover:bg-[#262626] text-sm font-medium text-[#ECECEC] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[var(--theme-bg-composer)] border border-[var(--theme-border)] hover:bg-[var(--theme-bg-hover)] text-sm font-semibold text-[var(--theme-text-main)] transition-colors focus-visible:ring-2 focus-visible:ring-[var(--theme-accent)] focus-visible:outline-none"
             aria-label="Start new consultation"
           >
             <div className="flex items-center gap-2.5">
-              <Plus className="w-4 h-4 text-[#8DBB91]" />
+              <Plus className="w-4 h-4 text-[var(--theme-accent)]" />
               <span>New Consultation</span>
             </div>
           </button>
 
           {/* Search bar */}
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-[#737373] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 text-[var(--theme-text-muted)] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search conversations..."
               aria-label="Search mobile conversations"
-              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#212121] border border-[#414141] text-xs text-[#ECECEC] placeholder-[#737373] focus:border-[#8DBB91] focus:ring-1 focus:ring-[#8DBB91] outline-none"
+              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[var(--theme-bg-card)] border border-[var(--theme-border)] text-xs text-[var(--theme-text-main)] placeholder-[var(--theme-text-subtle)] focus:border-[var(--theme-accent)] focus:ring-1 focus:ring-[var(--theme-accent)] outline-none"
             />
           </div>
 
           {/* History Section */}
           <div className="pt-2 flex-1 flex flex-col min-h-0">
             <div className="flex items-center justify-between px-1 mb-2 shrink-0">
-              <span className="text-[11px] font-semibold text-[#737373] uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold text-[var(--theme-text-subtle)] uppercase tracking-wider block">
                 Recent Consultations
               </span>
               {conversations.length > 0 && (
-                <span className="text-[10px] text-[#737373] bg-[#262626] px-1.5 py-0.5 rounded border border-[#414141]">
+                <span className="text-[10px] text-[var(--theme-text-muted)] bg-[var(--theme-bg-card)] px-1.5 py-0.5 rounded border border-[var(--theme-border)]">
                   {conversations.length}
                 </span>
               )}
@@ -212,8 +212,8 @@ export const WorkspaceMobileNavigation = ({
 
             {isLoadingHistory ? (
               <div className="p-4 text-center space-y-2">
-                <Loader2 className="w-4 h-4 animate-spin text-[#8DBB91] mx-auto" />
-                <p className="text-xs text-[#A3A3A3]">Loading consultations...</p>
+                <Loader2 className="w-4 h-4 animate-spin text-[var(--theme-accent)] mx-auto" />
+                <p className="text-xs text-[var(--theme-text-muted)]">Loading consultations...</p>
               </div>
             ) : historyError ? (
               <div className="p-3 rounded-xl bg-red-950/30 border border-red-800/50 text-xs text-red-200 text-center space-y-2">

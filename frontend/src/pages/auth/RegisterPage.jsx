@@ -71,17 +71,17 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#212121] text-[#ECECEC] flex items-center justify-center p-4 select-none">
-      <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl bg-[#262626] border border-[#414141] shadow-2xl space-y-6">
+    <div className="min-h-screen bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] flex items-center justify-center p-4 select-none transition-colors">
+      <div className="w-full max-w-md p-6 sm:p-8 rounded-3xl bg-[var(--theme-bg-card)] border border-[var(--theme-border)] shadow-2xl space-y-6">
         {/* Brand Header */}
         <div className="flex flex-col items-center text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-[#303030] border border-[#414141] text-[#8DBB91] flex items-center justify-center shadow-md">
+          <div className="w-12 h-12 rounded-2xl bg-[var(--theme-bg-composer)] border border-[var(--theme-border)] text-[var(--theme-accent)] flex items-center justify-center shadow-md">
             <Sprout className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="font-bold text-xl tracking-tight text-[#ECECEC]">AgroSage</h1>
+            <h1 className="font-bold text-xl tracking-tight text-[var(--theme-text-main)]">AgroSage</h1>
             <span className="sr-only">AgroSage</span>
-            <p className="text-xs text-[#A3A3A3]">Intelligence for Every Acre</p>
+            <p className="text-xs text-[var(--theme-accent)] font-medium">Intelligence for Every Acre</p>
           </div>
         </div>
 

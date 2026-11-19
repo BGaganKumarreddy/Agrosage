@@ -46,6 +46,7 @@ from .weather import WeatherAgent
 from .workflow import (
     DEFAULT_WORKFLOW_DEADLINE_SECONDS,
     AgroSageWorkflow,
+    RythuSaathiWorkflow,
     default_coverage_resolver,
     empty_coverage_resolver,
 )
@@ -57,7 +58,7 @@ __all__ = [
     "FarmerIntent", "FarmerRequest", "GeneratedStatement", "IntakeAgent", "IntakeDecision", "IntakeDecisionType", "ClarificationQuestion", "MandiDiagnostic",
     "MandiDiagnosticCode", "MarketAgent", "MarketQuote",
     "OpenMeteoWeatherProvider", "RiskAlertAgent", "RiskAlertPayload",
-    "AgroSageWorkflow", "SchemeAgent", "UnavailableMarketProvider",
+    "AgroSageWorkflow", "RythuSaathiWorkflow", "SchemeAgent", "UnavailableMarketProvider",
     "UnavailableWeatherProvider", "WeatherAgent", "WeatherObservation", "WorkflowMode",
     "AuthenticatedGroqInference",
     "AuthenticatedGeminiInference",

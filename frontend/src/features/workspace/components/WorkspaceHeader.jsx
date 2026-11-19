@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, PanelLeft, Sprout, Bot, Sparkles } from 'lucide-react';
+import { ThemeSelector } from '../../../components/common/ThemeSelector';
 
 export const WorkspaceHeader = ({
   isSidebarCollapsed = false,
@@ -13,13 +14,13 @@ export const WorkspaceHeader = ({
   const navigate = useNavigate();
 
   return (
-    <header className="h-14 w-full bg-[#212121]/90 backdrop-blur border-b border-[#414141] px-4 flex items-center justify-between z-10 shrink-0">
-      <div className="flex items-center gap-3">
+    <header className="h-14 w-full bg-[var(--theme-bg-header)] backdrop-blur border-b border-[var(--theme-border)] px-3 sm:px-5 flex items-center justify-between z-10 shrink-0 transition-colors">
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
         {/* Mobile menu trigger (< lg) */}
         <button
           type="button"
           onClick={onOpenMobileNav}
-          className="lg:hidden p-2 rounded-xl text-[#ECECEC] hover:bg-[#2a2a2a] border border-[#414141] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+          className="lg:hidden p-2 rounded-xl text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)] border border-[var(--theme-border)] transition-colors focus-visible:ring-2 focus-visible:ring-[var(--theme-accent)] focus-visible:outline-none"
           aria-label="Open mobile navigation"
         >
           <Menu className="w-4 h-4" />
@@ -30,49 +31,46 @@ export const WorkspaceHeader = ({
           <button
             type="button"
             onClick={onToggleSidebar}
-            className="hidden lg:flex p-2 rounded-xl text-[#ECECEC] hover:bg-[#2a2a2a] border border-[#414141] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+            className="hidden lg:flex p-2 rounded-xl text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)] border border-[var(--theme-border)] transition-colors focus-visible:ring-2 focus-visible:ring-[var(--theme-accent)] focus-visible:outline-none"
             aria-label="Expand sidebar"
             title="Expand sidebar"
           >
-            <PanelLeft className="w-4 h-4 text-[#8DBB91]" />
+            <PanelLeft className="w-4 h-4 text-[var(--theme-accent)]" />
           </button>
         )}
 
-        {/* Brand/Title */}
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#262626] border border-[#414141] flex items-center justify-center text-[#8DBB91] shrink-0">
-            <Sprout className="w-4 h-4" />
+        {/* Brand / Breadcrumb matching Screenshot */}
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 text-xs text-[var(--theme-text-muted)]">
+            <span className="font-semibold text-[var(--theme-text-muted)]">AgroSage</span>
+            <span>/</span>
           </div>
-          <div>
-            <h1 className="text-sm font-bold text-[#ECECEC] tracking-tight leading-none flex items-center gap-1.5">
-              <span>{title}</span>
-              <span className="text-[10px] font-semibold text-[#8DBB91] bg-[#262626] border border-[#414141] px-1.5 py-0.5 rounded-full">
-                Preview
-              </span>
-            </h1>
-            <p className="text-[11px] text-[#A3A3A3] hidden sm:block leading-none mt-0.5">
-              {subtitle}
-            </p>
-          </div>
+
+          <h1 className="text-xs sm:text-sm font-bold text-[var(--theme-text-main)] tracking-tight leading-none truncate">
+            {title === 'AgroSage' ? 'New Consultation' : title}
+          </h1>
+
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-[var(--theme-badge-bg)] text-[var(--theme-badge-text)] border border-[var(--theme-badge-border)]">
+            Preview
+          </span>
         </div>
       </div>
 
-      {/* Right status indicator: Active Provider + 7-Agent Architecture */}
-      <div className="flex items-center gap-2">
+      {/* Right controls matching Target Screenshot: AI operating mode pill & Theme Selector */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Operating Mode Indicator pill */}
         <button
           type="button"
           onClick={() => navigate('/credentials')}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#262626] border border-[#414141] hover:border-[#8DBB91] text-[11px] text-[#ECECEC] transition-colors focus-visible:ring-2 focus-visible:ring-[#8DBB91] focus-visible:outline-none"
+          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-[var(--theme-bg-card)] border border-[var(--theme-border)] hover:border-[var(--theme-accent)] text-xs text-[var(--theme-text-main)] transition-colors focus-visible:ring-2 focus-visible:ring-[var(--theme-accent)] focus-visible:outline-none cursor-pointer"
           title="Click to manage AI Providers & BYOK Vault"
         >
-          <Sparkles className="w-3.5 h-3.5 text-[#8DBB91]" />
-          <span className="font-semibold capitalize">{executionMode}</span>
+          <span className="w-2 h-2 rounded-full bg-[var(--theme-accent)] animate-pulse" />
+          <span className="font-semibold capitalize text-[11px] sm:text-xs">{executionMode}</span>
         </button>
 
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#262626] border border-[#414141] text-[11px] text-[#A3A3A3]">
-          <Bot className="w-3.5 h-3.5 text-[#8DBB91]" />
-          <span>7-Agent Architecture</span>
-        </div>
+        {/* Theme Options: Soil, Sunlit, Terracotta */}
+        <ThemeSelector />
       </div>
     </header>
   );

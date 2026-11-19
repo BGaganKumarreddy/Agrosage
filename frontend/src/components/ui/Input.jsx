@@ -21,14 +21,14 @@ export const Input = forwardRef(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={inputId} className="block text-xs font-semibold text-[#A3A3A3] mb-1.5">
+          <label htmlFor={inputId} className="block text-xs font-semibold text-[var(--theme-text-muted)] mb-1.5">
             {label}
             {required && <span className="text-red-400 ml-1">*</span>}
           </label>
         )}
         <div className="relative">
           {Icon && (
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#737373]">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--theme-text-subtle)]">
               <Icon className="w-4 h-4" />
             </div>
           )}
@@ -40,10 +40,10 @@ export const Input = forwardRef(
             className={`w-full rounded-xl border ${
               error
                 ? 'border-red-500/80 focus:ring-red-500/30'
-                : 'border-[#414141] focus:border-[#8DBB91] focus:ring-[#8DBB91]/30'
-            } bg-[#171717] px-3.5 py-2.5 text-sm text-[#ECECEC] placeholder:text-[#737373] focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all ${
+                : 'border-[var(--theme-border)] focus:border-[var(--theme-accent)] focus:ring-[var(--theme-accent)]/30'
+            } bg-[var(--theme-bg-composer)] px-3.5 py-2.5 text-sm text-[var(--theme-text-main)] placeholder:text-[var(--theme-text-subtle)] focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all ${
               Icon ? 'pl-10' : ''
-            } ${rightElement ? 'pr-10' : ''} disabled:bg-[#212121] disabled:text-[#737373] ${className}`}
+            } ${rightElement ? 'pr-10' : ''} disabled:bg-[var(--theme-bg-card)] disabled:text-[var(--theme-text-subtle)] ${className}`}
             {...props}
           />
           {rightElement && (
@@ -53,7 +53,7 @@ export const Input = forwardRef(
           )}
         </div>
         {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
-        {helperText && !error && <p className="mt-1 text-[11px] text-[#737373]">{helperText}</p>}
+        {helperText && !error && <p className="mt-1 text-[11px] text-[var(--theme-text-subtle)]">{helperText}</p>}
       </div>
     );
   }
@@ -67,13 +67,11 @@ export const Select = forwardRef(
       label,
       error,
       helperText,
-      icon: Icon,
       options = [],
-      placeholder = 'Select an option',
       className = '',
       id,
       required = false,
-      children,
+      placeholder = 'Select an option',
       ...props
     },
     ref
@@ -83,41 +81,31 @@ export const Select = forwardRef(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={selectId} className="block text-xs font-semibold text-[#A3A3A3] mb-1.5">
+          <label htmlFor={selectId} className="block text-xs font-semibold text-[var(--theme-text-muted)] mb-1.5">
             {label}
             {required && <span className="text-red-400 ml-1">*</span>}
           </label>
         )}
-        <div className="relative">
-          {Icon && (
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#737373]">
-              <Icon className="w-4 h-4" />
-            </div>
-          )}
-          <select
-            id={selectId}
-            ref={ref}
-            required={required}
-            className={`w-full rounded-xl border ${
-              error
-                ? 'border-red-500/80 focus:ring-red-500/30'
-                : 'border-[#414141] focus:border-[#8DBB91] focus:ring-[#8DBB91]/30'
-            } bg-[#171717] px-3.5 py-2.5 text-sm text-[#ECECEC] focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all appearance-none cursor-pointer ${
-              Icon ? 'pl-10' : ''
-            } disabled:bg-[#212121] disabled:text-[#737373] ${className}`}
-            {...props}
-          >
-            {placeholder && <option value="" className="bg-[#171717] text-[#737373]">{placeholder}</option>}
-            {options.map((opt) => (
-              <option key={opt.value} value={opt.value} className="bg-[#171717] text-[#ECECEC]">
-                {opt.label}
-              </option>
-            ))}
-            {children}
-          </select>
-        </div>
+        <select
+          id={selectId}
+          ref={ref}
+          required={required}
+          className={`w-full rounded-xl border ${
+            error
+              ? 'border-red-500/80 focus:ring-red-500/30'
+              : 'border-[var(--theme-border)] focus:border-[var(--theme-accent)] focus:ring-[var(--theme-accent)]/30'
+          } bg-[var(--theme-bg-composer)] px-3.5 py-2.5 text-sm text-[var(--theme-text-main)] focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all cursor-pointer ${className}`}
+          {...props}
+        >
+          {placeholder && <option value="" disabled className="bg-[var(--theme-bg-card)]">{placeholder}</option>}
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value} className="bg-[var(--theme-bg-card)] text-[var(--theme-text-main)]">
+              {opt.label}
+            </option>
+          ))}
+        </select>
         {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
-        {helperText && !error && <p className="mt-1 text-[11px] text-[#737373]">{helperText}</p>}
+        {helperText && !error && <p className="mt-1 text-[11px] text-[var(--theme-text-subtle)]">{helperText}</p>}
       </div>
     );
   }
@@ -133,8 +121,8 @@ export const Textarea = forwardRef(
       helperText,
       className = '',
       id,
-      rows = 4,
       required = false,
+      rows = 3,
       ...props
     },
     ref
@@ -144,7 +132,7 @@ export const Textarea = forwardRef(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={textareaId} className="block text-xs font-semibold text-[#A3A3A3] mb-1.5">
+          <label htmlFor={textareaId} className="block text-xs font-semibold text-[var(--theme-text-muted)] mb-1.5">
             {label}
             {required && <span className="text-red-400 ml-1">*</span>}
           </label>
@@ -152,17 +140,17 @@ export const Textarea = forwardRef(
         <textarea
           id={textareaId}
           ref={ref}
-          rows={rows}
           required={required}
+          rows={rows}
           className={`w-full rounded-xl border ${
             error
               ? 'border-red-500/80 focus:ring-red-500/30'
-              : 'border-[#414141] focus:border-[#8DBB91] focus:ring-[#8DBB91]/30'
-          } bg-[#171717] p-3 text-sm text-[#ECECEC] placeholder:text-[#737373] focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all resize-y ${className}`}
+              : 'border-[var(--theme-border)] focus:border-[var(--theme-accent)] focus:ring-[var(--theme-accent)]/30'
+          } bg-[var(--theme-bg-composer)] px-3.5 py-2.5 text-sm text-[var(--theme-text-main)] placeholder:text-[var(--theme-text-subtle)] focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all ${className}`}
           {...props}
         />
         {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
-        {helperText && !error && <p className="mt-1 text-[11px] text-[#737373]">{helperText}</p>}
+        {helperText && !error && <p className="mt-1 text-[11px] text-[var(--theme-text-subtle)]">{helperText}</p>}
       </div>
     );
   }

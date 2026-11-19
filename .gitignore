@@ -18,13 +18,10 @@ dist/
 *.sqlite3-wal
 *.db
 
-# Temporary, output, documentation, and test folders
+# Temporary and output folders
 tmp/
 scratch/
 output/
-docs/
-tests/
-frontend/src/test/
 *.png
 test-results/
 test-reports/
@@ -34,6 +31,7 @@ playwright-report/
 .env
 .env.*
 !.env.example
+!.env.docker.example
 !frontend/.env.example
 
 # Node / Frontend

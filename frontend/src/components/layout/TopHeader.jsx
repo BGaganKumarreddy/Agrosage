@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { Menu, Activity, PanelLeft, Plus, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { healthService } from '../../services/healthService';
+import { ThemeSelector } from '../common/ThemeSelector';
 
 export const TopHeader = ({
   onMenuClick,
@@ -10,6 +11,7 @@ export const TopHeader = ({
   breadcrumbs = [],
   isSidebarCollapsed = false,
   onToggleSidebar,
+  executionMode = 'deterministic',
 }) => {
   const { user } = useAuth();
   const [health, setHealth] = useState({ status: 'checking', agents: 7 });
@@ -30,13 +32,15 @@ export const TopHeader = ({
     };
   }, []);
 
+  const activeMode = localStorage.getItem('agrosage_execution_mode') || executionMode || 'deterministic';
+
   return (
-    <header className="sticky top-0 z-20 bg-[#212121]/90 backdrop-blur-md border-b border-[#414141]/50 px-4 sm:px-6 py-2.5 flex items-center justify-between transition-all select-none">
+    <header className="sticky top-0 z-20 bg-[var(--theme-bg-header)] backdrop-blur-md border-b border-[var(--theme-border)] px-3 sm:px-5 py-2.5 flex items-center justify-between transition-colors select-none">
       <div className="flex items-center gap-2.5 min-w-0">
         {/* Mobile Hamburger */}
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-1.5 rounded-lg text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#303030] transition-colors"
+          className="lg:hidden p-1.5 rounded-lg text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)] transition-colors"
           aria-label="Open sidebar menu"
         >
           <Menu className="w-5 h-5" />
@@ -46,49 +50,50 @@ export const TopHeader = ({
         {isSidebarCollapsed && (
           <button
             onClick={onToggleSidebar}
-            className="hidden lg:flex p-1.5 rounded-lg text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#303030] transition-colors"
+            className="hidden lg:flex p-1.5 rounded-lg text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)] transition-colors"
             title="Expand sidebar"
+            aria-label="Expand sidebar"
           >
-            <PanelLeft className="w-4 h-4" />
+            <PanelLeft className="w-4 h-4 text-[var(--theme-accent)]" />
           </button>
         )}
 
-        <div className="min-w-0">
-          {breadcrumbs.length > 0 && (
-            <div className="flex items-center gap-1.5 text-xs text-[#A3A3A3] mb-0.5 truncate">
-              {breadcrumbs.map((crumb, idx) => (
-                <React.Fragment key={crumb.label}>
-                  {idx > 0 && <span>/</span>}
-                  <span>{crumb.label}</span>
-                </React.Fragment>
-              ))}
-            </div>
-          )}
-          <h2 className="text-sm sm:text-base font-semibold text-[#ECECEC] tracking-tight truncate">
-            {title || 'AgroSage Intelligence'}
+        {/* Header Breadcrumbs & Title */}
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 text-xs text-[var(--theme-text-muted)]">
+            <span className="font-semibold text-[var(--theme-text-muted)]">AgroSage</span>
+            <span>/</span>
+          </div>
+
+          <h2 className="text-sm sm:text-base font-bold text-[var(--theme-text-main)] tracking-tight truncate">
+            {title || 'New Consultation'}
           </h2>
+
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-[var(--theme-badge-bg)] text-[var(--theme-badge-text)] border border-[var(--theme-badge-border)]">
+            Preview
+          </span>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
+      {/* Right Controls: Mode Pill & Theme Selector */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Operating Mode Indicator matching screenshot */}
+        <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--theme-bg-card)] border border-[var(--theme-border)] text-xs text-[var(--theme-text-main)]">
+          <span className="w-2 h-2 rounded-full bg-[var(--theme-accent)] animate-pulse" />
+          <span className="font-medium capitalize">{activeMode}</span>
+        </div>
+
+        {/* Theme Options: Soil, Sunlit, Terracotta */}
+        <ThemeSelector />
+
         {/* Mobile New Chat shortcut */}
         <NavLink
           to="/chat"
-          className="sm:hidden p-1.5 rounded-lg text-[#8DBB91] hover:bg-[#303030] transition-colors"
+          className="sm:hidden p-1.5 rounded-lg text-[var(--theme-accent)] hover:bg-[var(--theme-bg-hover)] transition-colors"
           title="New consultation"
         >
           <Plus className="w-5 h-5" />
         </NavLink>
-
-        {/* 7-Agent Architecture Pill */}
-        <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-lg border border-[#414141]/60 bg-[#171717]/80 text-xs text-[#A3A3A3]">
-          <Activity
-            className={`w-3.5 h-3.5 ${
-              health.status === 'healthy' ? 'text-[#8DBB91]' : 'text-amber-400'
-            }`}
-          />
-          <span className="font-medium text-[11px]">7-Agent System</span>
-        </div>
       </div>
     </header>
   );

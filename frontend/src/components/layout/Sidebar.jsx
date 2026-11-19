@@ -171,7 +171,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
       return (
         <div
           key={conv.conversation_id}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#212121] border border-[#414141] text-xs text-[#ECECEC]"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--theme-bg-hover)] border border-[var(--theme-border)] text-xs text-[var(--theme-text-main)]"
         >
           <input
             type="text"
@@ -182,11 +182,11 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
               if (e.key === 'Escape') setEditingId(null);
             }}
             autoFocus
-            className="flex-1 bg-transparent border-none text-xs text-[#ECECEC] focus:outline-none"
+            className="flex-1 bg-transparent border-none text-xs text-[var(--theme-text-main)] focus:outline-none"
           />
           <button
             onClick={(e) => handleSaveRename(e, conv.conversation_id)}
-            className="p-1 text-[#8DBB91] hover:text-white"
+            className="p-1 text-[var(--theme-accent)] hover:text-white"
             title="Save"
           >
             <Check className="w-3.5 h-3.5" />
@@ -196,7 +196,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
               e.stopPropagation();
               setEditingId(null);
             }}
-            className="p-1 text-[#A3A3A3] hover:text-white"
+            className="p-1 text-[var(--theme-text-muted)] hover:text-white"
             title="Cancel"
           >
             <X className="w-3.5 h-3.5" />
@@ -212,12 +212,12 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
         onClick={onClose}
         className={`group relative flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
           isSelected
-            ? 'bg-[#212121] text-[#ECECEC] font-semibold border border-[#414141]'
-            : 'text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#212121]/70'
+            ? 'bg-[var(--theme-bg-hover)] text-[var(--theme-text-main)] font-semibold border border-[var(--theme-border)] shadow-sm'
+            : 'text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)]/70'
         }`}
       >
         <div className="flex items-center gap-2 min-w-0 flex-1 truncate">
-          <MessageSquare className="w-3.5 h-3.5 shrink-0 opacity-70 text-[#8DBB91]" />
+          <MessageSquare className="w-3.5 h-3.5 shrink-0 opacity-80 text-[var(--theme-accent)]" />
           <span className="truncate">{conv.title || 'Untitled Consultation'}</span>
         </div>
 
@@ -229,7 +229,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
         >
           <button
             onClick={(e) => handleStartRename(e, conv)}
-            className="p-1 rounded text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#303030]"
+            className="p-1 rounded text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)]"
             title="Rename"
           >
             <Edit2 className="w-3 h-3" />
@@ -237,7 +237,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
           <button
             onClick={(e) => handleDelete(e, conv.conversation_id)}
             disabled={isDeletingId === conv.conversation_id}
-            className="p-1 rounded text-[#A3A3A3] hover:text-red-400 hover:bg-[#303030]"
+            className="p-1 rounded text-[var(--theme-text-muted)] hover:text-red-400 hover:bg-[var(--theme-bg-hover)]"
             title="Delete"
           >
             <Trash2 className="w-3 h-3" />
@@ -248,27 +248,27 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
   };
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-[#171717] text-[#ECECEC] border-r border-[#414141]/60 select-none">
+    <div className="flex flex-col h-full bg-[var(--theme-bg-sidebar)] text-[var(--theme-text-main)] border-r border-[var(--theme-border)] select-none transition-colors">
       {/* Brand & Toggle Header */}
-      <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#414141]/50">
+      <div className="flex items-center justify-between px-4 py-3.5 border-b border-[var(--theme-border)]">
         <NavLink
           to="/"
           onClick={onClose}
           className="flex items-center gap-2.5 hover:opacity-90 transition-opacity"
         >
-          <div className="w-8 h-8 rounded-lg bg-[#303030] border border-[#414141] flex items-center justify-center text-[#8DBB91] shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-[var(--theme-bg-card)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-accent)] shadow-sm">
             <Sprout className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-sm tracking-tight text-[#ECECEC]">AgroSage</span>
-              <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#303030] text-[#8DBB91] font-semibold border border-[#414141]/80">
+              <span className="font-bold text-sm tracking-tight text-[var(--theme-text-main)]">AgroSage</span>
+              <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[var(--theme-badge-bg)] text-[var(--theme-badge-text)] font-semibold border border-[var(--theme-badge-border)]">
                 AI
               </span>
             </div>
             {/* Accessible alias for legacy tests */}
             <span className="sr-only">AgroSage</span>
-            <p className="text-[11px] text-[#A3A3A3] truncate">Intelligence for Every Acre</p>
+            <p className="text-[11px] text-[var(--theme-text-muted)] truncate">Intelligence for Every Acre</p>
           </div>
         </NavLink>
 
@@ -276,16 +276,18 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
-              className="hidden lg:flex p-1.5 rounded-lg text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#212121] transition-colors"
+              className="hidden lg:flex p-1.5 rounded-lg text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)] transition-colors"
               title="Collapse sidebar"
+              aria-label="Collapse sidebar"
             >
-              <PanelLeftClose className="w-4 h-4" />
+              <PanelLeftClose className="w-4 h-4 text-[var(--theme-accent)]" />
             </button>
           )}
           {onClose && (
             <button
               onClick={onClose}
-              className="lg:hidden p-1.5 rounded-lg text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#212121]"
+              className="lg:hidden p-1.5 rounded-lg text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)]"
+              aria-label="Close sidebar"
             >
               <X className="w-5 h-5" />
             </button>
@@ -293,19 +295,19 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
         </div>
       </div>
 
-      {/* Primary Action Button: + New Chat */}
+      {/* Primary Action Button: + New Chat / New Consultation */}
       <div className="px-3 pt-3 pb-2">
         <NavLink
           to="/chat"
           onClick={onClose}
-          className="flex items-center justify-between w-full py-2.5 px-3 rounded-xl bg-[#212121] hover:bg-[#303030] text-[#ECECEC] font-medium text-xs border border-[#414141] transition-all group"
+          className="flex items-center justify-between w-full py-2.5 px-3 rounded-xl bg-[var(--theme-bg-composer)] hover:bg-[var(--theme-bg-hover)] text-[var(--theme-text-main)] font-semibold text-xs border border-[var(--theme-border)] hover:border-[var(--theme-accent)] transition-all group shadow-sm"
         >
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#8DBB91] group-hover:rotate-12 transition-transform" />
+            <Sparkles className="w-4 h-4 text-[var(--theme-accent)] group-hover:rotate-12 transition-transform" />
             <span>New Chat</span>
           </div>
-          <span className="text-[10px] text-[#A3A3A3] border border-[#414141] rounded px-1.5 py-0.5 bg-[#171717]">
-            Ctrl+K
+          <span className="text-[10px] text-[var(--theme-text-muted)] border border-[var(--theme-border)] rounded px-1.5 py-0.5 bg-[var(--theme-bg-sidebar)]">
+            New
           </span>
         </NavLink>
       </div>
@@ -313,18 +315,18 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
       {/* Search Conversations Input */}
       <div className="px-3 pb-2">
         <div className="relative">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#A3A3A3]" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--theme-text-muted)]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search conversations..."
-            className="w-full bg-[#212121] border border-[#414141]/80 rounded-lg pl-8 pr-3 py-1.5 text-xs text-[#ECECEC] placeholder-[#737373] focus:outline-none focus:border-[#8DBB91] transition-colors"
+            className="w-full bg-[var(--theme-bg-card)] border border-[var(--theme-border)] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[var(--theme-text-main)] placeholder-[var(--theme-text-subtle)] focus:outline-none focus:border-[var(--theme-accent)] transition-colors"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#A3A3A3] hover:text-[#ECECEC]"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)]"
             >
               <X className="w-3 h-3" />
             </button>
@@ -335,7 +337,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
       {/* Scrollable Center: Primary Nav & Recent Conversations */}
       <div className="flex-1 px-3 py-1 overflow-y-auto space-y-4">
         {/* Core Nav Links */}
-        <div className="space-y-0.5 border-b border-[#414141]/50 pb-2">
+        <div className="space-y-0.5 border-b border-[var(--theme-border)] pb-2">
           {primaryNavItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -347,12 +349,12 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
                 className={({ isActive }) =>
                   `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                     isActive
-                      ? 'bg-[#212121] text-[#ECECEC] font-semibold border border-[#414141]'
-                      : 'text-[#A3A3A3] hover:text-[#ECECEC] hover:bg-[#212121]/60'
+                      ? 'bg-[var(--theme-bg-hover)] text-[var(--theme-text-main)] font-semibold border border-[var(--theme-border)] shadow-sm'
+                      : 'text-[var(--theme-text-muted)] hover:text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)]/60'
                   }`
                 }
               >
-                <Icon className="w-4 h-4 text-[#8DBB91]" />
+                <Icon className="w-4 h-4 text-[var(--theme-accent)]" />
                 <span>{item.label}</span>
               </NavLink>
             );
@@ -363,7 +365,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
         <div className="space-y-3">
           {dateGroups.today.length > 0 && (
             <div className="space-y-1">
-              <p className="px-3 text-[11px] font-semibold text-[#737373] uppercase tracking-wider">
+              <p className="px-3 text-[11px] font-semibold text-[var(--theme-text-subtle)] uppercase tracking-wider">
                 Today
               </p>
               {dateGroups.today.map(renderConversationItem)}
@@ -372,7 +374,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
 
           {dateGroups.yesterday.length > 0 && (
             <div className="space-y-1">
-              <p className="px-3 text-[11px] font-semibold text-[#737373] uppercase tracking-wider">
+              <p className="px-3 text-[11px] font-semibold text-[var(--theme-text-subtle)] uppercase tracking-wider">
                 Yesterday
               </p>
               {dateGroups.yesterday.map(renderConversationItem)}
@@ -381,7 +383,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
 
           {dateGroups.previous7Days.length > 0 && (
             <div className="space-y-1">
-              <p className="px-3 text-[11px] font-semibold text-[#737373] uppercase tracking-wider">
+              <p className="px-3 text-[11px] font-semibold text-[var(--theme-text-subtle)] uppercase tracking-wider">
                 Previous 7 Days
               </p>
               {dateGroups.previous7Days.map(renderConversationItem)}
@@ -390,7 +392,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
 
           {dateGroups.older.length > 0 && (
             <div className="space-y-1">
-              <p className="px-3 text-[11px] font-semibold text-[#737373] uppercase tracking-wider">
+              <p className="px-3 text-[11px] font-semibold text-[var(--theme-text-subtle)] uppercase tracking-wider">
                 Older
               </p>
               {dateGroups.older.map(renderConversationItem)}
@@ -398,13 +400,13 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
           )}
 
           {conversations.length === 0 && !searchQuery && (
-            <div className="px-3 py-4 text-center text-xs text-[#737373]">
+            <div className="px-3 py-4 text-center text-xs text-[var(--theme-text-muted)]">
               No conversations yet. Start one above!
             </div>
           )}
 
           {filteredConversations.length === 0 && searchQuery && (
-            <div className="px-3 py-4 text-center text-xs text-[#737373]">
+            <div className="px-3 py-4 text-center text-xs text-[var(--theme-text-muted)]">
               No conversations match "{searchQuery}"
             </div>
           )}
@@ -412,39 +414,39 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
       </div>
 
       {/* User Profile Footer */}
-      <div className="p-3 border-t border-[#414141]/50 relative">
+      <div className="p-3 border-t border-[var(--theme-border)] relative">
         <button
           onClick={() => setShowProfileMenu((prev) => !prev)}
-          className="flex items-center justify-between w-full p-2 rounded-xl hover:bg-[#212121] transition-colors text-left"
+          className="flex items-center justify-between w-full p-2 rounded-xl hover:bg-[var(--theme-bg-hover)] transition-colors text-left"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-full bg-[#8DBB91] text-[#171717] font-bold text-xs flex items-center justify-center shrink-0">
+            <div className="w-7 h-7 rounded-full bg-[var(--theme-accent)] text-black font-bold text-xs flex items-center justify-center shrink-0">
               {user?.username ? user.username.charAt(0).toUpperCase() : 'A'}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-[#ECECEC] truncate">
+              <p className="text-xs font-semibold text-[var(--theme-text-main)] truncate">
                 {user?.username || 'Farmer'}
               </p>
-              <p className="text-[10px] text-[#A3A3A3] truncate">
+              <p className="text-[10px] text-[var(--theme-text-muted)] truncate">
                 {user?.tenant_id || 'Tenant'}
               </p>
             </div>
           </div>
-          <ChevronDown className="w-3.5 h-3.5 text-[#A3A3A3]" />
+          <ChevronDown className="w-3.5 h-3.5 text-[var(--theme-text-muted)]" />
         </button>
 
         {/* Profile Popover Menu */}
         {showProfileMenu && (
-          <div className="absolute bottom-16 left-3 right-3 bg-[#262626] border border-[#414141] rounded-xl shadow-xl py-1 z-30 space-y-0.5">
+          <div className="absolute bottom-16 left-3 right-3 bg-[var(--theme-bg-card)] border border-[var(--theme-border)] rounded-xl shadow-2xl py-1 z-30 space-y-0.5">
             <NavLink
               to="/credentials"
               onClick={() => {
                 setShowProfileMenu(false);
                 onClose && onClose();
               }}
-              className="flex items-center gap-2 px-3 py-2 text-xs text-[#ECECEC] hover:bg-[#303030] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-xs text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)] transition-colors"
             >
-              <KeyRound className="w-3.5 h-3.5 text-[#8DBB91]" />
+              <KeyRound className="w-3.5 h-3.5 text-[var(--theme-accent)]" />
               <span>BYOK Vault & API Keys</span>
             </NavLink>
             <NavLink
@@ -453,15 +455,15 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse
                 setShowProfileMenu(false);
                 onClose && onClose();
               }}
-              className="flex items-center gap-2 px-3 py-2 text-xs text-[#ECECEC] hover:bg-[#303030] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-xs text-[var(--theme-text-main)] hover:bg-[var(--theme-bg-hover)] transition-colors"
             >
-              <Settings className="w-3.5 h-3.5 text-[#8DBB91]" />
+              <Settings className="w-3.5 h-3.5 text-[var(--theme-accent)]" />
               <span>Account Settings</span>
             </NavLink>
-            <div className="border-t border-[#414141] my-1" />
+            <div className="border-t border-[var(--theme-border)] my-1" />
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 w-full px-3 py-2 text-xs text-red-400 hover:bg-[#303030] transition-colors text-left"
+              className="flex items-center gap-2 w-full px-3 py-2 text-xs text-red-400 hover:bg-[var(--theme-bg-hover)] transition-colors text-left"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign out</span>

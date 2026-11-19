@@ -8,10 +8,10 @@ export const UserMessage = ({ message }) => {
 
   return (
     <div className="flex items-start justify-end gap-2.5 w-full select-text">
-      <div className="max-w-[85%] sm:max-w-[75%] rounded-2xl bg-[#303030] border border-[#414141] text-[#ECECEC] px-4 py-2.5 shadow-sm space-y-1">
+      <div className="max-w-[85%] sm:max-w-[75%] rounded-2xl bg-[var(--theme-bg-user-msg)] border border-[var(--theme-border)] text-[var(--theme-text-main)] px-4 py-2.5 shadow-sm space-y-1">
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
       </div>
-      <div className="w-7 h-7 rounded-full bg-[#414141] text-[#ECECEC] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+      <div className="w-7 h-7 rounded-full bg-[var(--theme-accent)] text-black font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
         {initial}
       </div>
     </div>

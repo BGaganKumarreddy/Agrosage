@@ -4,6 +4,7 @@ import { ShieldAlert } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ConfigProvider } from './context/ConfigContext';
 import { ToastProvider } from './context/ToastContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { AppLayout } from './components/layout/AppLayout';
 
 // Pages
@@ -118,8 +119,9 @@ export const App = () => {
     <BrowserRouter>
       <AuthProvider>
         <ConfigProvider>
-          <ToastProvider>
-            <Routes>
+          <ThemeProvider>
+            <ToastProvider>
+              <Routes>
               {/* Public Auth Routes */}
               <Route
                 path="/login"
@@ -232,9 +234,10 @@ export const App = () => {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </ToastProvider>
-        </ConfigProvider>
-      </AuthProvider>
-    </BrowserRouter>
+        </ThemeProvider>
+      </ConfigProvider>
+    </AuthProvider>
+  </BrowserRouter>
   );
 };
 
