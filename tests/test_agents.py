@@ -166,8 +166,8 @@ class AgentWorkflowTests(unittest.IsolatedAsyncioTestCase):
     async def test_unregistered_crop_selection_gets_no_crop_evidence(self):
         result = await RythuSaathiWorkflow(
             resolver=self.resolver, knowledge=self.index
-        ).run(self.request("How should I manage banana in Punjab?",
-                           crop_query="banana", location_query="Punjab"))
+        ).run(self.request("How should I manage dragon fruit in Punjab?",
+                           crop_query="dragon fruit", location_query="Punjab"))
         self.assertEqual(result.context.crop.state, FactState.UNAVAILABLE)
         self.assertEqual(result.status, AdvisoryStatus.NEEDS_CLARIFICATION)
         crop = next(item for item in result.agent_results if item.agent_id is AgentId.CROP)

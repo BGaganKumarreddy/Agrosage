@@ -7,7 +7,7 @@ from .registry import (CoverageRegistry, CropCategory, CropRecord, CropRegistry,
                        RegistryMetadata, VarietyRecord)
 
 SEED_VERSION = "seed-2026.11-v1"
-_CROP_SEED_VERSION = "seed-2026.11-v2"
+_CROP_SEED_VERSION = "seed-2026.11-v3"
 _EFFECTIVE_FROM = date(2026, 1, 1)
 
 CROP_REGISTRY_METADATA = RegistryMetadata(
@@ -176,8 +176,74 @@ BLACK_GRAM = CropRecord(
     effective_from=_EFFECTIVE_FROM,
 )
 
-CROP_REGISTRY = CropRegistry(CROP_REGISTRY_METADATA,
-                             (RICE, WHEAT, COTTON, TOMATO, MAIZE, CHICKPEA, BLACK_GRAM))
+# The registry deliberately separates recognition from advisory coverage.  The
+# entries below are source-attributed identity records: registering a crop never
+# implies that AgroSage has a package of practices or treatment evidence for it.
+_ICAR_CROP_SOURCE = "https://icar.gov.in/en/crop-science"
+_KEW_POWO_SOURCE = "https://powo.science.kew.org/"
+
+
+def _priority_crop(
+    crop_id: str, names: tuple[str, ...], scientific_name: str, category: CropCategory,
+    *, regional: tuple[tuple[str, str], ...] = (),
+) -> CropRecord:
+    return CropRecord(
+        crop_id=crop_id,
+        common_names=tuple(NameVariant(value=name) for name in names),
+        scientific_name=scientific_name,
+        category=category,
+        regional_names=tuple(NameVariant(value=name, language=language) for name, language in regional),
+        source_references=(_ICAR_CROP_SOURCE, _KEW_POWO_SOURCE),
+        effective_from=_EFFECTIVE_FROM,
+    )
+
+
+SORGHUM = _priority_crop("crop:sorghum-bicolor", ("sorghum", "jowar"), "Sorghum bicolor (L.) Moench", CropCategory.CEREAL, regional=(("జొన్న", "te"),))
+PEARL_MILLET = _priority_crop("crop:cenchrus-americanus", ("pearl millet", "bajra"), "Cenchrus americanus (L.) Morrone", CropCategory.CEREAL, regional=(("సజ్జలు", "te"),))
+FINGER_MILLET = _priority_crop("crop:eleusine-coracana", ("finger millet", "ragi"), "Eleusine coracana (L.) Gaertn.", CropCategory.CEREAL, regional=(("రాగి", "te"),))
+PIGEON_PEA = _priority_crop("crop:cajanus-cajan", ("pigeon pea", "tur", "arhar", "red gram"), "Cajanus cajan (L.) Millsp.", CropCategory.PULSE, regional=(("కంది", "te"),))
+GREEN_GRAM = _priority_crop("crop:vigna-radiata", ("green gram", "moong", "mung bean"), "Vigna radiata (L.) R. Wilczek", CropCategory.PULSE, regional=(("పెసర", "te"),))
+LENTIL = _priority_crop("crop:lens-culinaris", ("lentil", "masoor"), "Lens culinaris Medik.", CropCategory.PULSE)
+FIELD_PEA = _priority_crop("crop:pisum-sativum", ("field pea", "pea", "matar"), "Pisum sativum L.", CropCategory.PULSE)
+GROUNDNUT = _priority_crop("crop:arachis-hypogaea", ("groundnut", "peanut", "peanut crop"), "Arachis hypogaea L.", CropCategory.OILSEED, regional=(("వేరుశనగ", "te"),))
+SOYBEAN = _priority_crop("crop:glycine-max", ("soybean", "soya bean"), "Glycine max (L.) Merr.", CropCategory.OILSEED)
+MUSTARD = _priority_crop("crop:brassica-juncea", ("mustard", "Indian mustard", "rai"), "Brassica juncea (L.) Czern.", CropCategory.OILSEED)
+SESAME = _priority_crop("crop:sesamum-indicum", ("sesame", "til", "gingelly"), "Sesamum indicum L.", CropCategory.OILSEED, regional=(("నువ్వులు", "te"),))
+SUNFLOWER = _priority_crop("crop:helianthus-annuus", ("sunflower",), "Helianthus annuus L.", CropCategory.OILSEED)
+CASTOR = _priority_crop("crop:ricinus-communis", ("castor", "castor bean"), "Ricinus communis L.", CropCategory.OILSEED, regional=(("ఆముదం", "te"),))
+SUGARCANE = _priority_crop("crop:saccharum-officinarum", ("sugarcane", "sugar cane"), "Saccharum officinarum L.", CropCategory.OTHER, regional=(("చెరకు", "te"),))
+JUTE = _priority_crop("crop:corchorus-olitorius", ("jute", "tossa jute"), "Corchorus olitorius L.", CropCategory.FIBRE)
+TOBACCO = _priority_crop("crop:nicotiana-tabacum", ("tobacco",), "Nicotiana tabacum L.", CropCategory.OTHER)
+BANANA = _priority_crop("crop:musa-spp", ("banana", "plantain"), "Musa spp.", CropCategory.FRUIT, regional=(("అరటి", "te"),))
+MANGO = _priority_crop("crop:mangifera-indica", ("mango",), "Mangifera indica L.", CropCategory.FRUIT, regional=(("మామిడి", "te"),))
+CITRUS = _priority_crop("crop:citrus-spp", ("citrus", "orange", "sweet orange", "mandarin", "lemon", "lime"), "Citrus spp.", CropCategory.FRUIT)
+GRAPES = _priority_crop("crop:vitis-vinifera", ("grape", "grapes", "grapevine"), "Vitis vinifera L.", CropCategory.FRUIT)
+PAPAYA = _priority_crop("crop:carica-papaya", ("papaya", "pawpaw"), "Carica papaya L.", CropCategory.FRUIT)
+GUAVA = _priority_crop("crop:psidium-guajava", ("guava",), "Psidium guajava L.", CropCategory.FRUIT)
+POMEGRANATE = _priority_crop("crop:punica-granatum", ("pomegranate", "anar"), "Punica granatum L.", CropCategory.FRUIT)
+COCONUT = _priority_crop("crop:cocos-nucifera", ("coconut",), "Cocos nucifera L.", CropCategory.FRUIT)
+POTATO = _priority_crop("crop:solanum-tuberosum", ("potato",), "Solanum tuberosum L.", CropCategory.VEGETABLE)
+CHILLI = _priority_crop("crop:capsicum-annuum", ("chilli", "chili", "green chilli", "hot pepper"), "Capsicum annuum L.", CropCategory.VEGETABLE, regional=(("మిరప", "te"),))
+ONION = _priority_crop("crop:allium-cepa", ("onion",), "Allium cepa L.", CropCategory.VEGETABLE, regional=(("ఉల్లిపాయ", "te"),))
+BRINJAL = _priority_crop("crop:solanum-melongena", ("brinjal", "eggplant", "aubergine"), "Solanum melongena L.", CropCategory.VEGETABLE, regional=(("వంకాయ", "te"),))
+OKRA = _priority_crop("crop:abelmoschus-esculentus", ("okra", "bhindi", "lady's finger"), "Abelmoschus esculentus (L.) Moench", CropCategory.VEGETABLE, regional=(("బెండకాయ", "te"),))
+CABBAGE = _priority_crop("crop:brassica-oleracea-capitata", ("cabbage",), "Brassica oleracea var. capitata L.", CropCategory.VEGETABLE)
+CAULIFLOWER = _priority_crop("crop:brassica-oleracea-botrytis", ("cauliflower",), "Brassica oleracea var. botrytis L.", CropCategory.VEGETABLE)
+CUCUMBER = _priority_crop("crop:cucumis-sativus", ("cucumber",), "Cucumis sativus L.", CropCategory.VEGETABLE)
+TURMERIC = _priority_crop("crop:curcuma-longa", ("turmeric", "haldi"), "Curcuma longa L.", CropCategory.SPICE, regional=(("పసుపు", "te"),))
+GINGER = _priority_crop("crop:zingiber-officinale", ("ginger", "adrak"), "Zingiber officinale Roscoe", CropCategory.SPICE, regional=(("అల్లం", "te"),))
+GARLIC = _priority_crop("crop:allium-sativum", ("garlic", "lahsun"), "Allium sativum L.", CropCategory.SPICE)
+CORIANDER = _priority_crop("crop:coriandrum-sativum", ("coriander", "coriander seed", "dhania"), "Coriandrum sativum L.", CropCategory.SPICE, regional=(("ధనియాలు", "te"),))
+CUMIN = _priority_crop("crop:cuminum-cyminum", ("cumin", "jeera"), "Cuminum cyminum L.", CropCategory.SPICE)
+
+CROP_REGISTRY = CropRegistry(CROP_REGISTRY_METADATA, (
+    RICE, WHEAT, COTTON, TOMATO, MAIZE, CHICKPEA, BLACK_GRAM,
+    SORGHUM, PEARL_MILLET, FINGER_MILLET, PIGEON_PEA, GREEN_GRAM, LENTIL, FIELD_PEA,
+    GROUNDNUT, SOYBEAN, MUSTARD, SESAME, SUNFLOWER, CASTOR,
+    SUGARCANE, JUTE, TOBACCO, BANANA, MANGO, CITRUS, GRAPES, PAPAYA, GUAVA, POMEGRANATE,
+    COCONUT, POTATO, CHILLI, ONION, BRINJAL, OKRA, CABBAGE, CAULIFLOWER, CUCUMBER,
+    TURMERIC, GINGER, GARLIC, CORIANDER, CUMIN,
+))
 
 LOCATION_REGISTRY_METADATA = RegistryMetadata(
     registry_id="agrosage:location-seed", version=SEED_VERSION,

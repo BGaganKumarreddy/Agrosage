@@ -25,6 +25,7 @@ from .contracts import (
     RetrievalPayload,
     WorkflowMode,
 )
+from .intake_intelligence import is_market_only_turn
 
 
 class CropAgent(_DomainAgent):
@@ -38,6 +39,9 @@ class CropAgent(_DomainAgent):
         self._knowledge = knowledge
 
     async def perform(self, case: AgentExecutionInput) -> _AgentWork:
+        if is_market_only_turn(case.request.query):
+            detail = "Crop advisory retrieval is skipped for a market-price-only request."
+            return _AgentWork(AgentStatus.SKIPPED, RetrievalPayload(0, (), (), (), detail), detail)
         crop_id = _resolved_id(case.context.crop)
         location_id = _resolved_id(case.context.location)
         if not crop_id:

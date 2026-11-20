@@ -66,6 +66,11 @@ _FOLLOWUP_OBSERVATION_PATTERNS = [
     re.compile(r"\b(?:turning yellow|yellow leaves|yellowing|chlorosis|yellow spots?|yellow)\b", re.I),
     re.compile(r"\b(?:brown leaf spots?|brown spots?|leaf spots?|blast lesions?|spindle[- ]shaped lesions?)\b", re.I),
     re.compile(r"\b(?:pests?|insects?|caterpillars?|borers?|holes?|whitefly|bollworms?)\b", re.I),
+    re.compile(r"\babnormally tall\b", re.I),
+    re.compile(r"\bpale\b", re.I),
+    re.compile(r"\bweak seedlings?\b", re.I),
+    re.compile(r"\bseedlings? that die early\b", re.I),
+    re.compile(r"\bempty panicles?\b", re.I),
 ]
 
 
@@ -586,6 +591,11 @@ def resolve_followup_context(
                     confirmed_set.discard("crop")
                 if "crop" in skipped_set:
                     skipped_set.remove("crop")
+                # A crop answer to this targeted safety check is an explicit
+                # farmer confirmation.  Keep the original report, but do not
+                # repeatedly ask the same terminology question next turn.
+                if pending_question.text.startswith("You mentioned banana, but"):
+                    confirmed_set.add("crop_symptom_consistency_checked")
 
     # 1. Detect Intent
     intent = "follow_up"

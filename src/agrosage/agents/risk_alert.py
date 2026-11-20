@@ -34,6 +34,7 @@ from .contracts import (
     WeatherProvider,
     WorkflowMode,
 )
+from .intake_intelligence import is_market_only_turn
 
 
 class RiskAlertAgent(_DomainAgent):
@@ -51,6 +52,13 @@ class RiskAlertAgent(_DomainAgent):
         self._weather_provider = weather_provider
 
     async def perform(self, case: AgentExecutionInput) -> _AgentWork:
+        if is_market_only_turn(case.request.query):
+            detail = "Risk screening is skipped for a market-price-only request."
+            return _AgentWork(
+                AgentStatus.SKIPPED,
+                RiskAlertPayload(0, (), detail, (), background_vulnerabilities=()),
+                detail,
+            )
         crop_id = _resolved_id(case.context.crop)
         location_id = _resolved_id(case.context.location)
         stage = (

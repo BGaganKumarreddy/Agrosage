@@ -71,6 +71,7 @@ from .llm import (
     make_json_request,
     validate_evidence_ids,
 )
+from .intake_intelligence import is_market_only_turn
 
 
 def _format_evidence(evidence: EvidenceRecord) -> str:
@@ -518,7 +519,14 @@ class CoordinatorAgent(Executor):
                 AgentStatus.CANCELLED,
             }
         ]
-        unresolved_coverage = case.resolution.coverage.status is ResolutionStatus.UNSUPPORTED
+        market_only = is_market_only_turn(case.request.query)
+        # Agronomic RAG coverage says nothing about whether a market provider
+        # can quote a commodity at a market.  Keep the two availability models
+        # independent for a market request.
+        unresolved_coverage = (
+            case.resolution.coverage.status is ResolutionStatus.UNSUPPORTED
+            and not market_only
+        )
         if any(item.field_name in {"crop", "location"} for item in missing):
             status = AdvisoryStatus.NEEDS_CLARIFICATION
         elif any(result.status is AgentStatus.CANCELLED for result in branch_results):
@@ -570,7 +578,7 @@ class CoordinatorAgent(Executor):
             (item for item in branch_results if item.agent_id is AgentId.CROP), None
         )
         crop_evidence_ids = set(crop_result.evidence_ids if crop_result else ())
-        if crop_evidence_ids:
+        if crop_evidence_ids and not market_only:
             lines.append("\nAgricultural source material:")
             for item in evidence:
                 if item.evidence_id in crop_evidence_ids:
@@ -584,7 +592,7 @@ class CoordinatorAgent(Executor):
             lines.append(
                 f"These excerpts provide context only. Reported symptoms are not enough to establish a cause.{clarify_suffix}"
             )
-        elif crop_result:
+        elif crop_result and not market_only:
             crop_note = (
                 crop_result.payload.note
                 if isinstance(crop_result.payload, RetrievalPayload)
@@ -627,7 +635,7 @@ class CoordinatorAgent(Executor):
         scheme_result = next(
             (item for item in branch_results if item.agent_id is AgentId.SCHEME), None
         )
-        if scheme_result:
+        if scheme_result and not market_only:
             lines.append("\nGovernment schemes:")
             if scheme_result.evidence_ids:
                 for item in evidence:
@@ -643,7 +651,7 @@ class CoordinatorAgent(Executor):
         risk_result = next(
             (item for item in branch_results if item.agent_id is AgentId.RISK_ALERT), None
         )
-        if risk_result:
+        if risk_result and not market_only:
             lines.append("\nRisk alerts:")
             if isinstance(risk_result.payload, RiskAlertPayload):
                 active_alerts = [
@@ -687,7 +695,7 @@ class CoordinatorAgent(Executor):
         lines.append("\nSuggested next steps:")
         if missing:
             lines.extend(f"- {item.question}" for item in missing)
-        if crop_evidence_ids:
+        if crop_evidence_ids and not market_only:
             lines.append(
                 "- Share the crop stage and which leaves are affected; confirm any treatment with a local KVK or agriculture officer before changing inputs."
             )

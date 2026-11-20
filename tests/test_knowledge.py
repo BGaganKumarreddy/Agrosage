@@ -34,13 +34,13 @@ def rice_doc(**kw):
 class KnowledgeIngestionTests(unittest.TestCase):
     def test_starter_curated_dataset_uses_crop_registry_and_preserves_attribution(self):
         docs = load_curated(ROOT / "data/agricultural/icar_advisories.json", CROP_REGISTRY)
-        self.assertEqual(len(docs), 15)
+        self.assertEqual(len(docs), 19)
         self.assertTrue(all(CROP_REGISTRY.get(d.crop_id) for d in docs))
         self.assertIn("icar.gov.in", docs[0].source_reference)
         self.assertIsNone(docs[0].publication_date)
         self.assertEqual(docs[0].revision, "May 2025 edition")
         self.assertEqual({CROP_REGISTRY.get(d.crop_id).category.value for d in docs},
-                         {"cereal", "pulse", "fibre"})
+                         {"cereal", "pulse", "fibre", "oilseed", "other", "spice"})
         rice_scope = next(d for d in docs if d.document_id.endswith("rice-micronutrients-punjab"))
         self.assertEqual(rice_scope.geographic_applicability, ("location:state:in-pb",))
 
@@ -50,7 +50,7 @@ class KnowledgeIngestionTests(unittest.TestCase):
         self.assertEqual({doc.topic.value for doc in docs}, expected_topics)
         self.assertGreaterEqual(len({doc.crop_id for doc in docs}), 6)
         scoped = [doc for doc in docs if doc.geographic_applicability]
-        self.assertEqual(len(scoped), 7)
+        self.assertEqual(len(scoped), 8)
         staged = [doc for doc in docs if doc.growth_stage]
         self.assertGreaterEqual(len(staged), 5)
         self.assertGreaterEqual(len({doc.crop_id for doc in staged}), 2)
@@ -371,7 +371,7 @@ class AdapterTests(unittest.TestCase):
     def test_local_adapters_are_explicit_and_report_unknown_ids(self):
         curated = CuratedFileAdapter(ROOT / "data/agricultural/icar_advisories.json", CROP_REGISTRY)
         scheme = SchemeFileAdapter(ROOT / "data/schemes/central_agricultural_schemes.json")
-        self.assertEqual(len(curated.list_documents()), 15)
+        self.assertEqual(len(curated.list_documents()), 19)
         self.assertEqual(len(scheme.list_documents()), 3)
         with self.assertRaises(RetrievalError): curated.get_content("missing")
         self.assertIn("PM-KISAN", scheme.get_content("pm-kisan:operational-guidelines-revised"))
@@ -461,7 +461,7 @@ class RetrievalEvaluationTests(unittest.TestCase):
             else:
                 unsupported_total += 1
                 unsupported_empty += not found
-        self.assertEqual((supported_hits, supported_total), (12, 12))
+        self.assertEqual((supported_hits, supported_total), (16, 16))
         self.assertEqual((unsupported_empty, unsupported_total), (4, 4))
 
     def test_revision_is_additive_and_model_mismatch_is_rejected(self):

@@ -17,7 +17,10 @@ from ...agents import (
     default_coverage_resolver,
 )
 from ...agents.contracts import IntakeDecisionType, WorkflowMode
-from ...agents.intake_intelligence import evaluate_intake_decision
+from ...agents.intake_intelligence import (
+    evaluate_intake_decision,
+    starts_independent_task,
+)
 from ...domain import AgentId
 from ...domain.seed import CROP_REGISTRY, LOCATION_REGISTRY
 from ...credentials import CredentialService
@@ -571,9 +574,25 @@ async def send_message(
 
     farm_profile = farm_profile_store.get_profile(identity)
 
-    # 1. Resolve follow-up context with explicit precedence rules
+    # 1. Resolve follow-up context with explicit precedence rules.  A market,
+    # weather, or scheme turn begins an independent task: preserve durable farm
+    # facts, but do not carry old symptoms, risk alerts, or stage questions.
+    base_context = conv.context
+    if starts_independent_task(req.content, conv.context.farming_problem):
+        base_context = conv.context.model_copy(deep=True)
+        base_context.farming_problem = None
+        base_context.observations = []
+        base_context.growth_stage = None
+        base_context.confirmed_fields = [
+            field
+            for field in base_context.confirmed_fields
+            if field not in {"growth_stage", "crop_symptom_consistency_checked"}
+        ]
+        base_context.skipped_fields = [
+            field for field in base_context.skipped_fields if field != "growth_stage"
+        ]
     updated_ctx, intent = resolve_followup_context(
-        conv.context,
+        base_context,
         req.content,
         {
             "crop": req.crop,
@@ -584,7 +603,8 @@ async def send_message(
         pending_question=conv.pending_clarification,
     )
 
-    if not updated_ctx.farming_problem:
+    # `farming_problem` is task-scoped, so a new independent task replaces it.
+    if not updated_ctx.farming_problem or base_context is not conv.context:
         updated_ctx.farming_problem = req.content
 
     # 2. Append user follow-up message
@@ -656,12 +676,11 @@ async def send_message(
         clear_pending_clarification=True,
     )
 
+    # Execute exactly what the farmer asked in this turn.  Durable crop and
+    # location are supplied separately below; task text is never concatenated.
     effective_query = req.content
-    if updated_ctx.farming_problem and req.content.strip().lower() not in updated_ctx.farming_problem.strip().lower():
-        if len(req.content.split()) <= 8 or any(word in req.content.lower() for word in ["ludhiana", "punjab", "tillering", "flowering", "sowing", "nursery"]):
-            effective_query = f"{updated_ctx.farming_problem} {req.content}"
 
-    # Execute seven-agent workflow with accumulated context
+    # Execute seven-agent workflow with current-turn context
     adv_schema, synthesis_text = await _execute_advisory_for_conversation(
         user_query=effective_query,
         context=updated_ctx,

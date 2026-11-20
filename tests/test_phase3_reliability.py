@@ -6,7 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from agrosage.agents.intake_intelligence import evaluate_intake_decision
+from agrosage.agents.intake_intelligence import (
+    evaluate_intake_decision,
+    is_market_only_turn,
+    starts_independent_task,
+)
 from agrosage.api.conversations import resolve_followup_context
 from agrosage.api.schemas.conversations import (
     ClarificationQuestionSchema,
@@ -24,6 +28,8 @@ from agrosage.knowledge import (
 
 TOMATO_ID = "crop:solanum-lycopersicum"
 COTTON_ID = "crop:gossypium-hirsutum"
+BANANA_ID = "crop:musa-spp"
+RICE_ID = "crop:oryza-sativa"
 
 
 @pytest.mark.parametrize(
@@ -100,6 +106,84 @@ def test_tomato_query_does_not_fall_back_to_unrelated_crop_evidence(
     )
 
     assert hits == ()
+
+
+def test_banana_rice_terminology_mismatch_requires_confirmation_and_preserves_report() -> None:
+    report = (
+        "My banana crops are growing abnormally tall, pale, weak seedlings "
+        "that die early or produce empty panicles."
+    )
+    initial, _ = resolve_followup_context(ContextStateSchema(), report)
+    initial.farming_problem = report
+
+    assert initial.crop_id == BANANA_ID
+    assert initial.crop == "Banana"
+    assert initial.farming_problem == report
+    assert {"abnormally tall", "pale", "weak seedlings", "seedlings that die early", "empty panicles"} <= set(initial.observations)
+
+    decision = evaluate_intake_decision(query=report, context=initial)
+    assert decision.next_question is not None
+    assert decision.next_question.field == "crop"
+    assert "banana" in decision.next_question.text.lower()
+    assert "rice" in decision.next_question.text.lower()
+
+    banana_answer, _ = resolve_followup_context(
+        initial,
+        "Banana",
+        pending_question=ClarificationQuestionSchema(
+            field="crop", text=decision.next_question.text,
+        ),
+    )
+    assert banana_answer.crop_id == BANANA_ID
+    assert banana_answer.farming_problem == report
+    assert "crop_symptom_consistency_checked" in banana_answer.confirmed_fields
+    assert evaluate_intake_decision(query="Banana", context=banana_answer).next_question is None
+
+    rice_answer, _ = resolve_followup_context(
+        initial,
+        "Rice",
+        pending_question=ClarificationQuestionSchema(
+            field="crop", text=decision.next_question.text,
+        ),
+    )
+    assert rice_answer.crop_id == RICE_ID
+    assert rice_answer.farming_problem == report
+
+
+def test_banana_mismatch_cannot_retrieve_rice_evidence(
+    agricultural_knowledge: LocalKnowledgeBase,
+) -> None:
+    banana_hits = agricultural_knowledge.search(
+        "abnormally tall pale weak seedlings empty panicles",
+        filters=RetrievalFilter(crop_id=BANANA_ID),
+    )
+    rice_hits = agricultural_knowledge.search(
+        "rice foot rot Bakanae seed borne",
+        filters=RetrievalFilter(crop_id=RICE_ID),
+    )
+
+    assert banana_hits == ()
+    assert rice_hits
+    assert all(hit.chunk.crop_id == RICE_ID for hit in rice_hits)
+
+
+def test_market_turn_is_independent_of_a_previous_pink_bollworm_task() -> None:
+    prior = "What are the common symptoms of pink bollworm in cotton and recommended IPM control measures?"
+    current = "What is the market price for cotton?"
+
+    assert starts_independent_task(current, prior)
+    assert is_market_only_turn(current)
+
+    previous, _ = resolve_followup_context(ContextStateSchema(), prior)
+    previous.farming_problem = prior
+    # This mirrors the route's task-context reset while retaining durable crop.
+    previous.observations = []
+    previous.growth_stage = None
+    previous.farming_problem = current
+
+    decision = evaluate_intake_decision(query=current, context=previous)
+    assert decision.understood_intent == "Cotton market arrivals and modal price discovery"
+    assert decision.next_question is None
 
 
 @pytest.mark.parametrize(

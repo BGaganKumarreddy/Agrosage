@@ -66,7 +66,10 @@ def _has_phrase(text: str, phrase: str) -> bool:
         return False
     if any(not char.isascii() for char in candidate):
         return candidate in normalized
-    return re.search(rf"(?<![\w]){re.escape(candidate)}(?![\w])", normalized) is not None
+    # An explicit crop may naturally be plural ("banana plants", "tomatoes").
+    # This remains a bounded inflection rule, not fuzzy matching.
+    suffix = r"(?:s|es)?" if " " not in candidate else ""
+    return re.search(rf"(?<![\w]){re.escape(candidate)}{suffix}(?![\w])", normalized) is not None
 
 
 def _has_positive_phrase(text: str, phrase: str) -> bool:

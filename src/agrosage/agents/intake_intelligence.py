@@ -49,6 +49,46 @@ _SKIP_PHRASES = re.compile(
     re.I,
 )
 
+# This is a consistency safeguard, not a diagnostic model.  The conjunction is
+# deliberately narrow: a stated banana crop plus both a cereal reproductive
+# term and the unusual seedling/elongation wording.  It must never replace the
+# farmer's crop with rice or attach a disease name to the report.
+_BANANA_RICE_TERMINOLOGY_PATTERN = re.compile(
+    r"\b(?:empty|unfilled)\s+panicles?\b", re.I
+)
+_RICE_LIKE_SEEDLING_PATTERN = re.compile(
+    r"\b(?:abnormally\s+tall|elongated|pale|weak\s+seedlings?|seedlings?\s+(?:that\s+)?die(?:\s+early)?)\b",
+    re.I,
+)
+
+
+def _crop_symptom_consistency_question(
+    crop_id: str | None, report: str, *, already_confirmed: bool
+) -> ClarificationQuestion | None:
+    """Ask before retrieval when crop-specific terminology conflicts.
+
+    This preserves the explicit crop as the active context until the farmer
+    answers.  The wording deliberately avoids a disease diagnosis and asks
+    only about the identity of the plants being described.
+    """
+    if already_confirmed or crop_id != "crop:musa-spp":
+        return None
+    if not (
+        _BANANA_RICE_TERMINOLOGY_PATTERN.search(report)
+        and _RICE_LIKE_SEEDLING_PATTERN.search(report)
+    ):
+        return None
+    return ClarificationQuestion(
+        field="crop",
+        text=(
+            "You mentioned banana, but ‘seedlings’ and ‘empty panicles’ are "
+            "usually cereal/rice terms. Are the affected plants banana or rice?"
+        ),
+        options=("Banana", "Rice", "Neither / describe the crop"),
+        allow_free_text=True,
+        allow_skip=False,
+    )
+
 
 def _detect_primary_intent(query: str, observations: Sequence[str] = ()) -> str:
     """Classify farmer's message into a canonical conversational intent."""
@@ -63,6 +103,30 @@ def _detect_primary_intent(query: str, observations: Sequence[str] = ()) -> str:
     if _AGRONOMY_INTENT_PATTERN.search(query):
         return "crop_advice"
     return "general"
+
+
+def classify_turn_intent(query: str) -> str:
+    """Classify the farmer's current turn without history-derived symptoms.
+
+    Conversation history is valuable for durable facts such as crop and
+    location, but it must not alter what the farmer is asking *this turn*.
+    """
+    return _detect_primary_intent(query)
+
+
+def starts_independent_task(query: str, prior_problem: str | None) -> bool:
+    """Whether a current operational query supersedes prior task context."""
+    current = classify_turn_intent(query)
+    previous = classify_turn_intent(prior_problem or "")
+    return current in {"market", "weather", "scheme"} and current != previous
+
+
+def is_market_only_turn(query: str) -> bool:
+    """True for a price/mandi turn that does not ask for another specialist."""
+    return bool(_MARKET_INTENT_PATTERN.search(query)) and not any(
+        pattern.search(query)
+        for pattern in (_WEATHER_INTENT_PATTERN, _SCHEME_INTENT_PATTERN, _SYMPTOM_INTENT_PATTERN)
+    )
 
 
 def _build_farmer_friendly_question(
@@ -228,6 +292,9 @@ def map_clarification_answer(
             canon = crop_rec.common_names[0].value if crop_rec and crop_rec.common_names else (crop_rec.scientific_name if crop_rec else trimmed)
             return canon.title(), crop_res.canonical_id, False
         clean_crop = re.sub(r"^(?:i am growing|growing|it is|it's|crop is|my crop is)\s+", "", trimmed, flags=re.I).strip(" .")
+        # Preserve an explicitly supplied but unregistered crop name.  The
+        # workflow will honestly report missing crop-specific evidence instead
+        # of replacing it with a registry suggestion.
         return clean_crop.title(), None, False
 
     return trimmed, None, False
@@ -309,9 +376,11 @@ def evaluate_intake_decision(
         variety = farm_profile.variety
 
     # 3. Detect intent and agricultural problem using query + context problem
-    farming_problem = getattr(context, "farming_problem", None) or ""
-    full_query_text = f"{farming_problem} {query}".strip()
-    intent = _detect_primary_intent(full_query_text, observations)
+    # Intent belongs to the current message.  Persisted symptoms may inform a
+    # genuine crop-health follow-up, but must never turn a market request into
+    # a previous pest consultation.
+    full_query_text = query.strip()
+    intent = _detect_primary_intent(full_query_text, ())
 
     # 4. Classify Required vs. Helpful Information
     missing_required: list[str] = []
@@ -384,6 +453,21 @@ def evaluate_intake_decision(
         "growth_stage": growth_stage,
         "variety": variety,
     }
+
+    consistency_question = _crop_symptom_consistency_question(
+        crop_id,
+        full_query_text,
+        already_confirmed="crop_symptom_consistency_checked" in confirmed_fields,
+    )
+    if consistency_question is not None:
+        return IntakeDecision(
+            decision=IntakeDecisionType.NEEDS_CLARIFICATION,
+            understood_intent=understood_intent,
+            known_context=known_context,
+            missing_required_fields=("crop_symptom_consistency",),
+            helpful_fields=tuple(helpful),
+            next_question=consistency_question,
+        )
 
     # 5. Decide next question and status
     if missing_required:

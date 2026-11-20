@@ -35,7 +35,6 @@ export const NewAdvisoryPage = () => {
   // Optional contextual helpers
   const [showOptionalDetails, setShowOptionalDetails] = useState(false);
   const [selectedCrop, setSelectedCrop] = useState('');
-  const [customCrop, setCustomCrop] = useState('');
   const [selectedState, setSelectedState] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [customLocation, setCustomLocation] = useState('');
@@ -79,7 +78,11 @@ export const NewAdvisoryPage = () => {
   );
 
   // Derived growth stages & varieties for selected crop
-  const currentCropObj = crops.find((c) => c.crop_id === selectedCrop);
+  const currentCropObj = crops.find((c) =>
+    c.crop_id === selectedCrop || c.common_names?.some(
+      (name) => name.toLowerCase() === selectedCrop.trim().toLowerCase()
+    )
+  );
   const availableStages = currentCropObj?.growth_stages || [];
   const availableVarieties = currentCropObj?.varieties || [];
 
@@ -106,11 +109,7 @@ export const NewAdvisoryPage = () => {
     try {
       // Determine crop value
       let finalCrop = undefined;
-      if (selectedCrop === '__other__') {
-        finalCrop = customCrop.trim() || undefined;
-      } else if (selectedCrop) {
-        finalCrop = currentCropObj?.common_names?.[0] || selectedCrop;
-      }
+      if (selectedCrop.trim()) finalCrop = selectedCrop.trim();
 
       // Determine location value (hierarchical resolution)
       let finalLocation = undefined;
@@ -246,10 +245,10 @@ export const NewAdvisoryPage = () => {
 
           {showOptionalDetails && (
             <div className="px-5 pb-6 pt-2 border-t border-[#414141]/60 space-y-5 bg-[#1f1f1f]">
-              {/* Crop & Custom Crop */}
+              {/* Crop is a free-text field with registry suggestions, never a gate. */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Select
+                  <Input
                     label="Crop (Optional)"
                     id="crop"
                     icon={Sprout}
@@ -259,27 +258,17 @@ export const NewAdvisoryPage = () => {
                       setSelectedStage('');
                       setSelectedVariety('');
                     }}
-                    placeholder="Not specified (Auto-extract)"
-                    options={[
-                      ...crops.map((c) => ({
-                        value: c.crop_id,
-                        label: `${c.common_names?.[0]} (${c.scientific_name})`,
-                      })),
-                      { value: '__other__', label: '+ Other / Not listed crop' },
-                    ]}
+                    list="crop-registry-suggestions"
+                    placeholder="Type any crop, or select a suggested name"
+                    helperText="Suggestions come from the AgroSage registry. You can still enter an unlisted crop."
                   />
-                  {selectedCrop === '__other__' && (
-                    <div className="mt-2">
-                      <Input
-                        label="Enter Unlisted Crop Name"
-                        id="customCrop"
-                        placeholder="e.g. Mustard, Sugarcane, Sorghum"
-                        value={customCrop}
-                        onChange={(e) => setCustomCrop(e.target.value)}
-                        helperText="Unregistered crops are accepted safely for general advisory"
-                      />
-                    </div>
-                  )}
+                  <datalist id="crop-registry-suggestions">
+                    {crops.map((c) => (
+                      <option key={c.crop_id} value={c.common_names?.[0] || c.crop_id}>
+                        {c.scientific_name}
+                      </option>
+                    ))}
+                  </datalist>
                 </div>
 
                 {/* Growth Stage */}

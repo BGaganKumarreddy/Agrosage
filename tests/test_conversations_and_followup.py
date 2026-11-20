@@ -414,3 +414,30 @@ def test_scheme_eligibility_grounding_and_uncertainty(test_env):
 
     # Coordinator synthesis must preserve eligibility caution
     assert "not determine personal eligibility" in synthesis or "eligibility" in synthesis.lower()
+
+
+def test_banana_rice_terminology_mismatch_returns_targeted_clarification(test_env):
+    """The actual deterministic conversation endpoint must not rewrite banana to rice."""
+    client = test_env["client"]
+    headers = {"Authorization": f"Bearer {test_env['token1']}"}
+    report = (
+        "My banana crops are growing abnormally tall, pale, weak seedlings "
+        "that die early or produce empty panicles."
+    )
+
+    response = client.post(
+        "/api/v1/conversations",
+        headers=headers,
+        json={"initial_message": report, "mode": "deterministic"},
+    )
+
+    assert response.status_code == 201
+    conversation = response.json()
+    assert conversation["context"]["crop"] == "Banana"
+    assert conversation["context"]["crop_id"] == "crop:musa-spp"
+    assert conversation["context"]["farming_problem"] == report
+    clarification = conversation["messages"][-1]["clarification"]
+    assert clarification["field"] == "crop"
+    assert "banana" in clarification["text"].lower()
+    assert "rice" in clarification["text"].lower()
+    assert clarification["options"][:2] == ["Banana", "Rice"]

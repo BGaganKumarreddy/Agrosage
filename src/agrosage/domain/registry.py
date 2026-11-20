@@ -232,10 +232,14 @@ class CropRegistry:
             candidate = term.removeprefix("crop ").strip()
             if candidate:
                 term = candidate
+        # Crop names are farmer-entered text.  Accept only bounded surface-form
+        # normalisations (plural English nouns and a small explicit alias list),
+        # rather than a fuzzy match that could turn one crop into another.
+        terms = _crop_name_forms(term)
         exact = [crop for crop in self.records if (
             term == _normalize(crop.crop_id) or any(
             (language is None or name.language.casefold() == language.casefold())
-            and term == _normalize(name.value)
+            and terms.intersection(_crop_name_forms(_normalize(name.value)))
             for name in crop.common_names + tuple(
                 variant for variant in crop.regional_names
                 if variant.region_id is None or variant.region_id in region_ids
@@ -439,6 +443,27 @@ class CoverageRegistry:
 
 def _normalize(value: str) -> str:
     return " ".join(unicodedata.normalize("NFKC", value).casefold().split())
+
+
+def _crop_name_forms(value: str) -> set[str]:
+    """Return deterministic, deliberately narrow crop-name inflections.
+
+    This is not edit-distance correction: every accepted form is either the
+    supplied term or a conventional English plural/singular spelling.
+    """
+    term = _normalize(value)
+    forms = {term}
+    head, separator, tail = term.rpartition(" ")
+    prefix = f"{head}{separator}" if separator else ""
+    if tail.endswith("ies") and len(tail) > 3:
+        forms.add(f"{prefix}{tail[:-3]}y")
+    elif tail.endswith("oes") and len(tail) > 3:
+        forms.add(f"{prefix}{tail[:-2]}")
+    elif tail.endswith("es") and len(tail) > 2:
+        forms.add(f"{prefix}{tail[:-2]}")
+    elif tail.endswith("s") and len(tail) > 1:
+        forms.add(f"{prefix}{tail[:-1]}")
+    return forms
 
 
 def _active(start: date, end: date | None, day: date) -> bool:

@@ -43,6 +43,7 @@ from .contracts import (
     WorkflowMode,
 )
 from .llm import SpecialistInterpretation, WorkflowInference
+from .intake_intelligence import is_market_only_turn
 
 
 def _deduplicate_and_merge_scheme_hits(
@@ -141,6 +142,9 @@ class SchemeAgent(_DomainAgent):
         self._knowledge = knowledge
 
     async def perform(self, case: AgentExecutionInput) -> _AgentWork:
+        if is_market_only_turn(case.request.query):
+            note = "Government scheme lookup is skipped for a market-price-only request."
+            return _AgentWork(AgentStatus.SKIPPED, RetrievalPayload(0, (), (), (), note), note)
         location_id = _resolved_id(case.context.location)
         query_lower = case.request.query.lower()
         scheme_requested = any(

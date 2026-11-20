@@ -80,9 +80,49 @@
   {
     "query": "banana cultivation disease control",
     "filters": {
-      "crop_id": "crop:unregistered-banana"
+      "crop_id": "crop:musa-spp"
     },
     "expected_document_ids": []
+  },
+  {
+    "query": "groundnut sowing earthing up pegging pod development",
+    "filters": {
+      "crop_id": "crop:arachis-hypogaea",
+      "topic": "sowing_and_planting"
+    },
+    "expected_document_ids": [
+      "icar-kharif-2025:groundnut-establishment"
+    ]
+  },
+  {
+    "query": "sugarcane seed sett planting irrigation earthing up",
+    "filters": {
+      "crop_id": "crop:saccharum-officinarum",
+      "topic": "crop_cultivation"
+    },
+    "expected_document_ids": [
+      "icar-kharif-2025:sugarcane-cultivation"
+    ]
+  },
+  {
+    "query": "turmeric rhizome rot healthy planting material soil solarisation",
+    "filters": {
+      "crop_id": "crop:curcuma-longa",
+      "topic": "disease_identification"
+    },
+    "expected_document_ids": [
+      "icar-indian-farming-2025:turmeric-organic-production"
+    ]
+  },
+  {
+    "query": "rice foot rot Bakanae seed borne",
+    "filters": {
+      "crop_id": "crop:oryza-sativa",
+      "topic": "disease_identification"
+    },
+    "expected_document_ids": [
+      "icar-iirr-aicrip-2020:rice-bakanae"
+    ]
   },
   {
     "query": "Punjab state solar pump grant eligibility documents",

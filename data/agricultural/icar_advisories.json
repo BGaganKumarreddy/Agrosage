@@ -221,5 +221,59 @@
     "publisher": "Punjab Agricultural University, Ludhiana",
     "revision": "Package of Practices for Crops of Punjab, Kharif 2026, Volume 43 (March 2026)",
     "section": "Rice — Harvesting and Threshing; Marketing and Storage (printed p. 12; PDF p. 20)"
+  },
+  {
+    "document_id": "icar-kharif-2025:groundnut-establishment",
+    "title": "ICAR Kharif Agro-Advisory 2025 — groundnut establishment and pegging",
+    "crop_id": "crop:arachis-hypogaea",
+    "topic": "sowing_and_planting",
+    "content": "The ICAR Kharif Agro-Advisory 2025 describes groundnut land preparation, sowing timing in its stated context, seed treatment and early weed management. It identifies earthing up at 30–35 days after sowing as supporting pegging and pod development. Confirm local season, soil, product registration and label directions with extension personnel before applying any input.",
+    "source_id": "icar-kharif-2025",
+    "source_identity": "Indian Council of Agricultural Research (ICAR)",
+    "source_reference": "https://icar.gov.in/sites/default/files/2025-10/ICAR-En-Kharif-Agro-Advisories-for-Farmers-2025.pdf",
+    "publisher": "Indian Council of Agricultural Research",
+    "revision": "2025 advisory",
+    "section": "Oilseed crops — Groundnut"
+  },
+  {
+    "document_id": "icar-kharif-2025:sugarcane-cultivation",
+    "title": "ICAR Kharif Agro-Advisory 2025 — sugarcane establishment and crop management",
+    "crop_id": "crop:saccharum-officinarum",
+    "topic": "crop_cultivation",
+    "content": "The ICAR Kharif Agro-Advisory 2025 describes sugarcane variety selection by region and maturity group, healthy three-budded seed setts, row spacing, nutrient splitting, irrigation and earthing-up. The advisory also notes early shoot borer monitoring. Its schedules and products are context-specific; verify the original advisory, current labels, soil test and local extension advice before acting.",
+    "source_id": "icar-kharif-2025",
+    "source_identity": "Indian Council of Agricultural Research (ICAR)",
+    "source_reference": "https://icar.gov.in/sites/default/files/2025-10/ICAR-En-Kharif-Agro-Advisories-for-Farmers-2025.pdf",
+    "publisher": "Indian Council of Agricultural Research",
+    "revision": "2025 advisory",
+    "section": "Commercial crops — Sugarcane"
+  },
+  {
+    "document_id": "icar-indian-farming-2025:turmeric-organic-production",
+    "title": "ICAR Indian Farming — Lakadong turmeric organic production",
+    "crop_id": "crop:curcuma-longa",
+    "topic": "disease_identification",
+    "geographic_applicability": ["location:country:in"],
+    "content": "An ICAR Research Complex for North Eastern Hill Region article describes an organic production package for Lakadong turmeric in its stated north-eastern context. It identifies rhizome rot as a complex of soil-borne pathogens and emphasizes healthy planting material, seed-rhizome treatment, soil solarisation and locally appropriate biocontrol options. This is not a diagnosis or a universal treatment: obtain local confirmation before choosing a crop-protection action.",
+    "source_id": "icar-indian-farming-2025",
+    "source_identity": "ICAR Research Complex for North Eastern Hill Region",
+    "source_reference": "https://icar.gov.in/sites/default/files/2025-12/August_2025%20Indian%20Farming.pdf",
+    "publisher": "Indian Council of Agricultural Research",
+    "publication_date": "2025-08-01",
+    "revision": "Indian Farming 75 (08), August 2025",
+    "section": "Lakadong turmeric: Package of practice for organic production, challenges and opportunities"
+  },
+  {
+    "document_id": "icar-iirr-aicrip-2020:rice-bakanae",
+    "title": "ICAR-IIRR AICRIP technical programme — rice foot rot (Bakanae)",
+    "crop_id": "crop:oryza-sativa",
+    "topic": "disease_identification",
+    "content": "The ICAR-Indian Institute of Rice Research AICRIP technical programme identifies foot rot (Bakanae) as a rice disease and describes its seed-borne inoculum in the context of an IPM trial protocol. This source is retained only as rice-specific evidence for a farmer-confirmed rice crop; it does not diagnose a field from symptom words alone and does not apply to banana or any other crop.",
+    "source_id": "icar-iirr-aicrip-2020",
+    "source_identity": "ICAR-Indian Institute of Rice Research (IIRR)",
+    "source_reference": "https://www.icar-iirr.org/AICRIP/Technical-Program-%28Entomology%29Kh-2020%20%26%20%20Rb-2020-21.pdf",
+    "publisher": "ICAR-Indian Institute of Rice Research",
+    "revision": "Kharif 2020 and Rabi 2020–21 technical programme",
+    "section": "IPM special trial — Foot Rot (Bakanae)"
   }
 ]

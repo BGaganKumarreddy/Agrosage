@@ -37,6 +37,7 @@ from .contracts import (
 )
 from .providers import UnavailableWeatherProvider
 from .llm import SpecialistInterpretation, WorkflowInference
+from .intake_intelligence import is_market_only_turn
 
 
 class WeatherAgent(_DomainAgent):
@@ -50,6 +51,9 @@ class WeatherAgent(_DomainAgent):
         self._provider = provider or UnavailableWeatherProvider()
 
     async def perform(self, case: AgentExecutionInput) -> _AgentWork:
+        if is_market_only_turn(case.request.query):
+            note = "Weather lookup is skipped for a market-price-only request."
+            return _AgentWork(AgentStatus.SKIPPED, ProviderPayload(False, None, None, None, note), note)
         location_id = _resolved_id(case.context.location)
         if not location_id:
             note = "Weather lookup requires a registered location; none was supplied."
